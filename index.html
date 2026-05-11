@@ -33,18 +33,26 @@
           A beginner-friendly way to start building websites and web apps with confidence.
         </p>
 
-        <form id="signup-form" class="signup-form">
+        <form
+          class="signup-form"
+          action="https://formspree.io/f/mvzldnza"
+          method="POST"
+        >
           <input
             type="email"
-            id="email"
             name="email"
+            id="email"
             placeholder="Enter your email"
             autocomplete="email"
             required
           />
+          <input
+            type="hidden"
+            name="_next"
+            value="https://betterbookie2026-collab.github.io/BetterBookie/?thanks=1"
+          />
           <button type="submit" class="btn">Join Free</button>
         </form>
-        <p id="message" class="message" role="status" aria-live="polite"></p>
       </div>
     </header>
 
