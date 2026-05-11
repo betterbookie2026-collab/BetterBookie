@@ -11,6 +11,7 @@
         gap: 1rem;
         justify-content: center;
         margin: 2rem 0 1rem;
+        flex-wrap: wrap;
       }
       .odds-nav button {
         padding: 0.5rem 1.25rem;
@@ -23,6 +24,20 @@
       .odds-nav button.active {
         background: #fff;
         color: #000;
+      }
+      .team-select-wrap {
+        display: flex;
+        justify-content: center;
+        margin: 0 0 1.5rem;
+      }
+      .team-select-wrap select {
+        padding: 0.5rem 1rem;
+        font-size: 0.95rem;
+        border-radius: 4px;
+        border: 2px solid currentColor;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
       }
       .odds-cards {
         display: grid;
@@ -120,6 +135,17 @@
         <button data-sport="mlb">MLB</button>
       </div>
 
+      <div class="team-select-wrap">
+        <select id="team-select">
+          <option value="1">Team 1</option>
+          <option value="2">Team 2</option>
+          <option value="3">Team 3</option>
+          <option value="4">Team 4</option>
+          <option value="5">Team 5</option>
+          <option value="6">Team 6</option>
+        </select>
+      </div>
+
       <div id="cards-container" class="odds-cards">
         <div class="loading">Loading injuries...</div>
       </div>
@@ -130,8 +156,8 @@
             <tr>
               <th>Player</th>
               <th>Team</th>
-              <th>Position</th>
-              <th>Injury</th>
+              <th>Description</th>
+              <th>Date</th>
               <th>Status</th>
             </tr>
           </thead>
@@ -149,6 +175,7 @@
     <script src="script.js"></script>
     <script>
       let currentSport = 'nfl';
+      let currentTeam = '1';
 
       function getStatusClass(status) {
         if (!status) return '';
@@ -159,19 +186,19 @@
         return '';
       }
 
-      async function fetchInjuries(sport) {
+      async function fetchInjuries(sport, team) {
         const cardsContainer = document.getElementById('cards-container');
         const tableBody = document.getElementById('injuries-table-body');
         cardsContainer.innerHTML = '<div class="loading">Loading injuries...</div>';
         tableBody.innerHTML = '<tr><td colspan="5" class="loading">Loading injuries...</td></tr>';
 
         try {
-          const res = await fetch(`https://better-bookie-five.vercel.app/api/injuries?sport=${sport}`);
+          const res = await fetch(`https://better-bookie-five.vercel.app/api/injuries?sport=${sport}&team=${team}`);
           const data = await res.json();
           const injuries = data.response;
 
           if (!Array.isArray(injuries) || injuries.length === 0) {
-            cardsContainer.innerHTML = '<div class="loading">No injury data found right now.</div>';
+            cardsContainer.innerHTML = '<div class="loading">No injury data found for this team.</div>';
             tableBody.innerHTML = '<tr><td colspan="5" class="loading">No injury data found.</td></tr>';
             return;
           }
@@ -181,17 +208,17 @@
           cardsContainer.innerHTML = injuries.slice(0, 6).map(item => {
             const player = item.player?.name ?? 'Unknown';
             const team = item.team?.name ?? 'Unknown';
-            const position = item.player?.position ?? 'N/A';
-            const injury = item.injury?.type ?? 'N/A';
-            const status = item.injury?.status ?? 'N/A';
+            const status = item.status ?? 'N/A';
+            const description = item.description ?? 'N/A';
+            const date = item.date ? new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
 
             return `
               <div class="odds-card">
                 <span class="sport-label">${sportLabel}</span>
                 <h4>${player}</h4>
                 <p>🏟️ ${team}</p>
-                <p>📌 Position: ${position}</p>
-                <p>🤕 Injury: ${injury}</p>
+                <p>🤕 ${description}</p>
+                <p>📅 ${date}</p>
                 <p>Status: <strong class="${getStatusClass(status)}">${status}</strong></p>
               </div>
             `;
@@ -200,16 +227,16 @@
           tableBody.innerHTML = injuries.map(item => {
             const player = item.player?.name ?? 'Unknown';
             const team = item.team?.name ?? 'Unknown';
-            const position = item.player?.position ?? 'N/A';
-            const injury = item.injury?.type ?? 'N/A';
-            const status = item.injury?.status ?? 'N/A';
+            const status = item.status ?? 'N/A';
+            const description = item.description ?? 'N/A';
+            const date = item.date ? new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
 
             return `
               <tr>
                 <td>${player}</td>
                 <td>${team}</td>
-                <td>${position}</td>
-                <td>${injury}</td>
+                <td>${description}</td>
+                <td>${date}</td>
                 <td class="${getStatusClass(status)}">${status}</td>
               </tr>
             `;
@@ -226,11 +253,16 @@
           document.querySelectorAll('.odds-nav button').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
           currentSport = btn.dataset.sport;
-          fetchInjuries(currentSport);
+          fetchInjuries(currentSport, currentTeam);
         });
       });
 
-      fetchInjuries(currentSport);
+      document.getElementById('team-select').addEventListener('change', (e) => {
+        currentTeam = e.target.value;
+        fetchInjuries(currentSport, currentTeam);
+      });
+
+      fetchInjuries(currentSport, currentTeam);
     </script>
   </body>
 </html>
