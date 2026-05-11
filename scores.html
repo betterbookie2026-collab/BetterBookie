@@ -70,16 +70,6 @@
       .status-final { color: #6bcb77; }
       .status-live { color: #ffd93d; }
       .status-upcoming { color: #aaa; }
-      .unavailable {
-        text-align: center;
-        padding: 3rem 2rem;
-        opacity: 0.7;
-        grid-column: 1/-1;
-      }
-      .unavailable h4 {
-        font-size: 1.2rem;
-        margin-bottom: 0.5rem;
-      }
     </style>
   </head>
   <body>
@@ -100,6 +90,7 @@
           <a href="scores.html">Scores</a>
           <a href="odds.html">Live Odds</a>
           <a href="injuries.html">Injuries</a>
+          <a href="login.html">Login</a>
           <a href="index.html#signup" class="btn btn-small">Get Started</a>
         </div>
       </nav>
@@ -149,7 +140,6 @@
         }
 
         cardsContainer.innerHTML = games.slice(0, 24).map(game => {
-          // Try different field structures across sports
           const home = game.teams?.home?.name ?? game.home_team ?? 'Home';
           const away = game.teams?.away?.name ?? game.away_team ?? 'Away';
           const homeScore = game.scores?.home?.total ?? game.scores?.home ?? game.home_score ?? '-';
