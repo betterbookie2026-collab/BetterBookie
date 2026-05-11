@@ -22,8 +22,57 @@
         <div class="nav-links" id="nav-links">
           <a href="#features">Features</a>
           <a href="about.html">About</a>
+          <a href="odds.html">Live Odds</a>
           <a href="#signup" class="btn btn-small">Get Started</a>
         </div>
       </nav>
       <div class="hero-content" id="signup">
-        <h2>The Sharpest Sports Data Feed in
+        <h2>The Sharpest Sports Data Feed in the Game.</h2>
+        <p>
+          Real-time scores, live stats, and deep historical data — everything you need to stay ahead, all in one place.
+        </p>
+        <form
+          class="signup-form"
+          action="https://formspree.io/f/mvzldnza"
+          method="POST"
+        >
+          <input
+            type="email"
+            name="email"
+            id="email"
+            placeholder="Enter your email"
+            autocomplete="email"
+            required
+          />
+          <input
+            type="hidden"
+            name="_next"
+            value="https://betterbookie2026-collab.github.io/BetterBookie/?thanks=1"
+          />
+          <button type="submit" class="btn">Join Free</button>
+        </form>
+      </div>
+    </header>
+    <section class="features" id="features">
+      <h3>Why BetterBookie?</h3>
+      <div class="feature-grid">
+        <article class="card">
+          <h4>Live Scores</h4>
+          <p>Stay on top of every game with live scores updated in real time across all major sports and leagues.</p>
+        </article>
+        <article class="card">
+          <h4>Real-Time Data</h4>
+          <p>From play-by-play breakdowns to player stats, our data feed updates instantly so you never miss a moment.</p>
+        </article>
+        <article class="card">
+          <h4>Historical Data</h4>
+          <p>Dig into decades of sports history — stats, scores, and trends going back further than any other platform.</p>
+        </article>
+      </div>
+    </section>
+    <footer class="footer">
+      <p>&copy; 2026 BetterBookie. Built by a beginner.</p>
+    </footer>
+    <script src="script.js"></script>
+  </body>
+</html>
