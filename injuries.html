@@ -129,6 +129,7 @@
           <a href="scores.html">Scores</a>
           <a href="odds.html">Live Odds</a>
           <a href="injuries.html">Injuries</a>
+          <a href="login.html">Login</a>
           <a href="index.html#signup" class="btn btn-small">Get Started</a>
         </div>
       </nav>
@@ -336,3 +337,94 @@
       function populateTeamDropdown(sport) {
         const select = document.getElementById('team-select');
         select.innerHTML = teams[sport].map(t =>
+          `<option value="${t.id}">${t.name}</option>`
+        ).join('');
+        currentTeam = teams[sport][0].id.toString();
+      }
+
+      function showUnavailable(sport) {
+        const { icon, name } = unavailableSports[sport];
+        const cardsContainer = document.getElementById('cards-container');
+        document.getElementById('table-wrap').style.display = 'none';
+        document.getElementById('team-select-wrap').style.display = 'none';
+        cardsContainer.innerHTML = `
+          <div class="unavailable">
+            <h4>${icon} ${name} Injury Data Coming Soon</h4>
+            <p>${name} injury data is not currently available through our data provider. Check back soon as we continue to expand our coverage!</p>
+          </div>
+        `;
+      }
+
+      function showAvailable() {
+        document.getElementById('table-wrap').style.display = 'block';
+        document.getElementById('team-select-wrap').style.display = 'flex';
+      }
+
+      function renderInjuries(injuries, sport) {
+        const cardsContainer = document.getElementById('cards-container');
+        const tableBody = document.getElementById('injuries-table-body');
+        const sportLabel = sport.toUpperCase();
+
+        if (!Array.isArray(injuries) || injuries.length === 0) {
+          cardsContainer.innerHTML = '<div class="loading" style="grid-column:1/-1;">No injury data found for this team.</div>';
+          tableBody.innerHTML = '<tr><td colspan="5" class="loading">No injury data found.</td></tr>';
+          return;
+        }
+
+        cardsContainer.innerHTML = injuries.slice(0, 6).map(item => {
+          const player = item.player?.name ?? 'Unknown';
+          const team = item.team?.name ?? 'Unknown';
+          const status = item.status ?? 'N/A';
+          const description = item.description ?? 'N/A';
+          const date = item.date ? new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
+          return `
+            <div class="odds-card">
+              <span class="sport-label">${sportLabel}</span>
+              <h4>${player}</h4>
+              <p>🏟️ ${team}</p>
+              <p>🤕 ${description}</p>
+              <p>📅 ${date}</p>
+              <p>Status: <strong class="${getStatusClass(status)}">${status}</strong></p>
+            </div>
+          `;
+        }).join('');
+
+        tableBody.innerHTML = injuries.map(item => {
+          const player = item.player?.name ?? 'Unknown';
+          const team = item.team?.name ?? 'Unknown';
+          const status = item.status ?? 'N/A';
+          const description = item.description ?? 'N/A';
+          const date = item.date ? new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
+          return `
+            <tr>
+              <td>${player}</td>
+              <td>${team}</td>
+              <td>${description}</td>
+              <td>${date}</td>
+              <td class="${getStatusClass(status)}">${status}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      async function fetchInjuries(sport, team) {
+        if (unavailableSports[sport]) {
+          showUnavailable(sport);
+          return;
+        }
+
+        showAvailable();
+
+        const cacheKey = `${sport}-${team}`;
+        if (cache[cacheKey]) {
+          renderInjuries(cache[cacheKey], sport);
+          return;
+        }
+
+        const cardsContainer = document.getElementById('cards-container');
+        const tableBody = document.getElementById('injuries-table-body');
+        cardsContainer.innerHTML = '<div class="loading">Loading injuries...</div>';
+        tableBody.innerHTML = '<tr><td colspan="5" class="loading">Loading injuries...</td></tr>';
+
+        try {
+          const res = await fetch(`https://better
