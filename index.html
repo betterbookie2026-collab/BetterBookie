@@ -5,6 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BetterBookie</title>
     <link rel="stylesheet" href="styles.css" />
+    <style>
+      .card-link {
+        display: inline-block;
+        margin-top: 1rem;
+        padding: 0.4rem 1rem;
+        border: 2px solid currentColor;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 0.85rem;
+        color: inherit;
+        transition: background 0.2s, color 0.2s;
+      }
+      .card-link:hover {
+        background: #fff;
+        color: #000;
+      }
+    </style>
   </head>
   <body>
     <header class="hero">
@@ -60,17 +77,17 @@
         <article class="card">
           <h4>📊 Historical Scores</h4>
           <p>Browse 2024 season results across NFL, NBA, MLB, and NHL.</p>
-          <a href="scores.html" class="btn btn-small" style="display:inline-block;margin-top:1rem;">View Scores</a>
+          <a href="scores.html" class="card-link">View Scores →</a>
         </article>
         <article class="card">
           <h4>🎲 Live Odds</h4>
           <p>Real-time odds across NFL, NBA, and MLB — updated live from top sportsbooks.</p>
-          <a href="odds.html" class="btn btn-small" style="display:inline-block;margin-top:1rem;">View Odds</a>
+          <a href="odds.html" class="card-link">View Odds →</a>
         </article>
         <article class="card">
           <h4>🤕 Injury Report</h4>
           <p>Up-to-date injury data across NFL, NBA, MLB, and NHL — know who's in and who's out.</p>
-          <a href="injuries.html" class="btn btn-small" style="display:inline-block;margin-top:1rem;">View Injuries</a>
+          <a href="injuries.html" class="card-link">View Injuries →</a>
         </article>
       </div>
     </section>
