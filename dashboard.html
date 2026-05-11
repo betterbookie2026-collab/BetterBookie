@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard – BetterBookie</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .dashboard-wrap {
+        padding: 2rem;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .dashboard-wrap h3 {
+        margin-bottom: 0.5rem;
+      }
+      .user-info {
+        opacity: 0.6;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+      }
+      .pref-section {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+      .pref-section h4 {
+        margin: 0 0 1rem;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        opacity: 0.7;
+        font-size: 0.8rem;
+      }
+      .checkbox-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 0.5rem;
+      }
+      .checkbox-grid label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+      .checkbox-grid input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+      }
+      .save-btn {
+        padding: 0.65rem 2rem;
+        background: #fff;
+        color: #000;
+        border: none;
+        border-radius: 4px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 1rem;
+      }
+      .save-btn:hover {
+        opacity: 0.9;
+      }
+      .signout-btn {
+        padding: 0.5rem 1.25rem;
+        background: transparent;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-radius: 4px;
+        color: inherit;
+        cursor: pointer;
+        font-size: 0.85rem;
+        margin-top: 1rem;
+      }
+      .success-msg {
+        color: #6bcb77;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <nav class="nav">
+        <h1 class="logo"><a href="index.html" style="text-decoration:none;color:inherit;">BetterBookie</a></h1>
+        <button
+          class="menu-toggle"
+          id="menu-toggle"
+          type="button"
+          aria-label="Toggle menu"
+          aria-expanded="false"
+        >
+          ☰
+        </button>
+        <div class="nav-links" id="nav-links">
+          <a href="index.html#features">Features</a>
+          <a href="scores.html">Scores</a>
+          <a href="odds.html">Live Odds</a>
+          <a href="injuries.html">Injuries</a>
+          <a href="dashboard.html">Dashboard</a>
+        </div>
+      </nav>
+      <div class="hero-content">
+        <h2>Your Dashboard</h2>
+        <p>Set your favorite sports and teams.</p>
+      </div>
+    </header>
+
+    <section class="features">
+      <div class="dashboard-wrap">
+        <h3 id="welcome-msg">Welcome!</h3>
+        <p class="user-info" id="user-email"></p>
+
+        <div class="pref-section">
+          <h4>Favorite Sports</h4>
+          <div class="checkbox-grid">
+            <label><input type="checkbox" value="nfl" /> NFL</label>
+            <label><input type="checkbox" value="nba" /> NBA</label>
+            <label><input type="checkbox" value="mlb" /> MLB</label>
+            <label><input type="checkbox" value="nhl" /> NHL</label>
+            <label><input type="checkbox" value="ncaafb" /> College Football</label>
+            <label><input type="checkbox" value="ncaabb" /> College Basketball</label>
+            <label><input type="checkbox" value="ncaab" /> College Baseball</label>
+          </div>
+        </div>
+
+        <div class="pref-section">
+          <h4>Favorite NFL Teams</h4>
+          <div class="checkbox-grid" id="nfl-teams">
+            <label><input type="checkbox" value="Las Vegas Raiders" /> Las Vegas Raiders</label>
+            <label><input type="checkbox" value="New England Patriots" /> New England Patriots</label>
+            <label><input type="checkbox" value="New York Jets" /> New York Jets</label>
+            <label><input type="checkbox" value="Buffalo Bills" /> Buffalo Bills</label>
+            <label><input type="checkbox" value="Miami Dolphins" /> Miami Dolphins</label>
+            <label><input type="checkbox" value="Baltimore Ravens" /> Baltimore Ravens</label>
+            <label><input type="checkbox" value="Pittsburgh Steelers" /> Pittsburgh Steelers</label>
+            <label><input type="checkbox" value="Cleveland Browns" /> Cleveland Browns</label>
+            <label><input type="checkbox" value="Cincinnati Bengals" /> Cincinnati Bengals</label>
+            <label><input type="checkbox" value="Houston Texans" /> Houston Texans</label>
+            <label><input type="checkbox" value="Indianapolis Colts" /> Indianapolis Colts</label>
+            <label><input type="checkbox" value="Jacksonville Jaguars" /> Jacksonville Jaguars</label>
+            <label><input type="checkbox" value="Tennessee Titans" /> Tennessee Titans</label>
+            <label><input type="checkbox" value="Kansas City Chiefs" /> Kansas City Chiefs</label>
+            <label><input type="checkbox" value="Los Angeles Chargers" /> Los Angeles Chargers</label>
+            <label><input type="checkbox" value="Denver Broncos" /> Denver Broncos</label>
+            <label><input type="checkbox" value="Dallas Cowboys" /> Dallas Cowboys</label>
+            <label><input type="checkbox" value="New York Giants" /> New York Giants</label>
+            <label><input type="checkbox" value="Philadelphia Eagles" /> Philadelphia Eagles</label>
+            <label><input type="checkbox" value="Washington Commanders" /> Washington Commanders</label>
+            <label><input type="checkbox" value="Chicago Bears" /> Chicago Bears</label>
+            <label><input type="checkbox" value="Green Bay Packers" /> Green Bay Packers</label>
+            <label><input type="checkbox" value="Minnesota Vikings" /> Minnesota Vikings</label>
+            <label><input type="checkbox" value="Detroit Lions" /> Detroit Lions</label>
+            <label><input type="checkbox" value="Atlanta Falcons" /> Atlanta Falcons</label>
+            <label><input type="checkbox" value="Carolina Panthers" /> Carolina Panthers</label>
+            <label><input type="checkbox" value="New Orleans Saints" /> New Orleans Saints</label>
+            <label><input type="checkbox" value="Tampa Bay Buccaneers" /> Tampa Bay Buccaneers</label>
+            <label><input type="checkbox" value="Los Angeles Rams" /> Los Angeles Rams</label>
+            <label><input type="checkbox" value="Seattle Seahawks" /> Seattle Seahawks</label>
+            <label><input type="checkbox" value="San Francisco 49ers" /> San Francisco 49ers</label>
+            <label><input type="checkbox" value="Arizona Cardinals" /> Arizona Cardinals</label>
+          </div>
+        </div>
+
+        <div class="pref-section">
+          <h4>Favorite NBA Teams</h4>
+          <div class="checkbox-grid">
+            <label><input type="checkbox" value="Atlanta Hawks" /> Atlanta Hawks</label>
+            <label><input type="checkbox" value="Boston Celtics" /> Boston Celtics</label>
+            <label><input type="checkbox" value="Brooklyn Nets" /> Brooklyn Nets</label>
+            <label><input type="checkbox" value="Charlotte Hornets" /> Charlotte Hornets</label>
+            <label><input type="checkbox" value="Chicago Bulls" /> Chicago Bulls</label>
+            <label><input type="checkbox" value="Cleveland Cavaliers" /> Cleveland Cavaliers</label>
+            <label><input type="checkbox" value="Dallas Mavericks" /> Dallas Mavericks</label>
+            <label><input type="checkbox" value="Denver Nuggets" /> Denver Nuggets</label>
+            <label><input type="checkbox" value="Detroit Pistons" /> Detroit Pistons</label>
+            <label><input type="checkbox" value="Golden State Warriors" /> Golden State Warriors</label>
+            <label><input type="checkbox" value="Houston Rockets" /> Houston Rockets</label>
+            <label><input type="checkbox" value="Indiana Pacers" /> Indiana Pacers</label>
+            <label><input type="checkbox" value="Los Angeles Clippers" /> Los Angeles Clippers</label>
+            <label><input type="checkbox" value="Los Angeles Lakers" /> Los Angeles Lakers</label>
+            <label><input type="checkbox" value="Memphis Grizzlies" /> Memphis Grizzlies</label>
+            <label><input type="checkbox" value="Miami Heat" /> Miami Heat</label>
+            <label><input type="checkbox" value="Milwaukee Bucks" /> Milwaukee Bucks</label>
+            <label><input type="checkbox" value="Minnesota Timberwolves" /> Minnesota Timberwolves</label>
+            <label><input type="checkbox" value="New Orleans Pelicans" /> New Orleans Pelicans</label>
+            <label><input type="checkbox" value="New York Knicks" /> New York Knicks</label>
+            <label><input type="checkbox" value="Oklahoma City Thunder" /> Oklahoma City Thunder</label>
+            <label><input type="checkbox" value="Orlando Magic" /> Orlando Magic</label>
+            <label><input type="checkbox" value="Philadelphia 76ers" /> Philadelphia 76ers</label>
+            <label><input type="checkbox" value="Phoenix Suns" /> Phoenix Suns</label>
+            <label><input type="checkbox" value="Portland Trail Blazers" /> Portland Trail Blazers</label>
+            <label><input type="checkbox" value="Sacramento Kings" /> Sacramento Kings</label>
+            <label><input type="checkbox" value="San Antonio Spurs" /> San Antonio Spurs</label>
+            <label><input type="checkbox" value="Toronto Raptors" /> Toronto Raptors</label>
+            <label><input type="checkbox" value="Utah Jazz" /> Utah Jazz</label>
+            <label><input type="checkbox" value="Washington Wizards" /> Washington Wizards</label>
+          </div>
+        </div>
+
+        <div class="pref-section">
+          <h4>Favorite MLB Teams</h4>
+          <div class="checkbox-grid">
+            <label><input type="checkbox" value="Arizona Diamondbacks" /> Arizona Diamondbacks</label>
+            <label><input type="checkbox" value="Atlanta Braves" /> Atlanta Braves</label>
+            <label><input type="checkbox" value="Baltimore Orioles" /> Baltimore Orioles</label>
+            <label><input type="checkbox" value="Boston Red Sox" /> Boston Red Sox</label>
+            <label><input type="checkbox" value="Chicago Cubs" /> Chicago Cubs</label>
+            <label><input type="checkbox" value="Chicago White Sox" /> Chicago White Sox</label>
+            <label><input type="checkbox" value="Cincinnati Reds" /> Cincinnati Reds</label>
+            <label><input type="checkbox" value="Cleveland Guardians" /> Cleveland Guardians</label>
+            <label><input type="checkbox" value="Colorado Rockies" /> Colorado Rockies</label>
+            <label><input type="checkbox" value="Detroit Tigers" /> Detroit Tigers</label>
+            <label><input type="checkbox" value="Houston Astros" /> Houston Astros</label>
+            <label><input type="checkbox" value="Kansas City Royals" /> Kansas City Royals</label>
+            <label><input type="checkbox" value="Los Angeles Angels" /> Los Angeles Angels</label>
+            <label><input type="checkbox" value="Los Angeles Dodgers" /> Los Angeles Dodgers</label>
+            <label><input type="checkbox" value="Miami Marlins" /> Miami Marlins</label>
+            <label><input type="checkbox" value="Milwaukee Brewers" /> Milwaukee Brewers</label>
+            <label><input type="checkbox" value="Minnesota Twins" /> Minnesota Twins</label>
+            <label><input type="checkbox" value="New York Mets" /> New York Mets</label>
+            <label><input type="checkbox" value="New York Yankees" /> New York Yankees</label>
+            <label><input type="checkbox" value="Oakland Athletics" /> Oakland Athletics</label>
+            <label><input type="checkbox" value="Philadelphia Phillies" /> Philadelphia Phillies</label>
+            <label><input type="checkbox" value="Pittsburgh Pirates" /> Pittsburgh Pirates</label>
+            <label><input type="checkbox" value="San Diego Padres" /> San Diego Padres</label>
+            <label><input type="checkbox" value="San Francisco Giants" /> San Francisco Giants</label>
+            <label><input type="checkbox" value="Seattle Mariners" /> Seattle Mariners</label>
+            <label><input type="checkbox" value="St. Louis Cardinals" /> St. Louis Cardinals</label>
+            <label><input type="checkbox" value="Tampa Bay Rays" /> Tampa Bay Rays</label>
+            <label><input type="checkbox" value="Texas Rangers" /> Texas Rangers</label>
+            <label><input type="checkbox" value="Toronto Blue Jays" /> Toronto Blue Jays</label>
+            <label><input type="checkbox" value="Washington Nationals" /> Washington Nationals</label>
+          </div>
+        </div>
+
+        <div class="pref-section">
+          <h4>Favorite NHL Teams</h4>
+          <div class="checkbox-grid">
+            <label><input type="checkbox" value="Anaheim Ducks" /> Anaheim Ducks</label>
+            <label><input type="checkbox" value="Boston Bruins" /> Boston Bruins</label>
+            <label><input type="checkbox" value="Buffalo Sabres" /> Buffalo Sabres</label>
+            <label><input type="checkbox" value="Calgary Flames" /> Calgary Flames</label>
+            <label><input type="checkbox" value="Carolina Hurricanes" /> Carolina Hurricanes</label>
+            <label><input type="checkbox" value="Chicago Blackhawks" /> Chicago Blackhawks</label>
+            <label><input type="checkbox" value="Colorado Avalanche" /> Colorado Avalanche</label>
+            <label><input type="checkbox" value="Columbus Blue Jackets" /> Columbus Blue Jackets</label>
+            <label><input type="checkbox" value="Dallas Stars" /> Dallas Stars</label>
+            <label><input type="checkbox" value="Detroit Red Wings" /> Detroit Red Wings</label>
+            <label><input type="checkbox" value="Edmonton Oilers" /> Edmonton Oilers</label>
+            <label><input type="checkbox" value="Florida Panthers" /> Florida Panthers</label>
+            <label><input type="checkbox" value="Los Angeles Kings" /> Los Angeles Kings</label>
+            <label><input type="checkbox" value="Minnesota Wild" /> Minnesota Wild</label>
+            <label><input type="checkbox" value="Montreal Canadiens" /> Montreal Canadiens</label>
+            <label><input type="checkbox" value="Nashville Predators" /> Nashville Predators</label>
+            <label><input type="checkbox" value="New Jersey Devils" /> New Jersey Devils</label>
+            <label><input type="checkbox" value="New York Islanders" /> New York Islanders</label>
+            <label><input type="checkbox" value="New York Rangers" /> New York Rangers</label>
+            <label><input type="checkbox" value="Ottawa Senators" /> Ottawa Senators</label>
+            <label><input type="checkbox" value="Philadelphia Flyers" /> Philadelphia Flyers</label>
+            <label><input type="checkbox" value="Pittsburgh Penguins" /> Pittsburgh Penguins</label>
+            <label><input type="checkbox" value="San Jose Sharks" /> San Jose Sharks</label>
+            <label><input type="checkbox" value="Seattle Kraken" /> Seattle Kraken</label>
+            <label><input type="checkbox" value="St. Louis Blues" /> St. Louis Blues</label>
+            <label><input type="checkbox" value="Tampa Bay Lightning" /> Tampa Bay Lightning</label>
+            <label><input type="checkbox" value="Toronto Maple Leafs" /> Toronto Maple Leafs</label>
+            <label><input type="checkbox" value="Utah Hockey Club" /> Utah Hockey Club</label>
+            <label><input type="checkbox" value="Vancouver Canucks" /> Vancouver Canucks</label>
+            <label><input type="checkbox" value="Vegas Golden Knights" /> Vegas Golden Knights</label>
+            <label><input type="checkbox" value="Washington Capitals" /> Washington Capitals</label>
+            <label><input type="checkbox" value="Winnipeg Jets" /> Winnipeg Jets</label>
+          </div>
+        </div>
+
+        <button class="save-btn" id="save-btn">Save Preferences</button>
+        <p class="success-msg" id="success-msg">✅ Preferences saved!</p>
+        <br />
+        <button class="signout-btn" id="signout-btn">Sign Out</button>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>&copy; 2026 BetterBookie. Built by a beginner.</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+      import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+      import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyC2sgfkqCVFU1RfiWsArIWjpvpebKVxT64",
+        authDomain: "betterbookie.firebaseapp.com",
+        projectId: "betterbookie",
+        storageBucket: "betterbookie.firebasestorage.app",
+        messagingSenderId: "995577929895",
+        appId: "1:995577929895:web:303a93aa15628d6c503b82"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      let currentUser = null;
+
+      onAuthStateChanged(auth, async user => {
+        if (!user) {
+          window.location.href = 'login.html';
+          return;
+        }
+        currentUser = user;
+        document.getElementById('welcome-msg').textContent = `Welcome, ${user.displayName || user.email}!`;
+        document.getElementById('user-email').textContent = user.email;
+
+        // Load saved preferences
+        const docRef = doc(db, 'users', user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const prefs = docSnap.data();
+          if (prefs.sports) {
+            prefs.sports.forEach(val => {
+              const cb = document.querySelector(`input[value="${val}"]`);
+              if (cb) cb.checked = true;
+            });
+          }
+          if (prefs.teams) {
+            prefs.teams.forEach(val => {
+              const cb = document.querySelector(`input[value="${val}"]`);
+              if (cb) cb.checked = true;
+            });
+          }
+        }
+      });
+
+      document.getElementById('save-btn').addEventListener('click', async () => {
+        if (!currentUser) return;
+
+        const sports = [...document.querySelectorAll('.pref-section:first-of-type input:checked')].map(cb => cb.value);
+        const teams = [...document.querySelectorAll('.pref-section:not(:first-of-type) input:checked')].map(cb => cb.value);
+
+        await setDoc(doc(db, 'users', currentUser.uid), { sports, teams });
+
+        const msg = document.getElementById('success-msg');
+        msg.style.display = 'block';
+        setTimeout(() => msg.style.display = 'none', 3000);
+      });
+
+      document.getElementById('signout-btn').addEventListener('click', async () => {
+        await signOut(auth);
+        window.location.href = 'index.html';
+      });
+    </script>
+  </body>
+</html>
