@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Historical Scores – BetterBookie</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .odds-nav {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin: 2rem 0 1rem;
+        flex-wrap: wrap;
+      }
+      .odds-nav button {
+        padding: 0.5rem 1.25rem;
+        border: 2px solid currentColor;
+        background: transparent;
+        cursor: pointer;
+        font-size: 0.95rem;
+        border-radius: 4px;
+      }
+      .odds-nav button.active {
+        background: #fff;
+        color: #000;
+      }
+      .odds-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+        padding: 1.5rem 2rem;
+      }
+      .odds-card {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        padding: 1.25rem;
+      }
+      .odds-card h4 {
+        margin: 0 0 0.5rem;
+        font-size: 1rem;
+      }
+      .odds-card p {
+        margin: 0.25rem 0;
+        font-size: 0.9rem;
+        opacity: 0.8;
+      }
+      .score {
+        font-size: 1.4rem;
+        font-weight: bold;
+        margin: 0.5rem 0;
+      }
+      .loading {
+        text-align: center;
+        padding: 3rem;
+        opacity: 0.6;
+        grid-column: 1/-1;
+      }
+      .sport-label {
+        display: inline-block;
+        font-size: 0.7rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        background: rgba(255,255,255,0.15);
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .status-final { color: #6bcb77; }
+      .status-live { color: #ffd93d; }
+      .status-upcoming { color: #aaa; }
+      .unavailable {
+        text-align: center;
+        padding: 3rem 2rem;
+        opacity: 0.7;
+        grid-column: 1/-1;
+      }
+      .unavailable h4 {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <nav class="nav">
+        <h1 class="logo"><a href="index.html" style="text-decoration:none;color:inherit;">BetterBookie</a></h1>
+        <button
+          class="menu-toggle"
+          id="menu-toggle"
+          type="button"
+          aria-label="Toggle menu"
+          aria-expanded="false"
+        >
+          ☰
+        </button>
+        <div class="nav-links" id="nav-links">
+          <a href="index.html#features">Features</a>
+          <a href="scores.html">Scores</a>
+          <a href="odds.html">Live Odds</a>
+          <a href="injuries.html">Injuries</a>
+          <a href="index.html#signup" class="btn btn-small">Get Started</a>
+        </div>
+      </nav>
+      <div class="hero-content">
+        <h2>Historical Scores</h2>
+        <p>2024 season results across NFL, NBA, MLB, and NHL.</p>
+      </div>
+    </header>
+
+    <section class="features">
+      <div class="odds-nav">
+        <button class="active" data-sport="nfl">NFL</button>
+        <button data-sport="nba">NBA</button>
+        <button data-sport="mlb">MLB</button>
+        <button data-sport="nhl">NHL</button>
+      </div>
+
+      <div id="cards-container" class="odds-cards">
+        <div class="loading">Loading scores...</div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>&copy; 2026 BetterBookie. Built by a beginner.</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+      let currentSport = 'nfl';
+      const cache = {};
+
+      function getStatusClass(status) {
+        if (!status) return '';
+        const s = status.toLowerCase();
+        if (s.includes('final') || s.includes('ft') || s.includes('finished')) return 'status-final';
+        if (s.includes('live') || s.includes('progress') || s.includes('quarter') || s.includes('half')) return 'status-live';
+        return 'status-upcoming';
+      }
+
+      function renderScores(games, sport) {
+        const cardsContainer = document.getElementById('cards-container');
+        const sportLabel = sport.toUpperCase();
+
+        if (!Array.isArray(games) || games.length === 0) {
+          cardsContainer.innerHTML = '<div class="loading">No scores found for this sport.</div>';
+          return;
+        }
+
+        cardsContainer.innerHTML = games.slice(0, 24).map(game => {
+          // Try different field structures across sports
+          const home = game.teams?.home?.name ?? game.home_team ?? 'Home';
+          const away = game.teams?.away?.name ?? game.away_team ?? 'Away';
+          const homeScore = game.scores?.home?.total ?? game.scores?.home ?? game.home_score ?? '-';
+          const awayScore = game.scores?.away?.total ?? game.scores?.away ?? game.away_score ?? '-';
+          const status = game.status?.long ?? game.status?.short ?? game.status ?? 'N/A';
+          const date = game.date ?? game.commence_time ?? null;
+          const displayDate = date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
+
+          return `
+            <div class="odds-card">
+              <span class="sport-label">${sportLabel}</span>
+              <p class="${getStatusClass(status)}" style="font-size:0.8rem;margin-bottom:0.5rem;">● ${status}</p>
+              <h4>${away} @ ${home}</h4>
+              <p class="score">${awayScore} – ${homeScore}</p>
+              <p>📅 ${displayDate}</p>
+            </div>
+          `;
+        }).join('');
+      }
+
+      async function fetchScores(sport) {
+        const cacheKey = sport;
+        if (cache[cacheKey]) {
+          renderScores(cache[cacheKey], sport);
+          return;
+        }
+
+        const cardsContainer = document.getElementById('cards-container');
+        cardsContainer.innerHTML = '<div class="loading">Loading scores...</div>';
+
+        try {
+          const res = await fetch(`https://better-bookie-five.vercel.app/api/scores?sport=${sport}`);
+          const data = await res.json();
+          const games = data.response ?? [];
+          cache[cacheKey] = games;
+          renderScores(games, sport);
+        } catch (err) {
+          cardsContainer.innerHTML = '<div class="loading">Failed to load scores. Please try again.</div>';
+        }
+      }
+
+      document.querySelectorAll('.odds-nav button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.odds-nav button').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentSport = btn.dataset.sport;
+          fetchScores(currentSport);
+        });
+      });
+
+      fetchScores(currentSport);
+    </script>
+  </body>
+</html>
