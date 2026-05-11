@@ -10,14 +10,8 @@ export default async function handler(req, res) {
   const { sport = 'football' } = req.query;
 
   const configs = {
-    football: {
-      url: 'https://api.balldontlie.io/cfb/v1/games?seasons[]=2024',
-      key: process.env.BALLDONTLIE_KEY,
-    },
-    basketball: {
-      url: 'https://api.balldontlie.io/v1/games?seasons[]=2024',
-      key: process.env.BALLDONTLIE_KEY,
-    },
+    football: { url: 'https://api.balldontlie.io/ncaaf/v1/games?seasons[]=2024' },
+    basketball: { url: 'https://api.balldontlie.io/ncaab/v1/games?season=2024' },
   };
 
   const config = configs[sport] || configs.football;
@@ -25,7 +19,7 @@ export default async function handler(req, res) {
   try {
     const response = await fetch(config.url, {
       headers: {
-        'Authorization': config.key,
+        'Authorization': process.env.BALLDONTLIE_KEY,
       },
     });
 
