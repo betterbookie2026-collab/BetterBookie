@@ -7,28 +7,31 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  const { sport = 'nfl' } = req.query;
+  const { sport = 'nfl', team, mode = 'injuries' } = req.query;
 
-  const configs = {
-    nfl: { baseUrl: 'https://v1.american-football.api-sports.io', teams: [1, 2, 3, 4, 5, 6] },
-    nba: { baseUrl: 'https://v2.nba.api-sports.io', teams: [1, 2, 3, 4, 5, 6] },
-    mlb: { baseUrl: 'https://v1.baseball.api-sports.io', teams: [1, 2, 3, 4, 5, 6] },
+  const baseUrls = {
+    nfl: 'https://v1.american-football.api-sports.io',
+    nba: 'https://v2.nba.api-sports.io',
+    mlb: 'https://v1.baseball.api-sports.io',
   };
 
-  const config = configs[sport] || configs.nfl;
+  const baseUrl = baseUrls[sport] || baseUrls.nfl;
 
   try {
-    const requests = config.teams.map(teamId =>
-      fetch(`${config.baseUrl}/injuries?team=${teamId}`, {
-        headers: { 'x-apisports-key': process.env.APISPORTS_KEY },
-      }).then(r => r.json())
-    );
+    let url;
+    if (mode === 'teams') {
+      url = `${baseUrl}/teams`;
+    } else {
+      url = `${baseUrl}/injuries?team=${team}`;
+    }
 
-    const results = await Promise.all(requests);
-    const combined = results.flatMap(r => r.response || []);
+    const response = await fetch(url, {
+      headers: { 'x-apisports-key': process.env.APISPORTS_KEY },
+    });
 
-    res.status(200).json({ response: combined });
+    const data = await response.json();
+    res.status(200).json(data);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch injury data' });
+    res.status(500).json({ error: 'Failed to fetch data' });
   }
 }
