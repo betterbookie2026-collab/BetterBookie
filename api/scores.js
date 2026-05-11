@@ -10,9 +10,9 @@ export default async function handler(req, res) {
   const { sport = 'nfl' } = req.query;
 
   const configs = {
-    nfl: { url: 'https://v1.american-football.api-sports.io/games?season=2025' },
+    nfl: { url: 'https://v1.american-football.api-sports.io/games?season=2024' },
     nba: { url: 'https://v2.nba.api-sports.io/games?season=2024-2025' },
-    mlb: { url: 'https://v1.baseball.api-sports.io/games?season=2025&league=1' },
+    mlb: { url: 'https://v1.baseball.api-sports.io/games?season=2024&league=1' },
     nhl: { url: 'https://v1.hockey.api-sports.io/games?season=2024-2025&league=57' },
   };
 
