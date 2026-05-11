@@ -33,6 +33,38 @@
         opacity: 0.7;
         font-size: 0.8rem;
       }
+      .search-wrap {
+        margin-bottom: 1.5rem;
+      }
+      .search-wrap input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border-radius: 4px;
+        border: 2px solid rgba(255,255,255,0.2);
+        background: rgba(255,255,255,0.05);
+        color: inherit;
+        font-size: 0.95rem;
+        box-sizing: border-box;
+      }
+      .search-wrap input:focus {
+        outline: none;
+        border-color: rgba(255,255,255,0.5);
+      }
+      .search-results {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+        display: none;
+      }
+      .search-results h4 {
+        margin: 0 0 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        opacity: 0.7;
+        font-size: 0.8rem;
+      }
       .checkbox-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -62,6 +94,21 @@
         height: 24px;
         object-fit: contain;
         flex-shrink: 0;
+      }
+      .sport-emoji {
+        font-size: 1.1rem;
+        flex-shrink: 0;
+      }
+      .sport-tag {
+        font-size: 0.7rem;
+        opacity: 0.5;
+        margin-left: auto;
+        padding-right: 0.25rem;
+      }
+      .no-results {
+        opacity: 0.5;
+        font-size: 0.9rem;
+        padding: 0.5rem;
       }
       .save-btn {
         padding: 0.65rem 2rem;
@@ -126,16 +173,25 @@
         <h3 id="welcome-msg">Welcome!</h3>
         <p class="user-info" id="user-email"></p>
 
+        <div class="search-wrap">
+          <input type="text" id="team-search" placeholder="🔍 Search for any team across all sports..." />
+        </div>
+
+        <div class="search-results" id="search-results">
+          <h4>Search Results</h4>
+          <div class="checkbox-grid" id="search-grid"></div>
+        </div>
+
         <div class="pref-section">
           <h4>Favorite Sports</h4>
           <div class="checkbox-grid">
-            <label><input type="checkbox" value="nfl" /> NFL</label>
-            <label><input type="checkbox" value="nba" /> NBA</label>
-            <label><input type="checkbox" value="mlb" /> MLB</label>
-            <label><input type="checkbox" value="nhl" /> NHL</label>
-            <label><input type="checkbox" value="ncaafb" /> College Football</label>
-            <label><input type="checkbox" value="ncaabb" /> College Basketball</label>
-            <label><input type="checkbox" value="ncaab" /> College Baseball</label>
+            <label><input type="checkbox" value="nfl" /><span class="sport-emoji">🏈</span> NFL</label>
+            <label><input type="checkbox" value="nba" /><span class="sport-emoji">🏀</span> NBA</label>
+            <label><input type="checkbox" value="mlb" /><span class="sport-emoji">⚾</span> MLB</label>
+            <label><input type="checkbox" value="nhl" /><span class="sport-emoji">🏒</span> NHL</label>
+            <label><input type="checkbox" value="ncaafb" /><span class="sport-emoji">🏈</span> College Football</label>
+            <label><input type="checkbox" value="ncaabb" /><span class="sport-emoji">🏀</span> College Basketball</label>
+            <label><input type="checkbox" value="ncaab" /><span class="sport-emoji">⚾</span> College Baseball</label>
           </div>
         </div>
 
@@ -325,7 +381,14 @@
         ],
       };
 
-      // Build team checkboxes with logos
+      // Flatten all teams for search
+      const allTeams = [
+        ...teamData.nfl.map(t => ({ ...t, sport: 'NFL' })),
+        ...teamData.nba.map(t => ({ ...t, sport: 'NBA' })),
+        ...teamData.mlb.map(t => ({ ...t, sport: 'MLB' })),
+        ...teamData.nhl.map(t => ({ ...t, sport: 'NHL' })),
+      ];
+
       function buildTeamGrid(containerId, teams) {
         const container = document.getElementById(containerId);
         container.innerHTML = teams.map(t => `
@@ -341,6 +404,48 @@
       buildTeamGrid('nba-teams', teamData.nba);
       buildTeamGrid('mlb-teams', teamData.mlb);
       buildTeamGrid('nhl-teams', teamData.nhl);
+
+      // Search functionality
+      document.getElementById('team-search').addEventListener('input', (e) => {
+        const query = e.target.value.trim().toLowerCase();
+        const resultsBox = document.getElementById('search-results');
+        const searchGrid = document.getElementById('search-grid');
+
+        if (!query) {
+          resultsBox.style.display = 'none';
+          return;
+        }
+
+        const matches = allTeams.filter(t => t.name.toLowerCase().includes(query));
+        resultsBox.style.display = 'block';
+
+        if (matches.length === 0) {
+          searchGrid.innerHTML = '<p class="no-results">No teams found.</p>';
+          return;
+        }
+
+        searchGrid.innerHTML = matches.map(t => {
+          // Check if already checked in the main grid
+          const existing = document.querySelector(`input[value="${t.name}"]`);
+          const isChecked = existing ? existing.checked : false;
+          return `
+            <label>
+              <input type="checkbox" value="${t.name}" data-sport="${t.sport}" ${isChecked ? 'checked' : ''} class="search-cb" />
+              <img src="${t.logo}" class="team-logo" alt="${t.name}" onerror="this.style.display='none'" />
+              ${t.name}
+              <span class="sport-tag">${t.sport}</span>
+            </label>
+          `;
+        }).join('');
+
+        // Sync search checkboxes with main grid
+        document.querySelectorAll('.search-cb').forEach(cb => {
+          cb.addEventListener('change', () => {
+            const mainCb = document.querySelector(`#nfl-teams input[value="${cb.value}"], #nba-teams input[value="${cb.value}"], #mlb-teams input[value="${cb.value}"], #nhl-teams input[value="${cb.value}"]`);
+            if (mainCb) mainCb.checked = cb.checked;
+          });
+        });
+      });
 
       let currentUser = null;
 
@@ -374,12 +479,9 @@
 
       document.getElementById('save-btn').addEventListener('click', async () => {
         if (!currentUser) return;
-
         const sports = [...document.querySelectorAll('.pref-section:first-of-type input:checked')].map(cb => cb.value);
         const teams = [...document.querySelectorAll('.pref-section:not(:first-of-type) input:checked')].map(cb => cb.value);
-
         await setDoc(doc(db, 'users', currentUser.uid), { sports, teams });
-
         const msg = document.getElementById('success-msg');
         msg.style.display = 'block';
         setTimeout(() => msg.style.display = 'none', 3000);
