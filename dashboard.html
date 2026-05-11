@@ -138,6 +138,11 @@
         margin-top: 0.5rem;
         display: none;
       }
+      .loading-teams {
+        opacity: 0.5;
+        font-size: 0.85rem;
+        padding: 0.5rem;
+      }
     </style>
   </head>
   <body>
@@ -197,22 +202,22 @@
 
         <div class="pref-section">
           <h4>Favorite NFL Teams</h4>
-          <div class="checkbox-grid" id="nfl-teams"></div>
+          <div class="checkbox-grid" id="nfl-teams"><p class="loading-teams">Loading teams...</p></div>
         </div>
 
         <div class="pref-section">
           <h4>Favorite NBA Teams</h4>
-          <div class="checkbox-grid" id="nba-teams"></div>
+          <div class="checkbox-grid" id="nba-teams"><p class="loading-teams">Loading teams...</p></div>
         </div>
 
         <div class="pref-section">
           <h4>Favorite MLB Teams</h4>
-          <div class="checkbox-grid" id="mlb-teams"></div>
+          <div class="checkbox-grid" id="mlb-teams"><p class="loading-teams">Loading teams...</p></div>
         </div>
 
         <div class="pref-section">
           <h4>Favorite NHL Teams</h4>
-          <div class="checkbox-grid" id="nhl-teams"></div>
+          <div class="checkbox-grid" id="nhl-teams"><p class="loading-teams">Loading teams...</p></div>
         </div>
 
         <button class="save-btn" id="save-btn">Save Preferences</button>
@@ -245,165 +250,37 @@
       const auth = getAuth(app);
       const db = getFirestore(app);
 
-      const teamData = {
-        nfl: [
-          { name: 'Arizona Cardinals', logo: 'https://media.api-sports.io/american-football/teams/32.png' },
-          { name: 'Atlanta Falcons', logo: 'https://media.api-sports.io/american-football/teams/25.png' },
-          { name: 'Baltimore Ravens', logo: 'https://media.api-sports.io/american-football/teams/6.png' },
-          { name: 'Buffalo Bills', logo: 'https://media.api-sports.io/american-football/teams/4.png' },
-          { name: 'Carolina Panthers', logo: 'https://media.api-sports.io/american-football/teams/26.png' },
-          { name: 'Chicago Bears', logo: 'https://media.api-sports.io/american-football/teams/21.png' },
-          { name: 'Cincinnati Bengals', logo: 'https://media.api-sports.io/american-football/teams/9.png' },
-          { name: 'Cleveland Browns', logo: 'https://media.api-sports.io/american-football/teams/8.png' },
-          { name: 'Dallas Cowboys', logo: 'https://media.api-sports.io/american-football/teams/17.png' },
-          { name: 'Denver Broncos', logo: 'https://media.api-sports.io/american-football/teams/16.png' },
-          { name: 'Detroit Lions', logo: 'https://media.api-sports.io/american-football/teams/24.png' },
-          { name: 'Green Bay Packers', logo: 'https://media.api-sports.io/american-football/teams/22.png' },
-          { name: 'Houston Texans', logo: 'https://media.api-sports.io/american-football/teams/10.png' },
-          { name: 'Indianapolis Colts', logo: 'https://media.api-sports.io/american-football/teams/11.png' },
-          { name: 'Jacksonville Jaguars', logo: 'https://media.api-sports.io/american-football/teams/12.png' },
-          { name: 'Kansas City Chiefs', logo: 'https://media.api-sports.io/american-football/teams/14.png' },
-          { name: 'Las Vegas Raiders', logo: 'https://media.api-sports.io/american-football/teams/1.png' },
-          { name: 'Los Angeles Chargers', logo: 'https://media.api-sports.io/american-football/teams/15.png' },
-          { name: 'Los Angeles Rams', logo: 'https://media.api-sports.io/american-football/teams/29.png' },
-          { name: 'Miami Dolphins', logo: 'https://media.api-sports.io/american-football/teams/5.png' },
-          { name: 'Minnesota Vikings', logo: 'https://media.api-sports.io/american-football/teams/23.png' },
-          { name: 'New England Patriots', logo: 'https://media.api-sports.io/american-football/teams/2.png' },
-          { name: 'New Orleans Saints', logo: 'https://media.api-sports.io/american-football/teams/27.png' },
-          { name: 'New York Giants', logo: 'https://media.api-sports.io/american-football/teams/18.png' },
-          { name: 'New York Jets', logo: 'https://media.api-sports.io/american-football/teams/3.png' },
-          { name: 'Philadelphia Eagles', logo: 'https://media.api-sports.io/american-football/teams/19.png' },
-          { name: 'Pittsburgh Steelers', logo: 'https://media.api-sports.io/american-football/teams/7.png' },
-          { name: 'San Francisco 49ers', logo: 'https://media.api-sports.io/american-football/teams/31.png' },
-          { name: 'Seattle Seahawks', logo: 'https://media.api-sports.io/american-football/teams/30.png' },
-          { name: 'Tampa Bay Buccaneers', logo: 'https://media.api-sports.io/american-football/teams/28.png' },
-          { name: 'Tennessee Titans', logo: 'https://media.api-sports.io/american-football/teams/13.png' },
-          { name: 'Washington Commanders', logo: 'https://media.api-sports.io/american-football/teams/20.png' },
-        ],
-        nba: [
-          { name: 'Atlanta Hawks', logo: 'https://media.api-sports.io/basketball/teams/1.png' },
-          { name: 'Boston Celtics', logo: 'https://media.api-sports.io/basketball/teams/2.png' },
-          { name: 'Brooklyn Nets', logo: 'https://media.api-sports.io/basketball/teams/3.png' },
-          { name: 'Charlotte Hornets', logo: 'https://media.api-sports.io/basketball/teams/4.png' },
-          { name: 'Chicago Bulls', logo: 'https://media.api-sports.io/basketball/teams/5.png' },
-          { name: 'Cleveland Cavaliers', logo: 'https://media.api-sports.io/basketball/teams/6.png' },
-          { name: 'Dallas Mavericks', logo: 'https://media.api-sports.io/basketball/teams/7.png' },
-          { name: 'Denver Nuggets', logo: 'https://media.api-sports.io/basketball/teams/8.png' },
-          { name: 'Detroit Pistons', logo: 'https://media.api-sports.io/basketball/teams/9.png' },
-          { name: 'Golden State Warriors', logo: 'https://media.api-sports.io/basketball/teams/10.png' },
-          { name: 'Houston Rockets', logo: 'https://media.api-sports.io/basketball/teams/11.png' },
-          { name: 'Indiana Pacers', logo: 'https://media.api-sports.io/basketball/teams/12.png' },
-          { name: 'Los Angeles Clippers', logo: 'https://media.api-sports.io/basketball/teams/13.png' },
-          { name: 'Los Angeles Lakers', logo: 'https://media.api-sports.io/basketball/teams/14.png' },
-          { name: 'Memphis Grizzlies', logo: 'https://media.api-sports.io/basketball/teams/15.png' },
-          { name: 'Miami Heat', logo: 'https://media.api-sports.io/basketball/teams/16.png' },
-          { name: 'Milwaukee Bucks', logo: 'https://media.api-sports.io/basketball/teams/17.png' },
-          { name: 'Minnesota Timberwolves', logo: 'https://media.api-sports.io/basketball/teams/18.png' },
-          { name: 'New Orleans Pelicans', logo: 'https://media.api-sports.io/basketball/teams/19.png' },
-          { name: 'New York Knicks', logo: 'https://media.api-sports.io/basketball/teams/20.png' },
-          { name: 'Oklahoma City Thunder', logo: 'https://media.api-sports.io/basketball/teams/21.png' },
-          { name: 'Orlando Magic', logo: 'https://media.api-sports.io/basketball/teams/22.png' },
-          { name: 'Philadelphia 76ers', logo: 'https://media.api-sports.io/basketball/teams/23.png' },
-          { name: 'Phoenix Suns', logo: 'https://media.api-sports.io/basketball/teams/24.png' },
-          { name: 'Portland Trail Blazers', logo: 'https://media.api-sports.io/basketball/teams/25.png' },
-          { name: 'Sacramento Kings', logo: 'https://media.api-sports.io/basketball/teams/26.png' },
-          { name: 'San Antonio Spurs', logo: 'https://media.api-sports.io/basketball/teams/27.png' },
-          { name: 'Toronto Raptors', logo: 'https://media.api-sports.io/basketball/teams/28.png' },
-          { name: 'Utah Jazz', logo: 'https://media.api-sports.io/basketball/teams/29.png' },
-          { name: 'Washington Wizards', logo: 'https://media.api-sports.io/basketball/teams/30.png' },
-        ],
-        mlb: [
-          { name: 'Arizona Diamondbacks', logo: 'https://media.api-sports.io/baseball/teams/1.png' },
-          { name: 'Atlanta Braves', logo: 'https://media.api-sports.io/baseball/teams/2.png' },
-          { name: 'Baltimore Orioles', logo: 'https://media.api-sports.io/baseball/teams/3.png' },
-          { name: 'Boston Red Sox', logo: 'https://media.api-sports.io/baseball/teams/4.png' },
-          { name: 'Chicago Cubs', logo: 'https://media.api-sports.io/baseball/teams/5.png' },
-          { name: 'Chicago White Sox', logo: 'https://media.api-sports.io/baseball/teams/6.png' },
-          { name: 'Cincinnati Reds', logo: 'https://media.api-sports.io/baseball/teams/7.png' },
-          { name: 'Cleveland Guardians', logo: 'https://media.api-sports.io/baseball/teams/8.png' },
-          { name: 'Colorado Rockies', logo: 'https://media.api-sports.io/baseball/teams/9.png' },
-          { name: 'Detroit Tigers', logo: 'https://media.api-sports.io/baseball/teams/10.png' },
-          { name: 'Houston Astros', logo: 'https://media.api-sports.io/baseball/teams/11.png' },
-          { name: 'Kansas City Royals', logo: 'https://media.api-sports.io/baseball/teams/12.png' },
-          { name: 'Los Angeles Angels', logo: 'https://media.api-sports.io/baseball/teams/13.png' },
-          { name: 'Los Angeles Dodgers', logo: 'https://media.api-sports.io/baseball/teams/14.png' },
-          { name: 'Miami Marlins', logo: 'https://media.api-sports.io/baseball/teams/15.png' },
-          { name: 'Milwaukee Brewers', logo: 'https://media.api-sports.io/baseball/teams/16.png' },
-          { name: 'Minnesota Twins', logo: 'https://media.api-sports.io/baseball/teams/17.png' },
-          { name: 'New York Mets', logo: 'https://media.api-sports.io/baseball/teams/18.png' },
-          { name: 'New York Yankees', logo: 'https://media.api-sports.io/baseball/teams/19.png' },
-          { name: 'Oakland Athletics', logo: 'https://media.api-sports.io/baseball/teams/20.png' },
-          { name: 'Philadelphia Phillies', logo: 'https://media.api-sports.io/baseball/teams/21.png' },
-          { name: 'Pittsburgh Pirates', logo: 'https://media.api-sports.io/baseball/teams/22.png' },
-          { name: 'San Diego Padres', logo: 'https://media.api-sports.io/baseball/teams/23.png' },
-          { name: 'San Francisco Giants', logo: 'https://media.api-sports.io/baseball/teams/24.png' },
-          { name: 'Seattle Mariners', logo: 'https://media.api-sports.io/baseball/teams/25.png' },
-          { name: 'St. Louis Cardinals', logo: 'https://media.api-sports.io/baseball/teams/26.png' },
-          { name: 'Tampa Bay Rays', logo: 'https://media.api-sports.io/baseball/teams/27.png' },
-          { name: 'Texas Rangers', logo: 'https://media.api-sports.io/baseball/teams/28.png' },
-          { name: 'Toronto Blue Jays', logo: 'https://media.api-sports.io/baseball/teams/29.png' },
-          { name: 'Washington Nationals', logo: 'https://media.api-sports.io/baseball/teams/30.png' },
-        ],
-        nhl: [
-          { name: 'Anaheim Ducks', logo: 'https://media.api-sports.io/hockey/teams/1.png' },
-          { name: 'Arizona Coyotes', logo: 'https://media.api-sports.io/hockey/teams/2.png' },
-          { name: 'Boston Bruins', logo: 'https://media.api-sports.io/hockey/teams/3.png' },
-          { name: 'Buffalo Sabres', logo: 'https://media.api-sports.io/hockey/teams/4.png' },
-          { name: 'Calgary Flames', logo: 'https://media.api-sports.io/hockey/teams/5.png' },
-          { name: 'Carolina Hurricanes', logo: 'https://media.api-sports.io/hockey/teams/6.png' },
-          { name: 'Chicago Blackhawks', logo: 'https://media.api-sports.io/hockey/teams/7.png' },
-          { name: 'Colorado Avalanche', logo: 'https://media.api-sports.io/hockey/teams/8.png' },
-          { name: 'Columbus Blue Jackets', logo: 'https://media.api-sports.io/hockey/teams/9.png' },
-          { name: 'Dallas Stars', logo: 'https://media.api-sports.io/hockey/teams/10.png' },
-          { name: 'Detroit Red Wings', logo: 'https://media.api-sports.io/hockey/teams/11.png' },
-          { name: 'Edmonton Oilers', logo: 'https://media.api-sports.io/hockey/teams/12.png' },
-          { name: 'Florida Panthers', logo: 'https://media.api-sports.io/hockey/teams/13.png' },
-          { name: 'Los Angeles Kings', logo: 'https://media.api-sports.io/hockey/teams/14.png' },
-          { name: 'Minnesota Wild', logo: 'https://media.api-sports.io/hockey/teams/15.png' },
-          { name: 'Montreal Canadiens', logo: 'https://media.api-sports.io/hockey/teams/16.png' },
-          { name: 'Nashville Predators', logo: 'https://media.api-sports.io/hockey/teams/17.png' },
-          { name: 'New Jersey Devils', logo: 'https://media.api-sports.io/hockey/teams/18.png' },
-          { name: 'New York Islanders', logo: 'https://media.api-sports.io/hockey/teams/19.png' },
-          { name: 'New York Rangers', logo: 'https://media.api-sports.io/hockey/teams/20.png' },
-          { name: 'Ottawa Senators', logo: 'https://media.api-sports.io/hockey/teams/21.png' },
-          { name: 'Philadelphia Flyers', logo: 'https://media.api-sports.io/hockey/teams/22.png' },
-          { name: 'Pittsburgh Penguins', logo: 'https://media.api-sports.io/hockey/teams/23.png' },
-          { name: 'San Jose Sharks', logo: 'https://media.api-sports.io/hockey/teams/24.png' },
-          { name: 'Seattle Kraken', logo: 'https://media.api-sports.io/hockey/teams/25.png' },
-          { name: 'St. Louis Blues', logo: 'https://media.api-sports.io/hockey/teams/26.png' },
-          { name: 'Tampa Bay Lightning', logo: 'https://media.api-sports.io/hockey/teams/27.png' },
-          { name: 'Toronto Maple Leafs', logo: 'https://media.api-sports.io/hockey/teams/28.png' },
-          { name: 'Utah Hockey Club', logo: 'https://media.api-sports.io/hockey/teams/29.png' },
-          { name: 'Vancouver Canucks', logo: 'https://media.api-sports.io/hockey/teams/30.png' },
-          { name: 'Vegas Golden Knights', logo: 'https://media.api-sports.io/hockey/teams/31.png' },
-          { name: 'Washington Capitals', logo: 'https://media.api-sports.io/hockey/teams/32.png' },
-          { name: 'Winnipeg Jets', logo: 'https://media.api-sports.io/hockey/teams/33.png' },
-        ],
-      };
+      // Store all loaded teams for search
+      let allTeams = [];
+      let savedPrefs = { sports: [], teams: [] };
 
-      // Flatten all teams for search
-      const allTeams = [
-        ...teamData.nfl.map(t => ({ ...t, sport: 'NFL' })),
-        ...teamData.nba.map(t => ({ ...t, sport: 'NBA' })),
-        ...teamData.mlb.map(t => ({ ...t, sport: 'MLB' })),
-        ...teamData.nhl.map(t => ({ ...t, sport: 'NHL' })),
-      ];
+      async function loadTeams(sport, containerId) {
+        try {
+          const res = await fetch(`https://better-bookie-five.vercel.app/api/logos?sport=${sport}`);
+          const teams = await res.json();
+          const container = document.getElementById(containerId);
 
-      function buildTeamGrid(containerId, teams) {
-        const container = document.getElementById(containerId);
-        container.innerHTML = teams.map(t => `
-          <label>
-            <input type="checkbox" value="${t.name}" />
-            <img src="${t.logo}" class="team-logo" alt="${t.name}" onerror="this.style.display='none'" />
-            ${t.name}
-          </label>
-        `).join('');
+          container.innerHTML = teams.map(t => `
+            <label>
+              <input type="checkbox" value="${t.name}" />
+              <img src="${t.logo}" class="team-logo" alt="${t.name}" onerror="this.style.display='none'" />
+              ${t.name}
+            </label>
+          `).join('');
+
+          // Add to allTeams for search
+          teams.forEach(t => allTeams.push({ ...t, sport: sport.toUpperCase() }));
+
+          // Restore saved preferences
+          savedPrefs.teams.forEach(val => {
+            const cb = document.querySelector(`#${containerId} input[value="${val}"]`);
+            if (cb) cb.checked = true;
+          });
+
+        } catch (err) {
+          document.getElementById(containerId).innerHTML = '<p class="loading-teams">Failed to load teams.</p>';
+        }
       }
-
-      buildTeamGrid('nfl-teams', teamData.nfl);
-      buildTeamGrid('nba-teams', teamData.nba);
-      buildTeamGrid('mlb-teams', teamData.mlb);
-      buildTeamGrid('nhl-teams', teamData.nhl);
 
       // Search functionality
       document.getElementById('team-search').addEventListener('input', (e) => {
@@ -425,7 +302,6 @@
         }
 
         searchGrid.innerHTML = matches.map(t => {
-          // Check if already checked in the main grid
           const existing = document.querySelector(`input[value="${t.name}"]`);
           const isChecked = existing ? existing.checked : false;
           return `
@@ -438,10 +314,9 @@
           `;
         }).join('');
 
-        // Sync search checkboxes with main grid
         document.querySelectorAll('.search-cb').forEach(cb => {
           cb.addEventListener('change', () => {
-            const mainCb = document.querySelector(`#nfl-teams input[value="${cb.value}"], #nba-teams input[value="${cb.value}"], #mlb-teams input[value="${cb.value}"], #nhl-teams input[value="${cb.value}"]`);
+            const mainCb = document.querySelector(`input[value="${cb.value}"]:not(.search-cb)`);
             if (mainCb) mainCb.checked = cb.checked;
           });
         });
@@ -458,23 +333,26 @@
         document.getElementById('welcome-msg').textContent = `Welcome, ${user.displayName || user.email}!`;
         document.getElementById('user-email').textContent = user.email;
 
+        // Load saved preferences first
         const docRef = doc(db, 'users', user.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          const prefs = docSnap.data();
-          if (prefs.sports) {
-            prefs.sports.forEach(val => {
-              const cb = document.querySelector(`input[value="${val}"]`);
-              if (cb) cb.checked = true;
-            });
-          }
-          if (prefs.teams) {
-            prefs.teams.forEach(val => {
-              const cb = document.querySelector(`input[value="${val}"]`);
+          savedPrefs = docSnap.data();
+          if (savedPrefs.sports) {
+            savedPrefs.sports.forEach(val => {
+              const cb = document.querySelector(`.pref-section:first-of-type input[value="${val}"]`);
               if (cb) cb.checked = true;
             });
           }
         }
+
+        // Load all team grids
+        await Promise.all([
+          loadTeams('nfl', 'nfl-teams'),
+          loadTeams('nba', 'nba-teams'),
+          loadTeams('mlb', 'mlb-teams'),
+          loadTeams('nhl', 'nhl-teams'),
+        ]);
       });
 
       document.getElementById('save-btn').addEventListener('click', async () => {
