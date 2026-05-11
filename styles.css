@@ -1,0 +1,196 @@
+html {
+  scroll-behavior: smooth;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  color: #1f2937;
+  line-height: 1.6;
+  background: #f9fafb;
+}
+
+.hero {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  padding: 1.2rem 1.5rem 4rem;
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3rem;
+  position: relative;
+}
+
+.logo {
+  font-size: 1.4rem;
+}
+
+.menu-toggle {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  color: white;
+  font-size: 1.2rem;
+  border-radius: 8px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+}
+
+.nav-links {
+  display: none;
+  position: absolute;
+  top: 3rem;
+  right: 0;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(4px);
+  border-radius: 10px;
+  padding: 0.8rem;
+  flex-direction: column;
+  gap: 0.7rem;
+  align-items: flex-start;
+}
+
+.nav-links.show {
+  display: flex;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.hero-content {
+  max-width: 650px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.hero-content h2 {
+  font-size: 2rem;
+  margin-bottom: 0.8rem;
+}
+
+.hero-content p {
+  margin-bottom: 1.4rem;
+  font-size: 1.05rem;
+}
+
+.btn {
+  display: inline-block;
+  background: #f59e0b;
+  color: #111827;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 0.7rem 1.2rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+.btn-small {
+  background: white;
+  color: #4f46e5 !important;
+  padding: 0.5rem 0.9rem;
+}
+
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.signup-form input {
+  padding: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.message {
+  margin-top: 0.8rem;
+  font-weight: bold;
+  min-height: 1.2rem;
+}
+
+.features {
+  max-width: 1000px;
+  margin: 2.5rem auto;
+  padding: 0 1.2rem;
+  text-align: center;
+}
+
+.features h3 {
+  font-size: 1.6rem;
+  margin-bottom: 1.4rem;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.card {
+  background: white;
+  border-radius: 10px;
+  padding: 1.2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.card h4 {
+  margin-bottom: 0.5rem;
+}
+
+.footer {
+  text-align: center;
+  padding: 1.4rem;
+  color: #6b7280;
+}
+
+@media (min-width: 768px) {
+  .hero-content h2 {
+    font-size: 2.6rem;
+  }
+
+  .menu-toggle {
+    display: none;
+  }
+
+  .nav-links {
+    display: flex;
+    position: static;
+    background: transparent;
+    backdrop-filter: none;
+    border-radius: 0;
+    padding: 0;
+    flex-direction: row;
+    gap: 0.8rem;
+    align-items: center;
+  }
+
+  .signup-form {
+    flex-direction: row;
+  }
+
+  .signup-form input {
+    flex: 1;
+  }
+
+  .feature-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
