@@ -103,6 +103,7 @@
         text-align: center;
         padding: 3rem 2rem;
         opacity: 0.7;
+        grid-column: 1/-1;
       }
       .unavailable h4 {
         font-size: 1.2rem;
@@ -136,7 +137,7 @@
       </nav>
       <div class="hero-content">
         <h2>Injury Report</h2>
-        <p>Up-to-date injury data across NFL, NBA, and MLB.</p>
+        <p>Up-to-date injury data across NFL, NBA, MLB, and NHL.</p>
       </div>
     </header>
 
@@ -145,6 +146,7 @@
         <button class="active" data-sport="nfl">NFL</button>
         <button data-sport="nba">NBA</button>
         <button data-sport="mlb">MLB</button>
+        <button data-sport="nhl">NHL</button>
       </div>
 
       <div class="team-select-wrap" id="team-select-wrap">
@@ -179,6 +181,12 @@
 
     <script src="script.js"></script>
     <script>
+      const unavailableSports = {
+        nba: { icon: '🏀', name: 'NBA' },
+        mlb: { icon: '⚾', name: 'MLB' },
+        nhl: { icon: '🏒', name: 'NHL' },
+      };
+
       const teams = {
         nfl: [
           { id: 1, name: 'Las Vegas Raiders' },
@@ -278,6 +286,41 @@
           { id: 29, name: 'Toronto Blue Jays' },
           { id: 30, name: 'Washington Nationals' },
         ],
+        nhl: [
+          { id: 1, name: 'Anaheim Ducks' },
+          { id: 2, name: 'Arizona Coyotes' },
+          { id: 3, name: 'Boston Bruins' },
+          { id: 4, name: 'Buffalo Sabres' },
+          { id: 5, name: 'Calgary Flames' },
+          { id: 6, name: 'Carolina Hurricanes' },
+          { id: 7, name: 'Chicago Blackhawks' },
+          { id: 8, name: 'Colorado Avalanche' },
+          { id: 9, name: 'Columbus Blue Jackets' },
+          { id: 10, name: 'Dallas Stars' },
+          { id: 11, name: 'Detroit Red Wings' },
+          { id: 12, name: 'Edmonton Oilers' },
+          { id: 13, name: 'Florida Panthers' },
+          { id: 14, name: 'Los Angeles Kings' },
+          { id: 15, name: 'Minnesota Wild' },
+          { id: 16, name: 'Montreal Canadiens' },
+          { id: 17, name: 'Nashville Predators' },
+          { id: 18, name: 'New Jersey Devils' },
+          { id: 19, name: 'New York Islanders' },
+          { id: 20, name: 'New York Rangers' },
+          { id: 21, name: 'Ottawa Senators' },
+          { id: 22, name: 'Philadelphia Flyers' },
+          { id: 23, name: 'Pittsburgh Penguins' },
+          { id: 24, name: 'San Jose Sharks' },
+          { id: 25, name: 'Seattle Kraken' },
+          { id: 26, name: 'St. Louis Blues' },
+          { id: 27, name: 'Tampa Bay Lightning' },
+          { id: 28, name: 'Toronto Maple Leafs' },
+          { id: 29, name: 'Utah Hockey Club' },
+          { id: 30, name: 'Vancouver Canucks' },
+          { id: 31, name: 'Vegas Golden Knights' },
+          { id: 32, name: 'Washington Capitals' },
+          { id: 33, name: 'Winnipeg Jets' },
+        ],
       };
 
       let currentSport = 'nfl';
@@ -301,18 +344,15 @@
         currentTeam = teams[sport][0].id.toString();
       }
 
-      function showUnavailable() {
+      function showUnavailable(sport) {
+        const { icon, name } = unavailableSports[sport];
         const cardsContainer = document.getElementById('cards-container');
-        const tableBody = document.getElementById('injuries-table-body');
-        const tableWrap = document.getElementById('table-wrap');
-        const teamSelectWrap = document.getElementById('team-select-wrap');
-
-        teamSelectWrap.style.display = 'none';
-        tableWrap.style.display = 'none';
+        document.getElementById('table-wrap').style.display = 'none';
+        document.getElementById('team-select-wrap').style.display = 'none';
         cardsContainer.innerHTML = `
-          <div class="unavailable" style="grid-column: 1/-1;">
-            <h4>⚾ MLB Injury Data Coming Soon</h4>
-            <p>MLB injury data is not currently available through our data provider. Check back soon as we continue to expand our coverage!</p>
+          <div class="unavailable">
+            <h4>${icon} ${name} Injury Data Coming Soon</h4>
+            <p>${name} injury data is not currently available through our data provider. Check back soon as we continue to expand our coverage!</p>
           </div>
         `;
       }
@@ -370,8 +410,8 @@
       }
 
       async function fetchInjuries(sport, team) {
-        if (sport === 'mlb') {
-          showUnavailable();
+        if (unavailableSports[sport]) {
+          showUnavailable(sport);
           return;
         }
 
