@@ -105,6 +105,11 @@
         margin-left: auto;
         padding-right: 0.25rem;
       }
+      .team-nickname {
+        font-size: 0.75rem;
+        opacity: 0.45;
+        margin-left: 0.1rem;
+      }
       .no-results {
         opacity: 0.5;
         font-size: 0.9rem;
@@ -154,7 +159,7 @@
           id="menu-toggle"
           type="button"
           aria-label="Toggle menu"
-          aria-expanded="false"
+          aria-extended="false"
         >
           ☰
         </button>
@@ -179,7 +184,7 @@
         <p class="user-info" id="user-email"></p>
 
         <div class="search-wrap">
-          <input type="text" id="team-search" placeholder="🔍 Search for any team across all sports..." />
+          <input type="text" id="team-search" placeholder="🔍 Search by team name or nickname (e.g. Chiefs, Lakers, Pats)..." />
         </div>
 
         <div class="search-results" id="search-results">
@@ -250,7 +255,170 @@
       const auth = getAuth(app);
       const db = getFirestore(app);
 
-      // Store all loaded teams for search
+      // Common nicknames and abbreviations mapped to full team names
+      const nicknames = {
+        // NFL
+        'chiefs': 'Kansas City Chiefs',
+        'pats': 'New England Patriots',
+        'patriots': 'New England Patriots',
+        'cowboys': 'Dallas Cowboys',
+        'boys': 'Dallas Cowboys',
+        'eagles': 'Philadelphia Eagles',
+        'niners': 'San Francisco 49ers',
+        '49ers': 'San Francisco 49ers',
+        'seahawks': 'Seattle Seahawks',
+        'hawks': 'Seattle Seahawks',
+        'ravens': 'Baltimore Ravens',
+        'steelers': 'Pittsburgh Steelers',
+        'browns': 'Cleveland Browns',
+        'bengals': 'Cincinnati Bengals',
+        'broncos': 'Denver Broncos',
+        'raiders': 'Las Vegas Raiders',
+        'chargers': 'Los Angeles Chargers',
+        'bills': 'Buffalo Bills',
+        'dolphins': 'Miami Dolphins',
+        'jets': 'New York Jets',
+        'giants': 'New York Giants',
+        'commanders': 'Washington Commanders',
+        'bears': 'Chicago Bears',
+        'packers': 'Green Bay Packers',
+        'vikings': 'Minnesota Vikings',
+        'lions': 'Detroit Lions',
+        'falcons': 'Atlanta Falcons',
+        'panthers': 'Carolina Panthers',
+        'saints': 'New Orleans Saints',
+        'bucs': 'Tampa Bay Buccaneers',
+        'buccaneers': 'Tampa Bay Buccaneers',
+        'rams': 'Los Angeles Rams',
+        'cardinals': 'Arizona Cardinals',
+        'texans': 'Houston Texans',
+        'colts': 'Indianapolis Colts',
+        'jaguars': 'Jacksonville Jaguars',
+        'jags': 'Jacksonville Jaguars',
+        'titans': 'Tennessee Titans',
+        // NBA
+        'lakers': 'Los Angeles Lakers',
+        'celtics': 'Boston Celtics',
+        'warriors': 'Golden State Warriors',
+        'dubs': 'Golden State Warriors',
+        'nets': 'Brooklyn Nets',
+        'knicks': 'New York Knicks',
+        'bulls': 'Chicago Bulls',
+        'heat': 'Miami Heat',
+        'bucks': 'Milwaukee Bucks',
+        'sixers': 'Philadelphia 76ers',
+        '76ers': 'Philadelphia 76ers',
+        'raptors': 'Toronto Raptors',
+        'hawks': 'Atlanta Hawks',
+        'hornets': 'Charlotte Hornets',
+        'cavaliers': 'Cleveland Cavaliers',
+        'cavs': 'Cleveland Cavaliers',
+        'mavs': 'Dallas Mavericks',
+        'mavericks': 'Dallas Mavericks',
+        'nuggets': 'Denver Nuggets',
+        'pistons': 'Detroit Pistons',
+        'rockets': 'Houston Rockets',
+        'pacers': 'Indiana Pacers',
+        'clippers': 'Los Angeles Clippers',
+        'grizzlies': 'Memphis Grizzlies',
+        'grizz': 'Memphis Grizzlies',
+        'wolves': 'Minnesota Timberwolves',
+        'timberwolves': 'Minnesota Timberwolves',
+        'pelicans': 'New Orleans Pelicans',
+        'thunder': 'Oklahoma City Thunder',
+        'okc': 'Oklahoma City Thunder',
+        'magic': 'Orlando Magic',
+        'suns': 'Phoenix Suns',
+        'blazers': 'Portland Trail Blazers',
+        'trail blazers': 'Portland Trail Blazers',
+        'kings': 'Sacramento Kings',
+        'spurs': 'San Antonio Spurs',
+        'jazz': 'Utah Jazz',
+        'wizards': 'Washington Wizards',
+        // MLB
+        'yankees': 'New York Yankees',
+        'yanks': 'New York Yankees',
+        'red sox': 'Boston Red Sox',
+        'sox': 'Boston Red Sox',
+        'dodgers': 'Los Angeles Dodgers',
+        'cubs': 'Chicago Cubs',
+        'astros': 'Houston Astros',
+        'braves': 'Atlanta Braves',
+        'mets': 'New York Mets',
+        'phillies': 'Philadelphia Phillies',
+        'cardinals': 'St. Louis Cardinals',
+        'giants': 'San Francisco Giants',
+        'padres': 'San Diego Padres',
+        'brewers': 'Milwaukee Brewers',
+        'reds': 'Cincinnati Reds',
+        'pirates': 'Pittsburgh Pirates',
+        'tigers': 'Detroit Tigers',
+        'twins': 'Minnesota Twins',
+        'guardians': 'Cleveland Guardians',
+        'white sox': 'Chicago White Sox',
+        'royals': 'Kansas City Royals',
+        'angels': 'Los Angeles Angels',
+        'athletics': 'Oakland Athletics',
+        'as': 'Oakland Athletics',
+        'mariners': 'Seattle Mariners',
+        'rangers': 'Texas Rangers',
+        'rays': 'Tampa Bay Rays',
+        'orioles': 'Baltimore Orioles',
+        'blue jays': 'Toronto Blue Jays',
+        'jays': 'Toronto Blue Jays',
+        'nationals': 'Washington Nationals',
+        'nats': 'Washington Nationals',
+        'rockies': 'Colorado Rockies',
+        'marlins': 'Miami Marlins',
+        'diamondbacks': 'Arizona Diamondbacks',
+        'dbacks': 'Arizona Diamondbacks',
+        // NHL
+        'bruins': 'Boston Bruins',
+        'sabres': 'Buffalo Sabres',
+        'flames': 'Calgary Flames',
+        'hurricanes': 'Carolina Hurricanes',
+        'canes': 'Carolina Hurricanes',
+        'blackhawks': 'Chicago Blackhawks',
+        'hawks': 'Chicago Blackhawks',
+        'avalanche': 'Colorado Avalanche',
+        'avs': 'Colorado Avalanche',
+        'blue jackets': 'Columbus Blue Jackets',
+        'stars': 'Dallas Stars',
+        'red wings': 'Detroit Red Wings',
+        'wings': 'Detroit Red Wings',
+        'oilers': 'Edmonton Oilers',
+        'panthers': 'Florida Panthers',
+        'kings': 'Los Angeles Kings',
+        'wild': 'Minnesota Wild',
+        'canadiens': 'Montreal Canadiens',
+        'habs': 'Montreal Canadiens',
+        'predators': 'Nashville Predators',
+        'preds': 'Nashville Predators',
+        'devils': 'New Jersey Devils',
+        'islanders': 'New York Islanders',
+        'isles': 'New York Islanders',
+        'rangers': 'New York Rangers',
+        'senators': 'Ottawa Senators',
+        'sens': 'Ottawa Senators',
+        'flyers': 'Philadelphia Flyers',
+        'penguins': 'Pittsburgh Penguins',
+        'pens': 'Pittsburgh Penguins',
+        'sharks': 'San Jose Sharks',
+        'kraken': 'Seattle Kraken',
+        'blues': 'St. Louis Blues',
+        'lightning': 'Tampa Bay Lightning',
+        'bolts': 'Tampa Bay Lightning',
+        'maple leafs': 'Toronto Maple Leafs',
+        'leafs': 'Toronto Maple Leafs',
+        'ducks': 'Anaheim Ducks',
+        'canucks': 'Vancouver Canucks',
+        'golden knights': 'Vegas Golden Knights',
+        'vgk': 'Vegas Golden Knights',
+        'capitals': 'Washington Capitals',
+        'caps': 'Washington Capitals',
+        'jets': 'Winnipeg Jets',
+      };
+
       let allTeams = [];
       let savedPrefs = { sports: [], teams: [] };
 
@@ -268,10 +436,8 @@
             </label>
           `).join('');
 
-          // Add to allTeams for search
           teams.forEach(t => allTeams.push({ ...t, sport: sport.toUpperCase() }));
 
-          // Restore saved preferences
           savedPrefs.teams.forEach(val => {
             const cb = document.querySelector(`#${containerId} input[value="${val}"]`);
             if (cb) cb.checked = true;
@@ -282,7 +448,7 @@
         }
       }
 
-      // Search functionality
+      // Search functionality with nickname support
       document.getElementById('team-search').addEventListener('input', (e) => {
         const query = e.target.value.trim().toLowerCase();
         const resultsBox = document.getElementById('search-results');
@@ -293,22 +459,38 @@
           return;
         }
 
-        const matches = allTeams.filter(t => t.name.toLowerCase().includes(query));
+        // Check if query matches a nickname
+        const nicknameMatch = nicknames[query];
+
+        const matches = allTeams.filter(t => {
+          const fullName = t.name.toLowerCase();
+          const abbr = (t.abbreviation || '').toLowerCase();
+          // Match full name, abbreviation, or nickname
+          return fullName.includes(query) ||
+                 abbr === query ||
+                 (nicknameMatch && t.name === nicknameMatch);
+        });
+
         resultsBox.style.display = 'block';
 
         if (matches.length === 0) {
-          searchGrid.innerHTML = '<p class="no-results">No teams found.</p>';
+          searchGrid.innerHTML = '<p class="no-results">No teams found. Try a nickname like "Chiefs", "Lakers", or "Pens".</p>';
           return;
         }
 
         searchGrid.innerHTML = matches.map(t => {
-          const existing = document.querySelector(`input[value="${t.name}"]`);
+          const existing = document.querySelector(`input[value="${t.name}"]:not(.search-cb)`);
           const isChecked = existing ? existing.checked : false;
+          // Extract nickname from nicknames map
+          const nickname = Object.entries(nicknames).find(([k, v]) => v === t.name)?.[0] ?? '';
           return `
             <label>
               <input type="checkbox" value="${t.name}" data-sport="${t.sport}" ${isChecked ? 'checked' : ''} class="search-cb" />
               <img src="${t.logo}" class="team-logo" alt="${t.name}" onerror="this.style.display='none'" />
-              ${t.name}
+              <span>
+                ${t.name}
+                ${nickname ? `<span class="team-nickname">(${nickname})</span>` : ''}
+              </span>
               <span class="sport-tag">${t.sport}</span>
             </label>
           `;
@@ -333,7 +515,6 @@
         document.getElementById('welcome-msg').textContent = `Welcome, ${user.displayName || user.email}!`;
         document.getElementById('user-email').textContent = user.email;
 
-        // Load saved preferences first
         const docRef = doc(db, 'users', user.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
@@ -346,7 +527,6 @@
           }
         }
 
-        // Load all team grids
         await Promise.all([
           loadTeams('nfl', 'nfl-teams'),
           loadTeams('nba', 'nba-teams'),
