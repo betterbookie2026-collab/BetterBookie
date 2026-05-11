@@ -24,3 +24,274 @@
       .odds-nav button.active {
         background: #fff;
         color: #000;
+      }
+      .team-select-wrap {
+        display: flex;
+        justify-content: center;
+        margin: 0 0 1.5rem;
+      }
+      .team-select-wrap select {
+        padding: 0.5rem 1rem;
+        font-size: 0.95rem;
+        border-radius: 4px;
+        border: 2px solid currentColor;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+      }
+      .odds-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+        padding: 1.5rem 2rem;
+      }
+      .odds-card {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        padding: 1.25rem;
+      }
+      .odds-card h4 {
+        margin: 0 0 0.5rem;
+        font-size: 1rem;
+      }
+      .odds-card p {
+        margin: 0.25rem 0;
+        font-size: 0.9rem;
+        opacity: 0.8;
+      }
+      .odds-table-wrap {
+        padding: 1rem 2rem 3rem;
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+      }
+      th, td {
+        text-align: left;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+      }
+      th {
+        opacity: 0.6;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+      }
+      .loading {
+        text-align: center;
+        padding: 3rem;
+        opacity: 0.6;
+      }
+      .sport-label {
+        display: inline-block;
+        font-size: 0.7rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        background: rgba(255,255,255,0.15);
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .status-out { color: #ff6b6b; }
+      .status-questionable { color: #ffd93d; }
+      .status-probable { color: #6bcb77; }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <nav class="nav">
+        <h1 class="logo"><a href="index.html" style="text-decoration:none;color:inherit;">BetterBookie</a></h1>
+        <button
+          class="menu-toggle"
+          id="menu-toggle"
+          type="button"
+          aria-label="Toggle menu"
+          aria-expanded="false"
+        >
+          ☰
+        </button>
+        <div class="nav-links" id="nav-links">
+          <a href="index.html#features">Features</a>
+          <a href="about.html">About</a>
+          <a href="odds.html">Live Odds</a>
+          <a href="injuries.html">Injuries</a>
+          <a href="index.html#signup" class="btn btn-small">Get Started</a>
+        </div>
+      </nav>
+      <div class="hero-content">
+        <h2>Injury Report</h2>
+        <p>Up-to-date injury data across NFL, NBA, and MLB.</p>
+      </div>
+    </header>
+
+    <section class="features">
+      <div class="odds-nav">
+        <button class="active" data-sport="nfl">NFL</button>
+        <button data-sport="nba">NBA</button>
+        <button data-sport="mlb">MLB</button>
+      </div>
+
+      <div class="team-select-wrap">
+        <select id="team-select">
+          <option value="1">Las Vegas Raiders</option>
+          <option value="2">New England Patriots</option>
+          <option value="3">New York Jets</option>
+          <option value="4">Buffalo Bills</option>
+          <option value="5">Miami Dolphins</option>
+          <option value="6">Baltimore Ravens</option>
+          <option value="7">Pittsburgh Steelers</option>
+          <option value="8">Cleveland Browns</option>
+          <option value="9">Cincinnati Bengals</option>
+          <option value="10">Houston Texans</option>
+          <option value="11">Indianapolis Colts</option>
+          <option value="12">Jacksonville Jaguars</option>
+          <option value="13">Tennessee Titans</option>
+          <option value="14">Kansas City Chiefs</option>
+          <option value="15">Los Angeles Chargers</option>
+          <option value="16">Denver Broncos</option>
+          <option value="17">Dallas Cowboys</option>
+          <option value="18">New York Giants</option>
+          <option value="19">Philadelphia Eagles</option>
+          <option value="20">Washington Commanders</option>
+          <option value="21">Chicago Bears</option>
+          <option value="22">Green Bay Packers</option>
+          <option value="23">Minnesota Vikings</option>
+          <option value="24">Detroit Lions</option>
+          <option value="25">Atlanta Falcons</option>
+          <option value="26">Carolina Panthers</option>
+          <option value="27">New Orleans Saints</option>
+          <option value="28">Tampa Bay Buccaneers</option>
+          <option value="29">Los Angeles Rams</option>
+          <option value="30">Seattle Seahawks</option>
+          <option value="31">San Francisco 49ers</option>
+          <option value="32">Arizona Cardinals</option>
+        </select>
+      </div>
+
+      <div id="cards-container" class="odds-cards">
+        <div class="loading">Loading injuries...</div>
+      </div>
+
+      <div class="odds-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Player</th>
+              <th>Team</th>
+              <th>Description</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="injuries-table-body">
+            <tr><td colspan="5" class="loading">Loading injuries...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>&copy; 2026 BetterBookie. Built by a beginner.</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+      let currentSport = 'nfl';
+      let currentTeam = '1';
+
+      function getStatusClass(status) {
+        if (!status) return '';
+        const s = status.toLowerCase();
+        if (s.includes('out')) return 'status-out';
+        if (s.includes('question')) return 'status-questionable';
+        if (s.includes('probable')) return 'status-probable';
+        return '';
+      }
+
+      async function fetchInjuries(sport, team) {
+        const cardsContainer = document.getElementById('cards-container');
+        const tableBody = document.getElementById('injuries-table-body');
+        cardsContainer.innerHTML = '<div class="loading">Loading injuries...</div>';
+        tableBody.innerHTML = '<tr><td colspan="5" class="loading">Loading injuries...</td></tr>';
+
+        try {
+          const res = await fetch(`https://better-bookie-five.vercel.app/api/injuries?sport=${sport}&team=${team}`);
+          const data = await res.json();
+          const injuries = data.response;
+
+          if (!Array.isArray(injuries) || injuries.length === 0) {
+            cardsContainer.innerHTML = '<div class="loading">No injury data found for this team.</div>';
+            tableBody.innerHTML = '<tr><td colspan="5" class="loading">No injury data found.</td></tr>';
+            return;
+          }
+
+          const sportLabel = sport.toUpperCase();
+
+          cardsContainer.innerHTML = injuries.slice(0, 6).map(item => {
+            const player = item.player?.name ?? 'Unknown';
+            const team = item.team?.name ?? 'Unknown';
+            const status = item.status ?? 'N/A';
+            const description = item.description ?? 'N/A';
+            const date = item.date ? new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
+
+            return `
+              <div class="odds-card">
+                <span class="sport-label">${sportLabel}</span>
+                <h4>${player}</h4>
+                <p>🏟️ ${team}</p>
+                <p>🤕 ${description}</p>
+                <p>📅 ${date}</p>
+                <p>Status: <strong class="${getStatusClass(status)}">${status}</strong></p>
+              </div>
+            `;
+          }).join('');
+
+          tableBody.innerHTML = injuries.map(item => {
+            const player = item.player?.name ?? 'Unknown';
+            const team = item.team?.name ?? 'Unknown';
+            const status = item.status ?? 'N/A';
+            const description = item.description ?? 'N/A';
+            const date = item.date ? new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
+
+            return `
+              <tr>
+                <td>${player}</td>
+                <td>${team}</td>
+                <td>${description}</td>
+                <td>${date}</td>
+                <td class="${getStatusClass(status)}">${status}</td>
+              </tr>
+            `;
+          }).join('');
+
+        } catch (err) {
+          cardsContainer.innerHTML = '<div class="loading">Failed to load injury data. Please try again.</div>';
+          tableBody.innerHTML = '<tr><td colspan="5" class="loading">Failed to load injury data.</td></tr>';
+        }
+      }
+
+      document.querySelectorAll('.odds-nav button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.odds-nav button').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentSport = btn.dataset.sport;
+          const select = document.getElementById('team-select');
+          select.value = '1';
+          currentTeam = '1';
+          fetchInjuries(currentSport, currentTeam);
+        });
+      });
+
+      document.getElementById('team-select').addEventListener('change', (e) => {
+        currentTeam = e.target.value;
+        fetchInjuries(currentSport, currentTeam);
+      });
+
+      fetchInjuries(currentSport, currentTeam);
+    </script>
+  </body>
+</html>
