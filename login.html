@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login – BetterBookie</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .login-wrap {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 3rem 1rem;
+      }
+      .login-box {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        padding: 2.5rem;
+        width: 100%;
+        max-width: 420px;
+      }
+      .login-box h3 {
+        margin: 0 0 1.5rem;
+        font-size: 1.4rem;
+        text-align: center;
+      }
+      .login-box input {
+        width: 100%;
+        padding: 0.65rem 1rem;
+        margin-bottom: 1rem;
+        border-radius: 4px;
+        border: 1px solid rgba(255,255,255,0.2);
+        background: rgba(255,255,255,0.05);
+        color: inherit;
+        font-size: 0.95rem;
+        box-sizing: border-box;
+      }
+      .login-box button {
+        width: 100%;
+        padding: 0.65rem;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        font-size: 0.95rem;
+        margin-bottom: 0.75rem;
+      }
+      .btn-email {
+        background: #fff;
+        color: #000;
+        font-weight: 600;
+      }
+      .btn-google {
+        background: transparent;
+        border: 2px solid rgba(255,255,255,0.3) !important;
+        color: inherit;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+      .divider {
+        text-align: center;
+        opacity: 0.4;
+        margin: 1rem 0;
+        font-size: 0.85rem;
+      }
+      .toggle-link {
+        text-align: center;
+        margin-top: 1rem;
+        font-size: 0.85rem;
+        opacity: 0.7;
+      }
+      .toggle-link a {
+        color: inherit;
+        cursor: pointer;
+        text-decoration: underline;
+      }
+      .error-msg {
+        color: #ff6b6b;
+        font-size: 0.85rem;
+        margin-bottom: 0.75rem;
+        text-align: center;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <nav class="nav">
+        <h1 class="logo"><a href="index.html" style="text-decoration:none;color:inherit;">BetterBookie</a></h1>
+        <button
+          class="menu-toggle"
+          id="menu-toggle"
+          type="button"
+          aria-label="Toggle menu"
+          aria-expanded="false"
+        >
+          ☰
+        </button>
+        <div class="nav-links" id="nav-links">
+          <a href="index.html#features">Features</a>
+          <a href="scores.html">Scores</a>
+          <a href="odds.html">Live Odds</a>
+          <a href="injuries.html">Injuries</a>
+          <a href="index.html#signup" class="btn btn-small">Get Started</a>
+        </div>
+      </nav>
+      <div class="hero-content">
+        <h2 id="form-title">Welcome Back</h2>
+        <p id="form-subtitle">Sign in to access your BetterBookie dashboard.</p>
+      </div>
+    </header>
+
+    <section class="features">
+      <div class="login-wrap">
+        <div class="login-box">
+          <h3 id="box-title">Sign In</h3>
+          <p class="error-msg" id="error-msg"></p>
+
+          <input type="email" id="email" placeholder="Email address" />
+          <input type="password" id="password" placeholder="Password" />
+
+          <button class="btn-email" id="email-btn">Sign In</button>
+
+          <div class="divider">or</div>
+
+          <button class="btn-google" id="google-btn">
+            <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20H24v8h11.3C33.7 33.1 29.3 36 24 36c
