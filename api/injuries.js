@@ -11,13 +11,13 @@ export default async function handler(req, res) {
 
   const configs = {
     nfl: {
-      url: 'https://v1.american-football.api-sports.io/injuries?league=1&season=2024',
+      url: 'https://v1.american-football.api-sports.io/injuries?team=1',
     },
     nba: {
-      url: 'https://v2.nba.api-sports.io/injuries?league=12&season=2024-2025',
+      url: 'https://v2.nba.api-sports.io/injuries?team=1&season=2024-2025',
     },
     mlb: {
-      url: 'https://v1.baseball.api-sports.io/injuries?league=1&season=2024',
+      url: 'https://v1.baseball.api-sports.io/injuries?team=1&season=2024',
     },
   };
 
@@ -31,11 +31,6 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
-
-    if (data.errors && Object.keys(data.errors).length > 0) {
-      return res.status(400).json({ error: data.errors });
-    }
-
     res.status(200).json(data);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch injury data' });
