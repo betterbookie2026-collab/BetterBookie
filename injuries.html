@@ -99,6 +99,18 @@
       .status-out { color: #ff6b6b; }
       .status-questionable { color: #ffd93d; }
       .status-probable { color: #6bcb77; }
+      .unavailable {
+        text-align: center;
+        padding: 3rem 2rem;
+        opacity: 0.7;
+      }
+      .unavailable h4 {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+      }
+      .unavailable p {
+        font-size: 0.95rem;
+      }
     </style>
   </head>
   <body>
@@ -135,7 +147,7 @@
         <button data-sport="mlb">MLB</button>
       </div>
 
-      <div class="team-select-wrap">
+      <div class="team-select-wrap" id="team-select-wrap">
         <select id="team-select"></select>
       </div>
 
@@ -143,7 +155,7 @@
         <div class="loading">Loading injuries...</div>
       </div>
 
-      <div class="odds-table-wrap">
+      <div class="odds-table-wrap" id="table-wrap">
         <table>
           <thead>
             <tr>
@@ -289,13 +301,34 @@
         currentTeam = teams[sport][0].id.toString();
       }
 
+      function showUnavailable() {
+        const cardsContainer = document.getElementById('cards-container');
+        const tableBody = document.getElementById('injuries-table-body');
+        const tableWrap = document.getElementById('table-wrap');
+        const teamSelectWrap = document.getElementById('team-select-wrap');
+
+        teamSelectWrap.style.display = 'none';
+        tableWrap.style.display = 'none';
+        cardsContainer.innerHTML = `
+          <div class="unavailable" style="grid-column: 1/-1;">
+            <h4>⚾ MLB Injury Data Coming Soon</h4>
+            <p>MLB injury data is not currently available through our data provider. Check back soon as we continue to expand our coverage!</p>
+          </div>
+        `;
+      }
+
+      function showAvailable() {
+        document.getElementById('table-wrap').style.display = 'block';
+        document.getElementById('team-select-wrap').style.display = 'flex';
+      }
+
       function renderInjuries(injuries, sport) {
         const cardsContainer = document.getElementById('cards-container');
         const tableBody = document.getElementById('injuries-table-body');
         const sportLabel = sport.toUpperCase();
 
         if (!Array.isArray(injuries) || injuries.length === 0) {
-          cardsContainer.innerHTML = '<div class="loading">No injury data found for this team.</div>';
+          cardsContainer.innerHTML = '<div class="loading" style="grid-column:1/-1;">No injury data found for this team.</div>';
           tableBody.innerHTML = '<tr><td colspan="5" class="loading">No injury data found.</td></tr>';
           return;
         }
@@ -337,8 +370,14 @@
       }
 
       async function fetchInjuries(sport, team) {
-        const cacheKey = `${sport}-${team}`;
+        if (sport === 'mlb') {
+          showUnavailable();
+          return;
+        }
 
+        showAvailable();
+
+        const cacheKey = `${sport}-${team}`;
         if (cache[cacheKey]) {
           renderInjuries(cache[cacheKey], sport);
           return;
@@ -376,7 +415,6 @@
         fetchInjuries(currentSport, currentTeam);
       });
 
-      // Initial load
       populateTeamDropdown(currentSport);
       fetchInjuries(currentSport, currentTeam);
     </script>
