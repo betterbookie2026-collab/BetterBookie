@@ -154,7 +154,7 @@
         tableBody.innerHTML = '<tr><td colspan="6" class="loading">Loading odds...</td></tr>';
 
         try {
-          const res = await fetch(`/api/odds?sport=${sport}`);
+          const res = await fetch(`https://better-bookie-five.vercel.app/api/odds?sport=${sport}`);
           const data = await res.json();
 
           if (!Array.isArray(data) || data.length === 0) {
