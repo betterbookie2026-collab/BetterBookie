@@ -178,7 +178,6 @@
 
           const sportLabel = sport.toUpperCase();
 
-          // Render cards (top 6)
           cardsContainer.innerHTML = injuries.slice(0, 6).map(item => {
             const player = item.player?.name ?? 'Unknown';
             const team = item.team?.name ?? 'Unknown';
@@ -198,7 +197,6 @@
             `;
           }).join('');
 
-          // Render table
           tableBody.innerHTML = injuries.map(item => {
             const player = item.player?.name ?? 'Unknown';
             const team = item.team?.name ?? 'Unknown';
@@ -223,7 +221,6 @@
         }
       }
 
-      // Sport switcher
       document.querySelectorAll('.odds-nav button').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.odds-nav button').forEach(b => b.classList.remove('active'));
@@ -233,7 +230,6 @@
         });
       });
 
-      // Initial load
       fetchInjuries(currentSport);
     </script>
   </body>
