@@ -10,14 +10,19 @@ export default async function handler(req, res) {
   const { sport = 'football' } = req.query;
 
   const configs = {
-    football: { url: `https://api.balldontlie.io/ncaaf/v1/games?seasons[]=2024&api_key=${process.env.BALLDONTLIE_KEY}` },
-    basketball: { url: `https://api.balldontlie.io/ncaab/v1/games?season=2024&api_key=${process.env.BALLDONTLIE_KEY}` },
+    football: { url: 'https://api.balldontlie.io/ncaaf/v1/games?seasons[]=2024' },
+    basketball: { url: 'https://api.balldontlie.io/ncaab/v1/games?season=2024' },
   };
 
   const config = configs[sport] || configs.football;
 
   try {
-    const response = await fetch(config.url);
+    const response = await fetch(config.url, {
+      headers: {
+        'Authorization': process.env.BALLDONTLIE_KEY,
+      },
+    });
+
     const text = await response.text();
     res.status(200).send(text);
   } catch (err) {
