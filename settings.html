@@ -7,98 +7,34 @@
     <link rel="stylesheet" href="styles.css" />
     <style>
       .nav-dropdown { position: relative; display: inline-block; }
-      .nav-dropdown-btn {
-        background: transparent;
-        border: none;
-        color: inherit;
-        cursor: pointer;
-        font-size: 1rem;
-        padding: 0;
-        font-family: inherit;
-      }
-      .nav-dropdown-menu {
-        display: none;
-        position: absolute;
-        top: 100%;
-        right: 0;
-        background: #1a1a2e;
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 6px;
-        min-width: 180px;
-        z-index: 100;
-        padding: 0.5rem 0;
-      }
+      .nav-dropdown-btn { background: transparent; border: none; color: inherit; cursor: pointer; font-size: 1rem; padding: 0; font-family: inherit; }
+      .nav-dropdown-menu { display: none; position: absolute; top: 100%; right: 0; background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; min-width: 200px; z-index: 100; padding: 0.5rem 0; }
       .nav-dropdown.open .nav-dropdown-menu { display: block; }
-      .nav-dropdown-menu a {
-        display: block;
-        padding: 0.6rem 1rem;
-        color: inherit;
-        text-decoration: none;
-        font-size: 0.9rem;
-        opacity: 0.8;
-      }
+      .nav-dropdown-menu a { display: block; padding: 0.6rem 1rem; color: inherit; text-decoration: none; font-size: 0.9rem; opacity: 0.8; }
       .nav-dropdown-menu a:hover { opacity: 1; background: rgba(255,255,255,0.05); }
+      .nav-dropdown-menu .menu-divider { border-top: 1px solid rgba(255,255,255,0.1); margin: 0.25rem 0; }
+      .nav-dropdown-menu .menu-label { padding: 0.4rem 1rem 0.1rem; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.4; }
       .dashboard-wrap { padding: 2rem; max-width: 900px; margin: 0 auto; }
       .dashboard-wrap h3 { margin-bottom: 0.5rem; }
       .user-info { opacity: 0.6; font-size: 0.9rem; margin-bottom: 1rem; }
-      .intro-snippet {
-        background: rgba(255,255,255,0.05);
-        border-left: 3px solid #ffd93d;
-        border-radius: 4px;
-        padding: 1rem 1.25rem;
-        margin-bottom: 1.5rem;
-        font-size: 0.95rem;
-        line-height: 1.6;
-        opacity: 0.9;
-      }
+      .intro-snippet { background: rgba(255,255,255,0.05); border-left: 3px solid #ffd93d; border-radius: 4px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; font-size: 0.95rem; line-height: 1.6; opacity: 0.9; }
       .intro-snippet ol { margin: 0.5rem 0 0 1.25rem; padding: 0; }
       .intro-snippet li { margin-bottom: 0.25rem; }
-      .selected-teams-section {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(107,203,119,0.3);
-        border-radius: 8px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-      }
-      .selected-teams-section h4 {
-        margin: 0 0 1rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: #6bcb77;
-        font-size: 0.8rem;
-      }
+      .selected-teams-section { background: rgba(255,255,255,0.05); border: 1px solid rgba(107,203,119,0.3); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; }
+      .selected-teams-section h4 { margin: 0 0 1rem; text-transform: uppercase; letter-spacing: 0.05em; color: #6bcb77; font-size: 0.8rem; }
       .selected-teams-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-      .selected-team-chip {
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-        background: rgba(107,203,119,0.1);
-        border: 1px solid rgba(107,203,119,0.3);
-        border-radius: 20px;
-        padding: 0.3rem 0.75rem 0.3rem 0.4rem;
-        font-size: 0.85rem;
-        cursor: pointer;
-        transition: background 0.15s;
-      }
+      .selected-team-chip { display: flex; align-items: center; gap: 0.4rem; background: rgba(107,203,119,0.1); border: 1px solid rgba(107,203,119,0.3); border-radius: 20px; padding: 0.3rem 0.75rem 0.3rem 0.4rem; font-size: 0.85rem; cursor: pointer; transition: background 0.15s; }
       .selected-team-chip:hover { background: rgba(255,100,100,0.15); border-color: rgba(255,100,100,0.4); }
       .selected-team-chip img { width: 20px; height: 20px; object-fit: contain; }
       .selected-team-chip .remove { opacity: 0.5; font-size: 0.75rem; margin-left: 0.2rem; }
       .no-selected { opacity: 0.5; font-size: 0.9rem; }
-      .pref-section {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 8px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-      }
+      .pref-section { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; }
       .pref-section h4 { margin: 0 0 1rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.7; font-size: 0.8rem; }
-      .recommended-section {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,200,0,0.3);
-        border-radius: 8px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-      }
+      .coming-soon-section { background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15); border-radius: 8px; padding: 2rem 1.5rem; margin-bottom: 1.5rem; text-align: center; }
+      .coming-soon-section h4 { margin: 0 0 0.5rem; opacity: 0.6; font-size: 1rem; }
+      .coming-soon-section p { opacity: 0.4; font-size: 0.85rem; margin: 0; }
+      .coming-soon-badge { display: inline-block; font-size: 0.7rem; padding: 0.2rem 0.6rem; background: rgba(255,217,61,0.15); border: 1px solid rgba(255,217,61,0.3); color: #ffd93d; border-radius: 20px; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+      .recommended-section { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,200,0,0.3); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; }
       .recommended-section h4 { margin: 0 0 1rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.7; font-size: 0.8rem; color: #ffd93d; }
       .recommended-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.75rem; }
       .recommended-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; cursor: pointer; transition: background 0.15s, border-color 0.15s; position: relative; }
@@ -144,6 +80,7 @@
       .signout-btn { padding: 0.5rem 1.25rem; background: transparent; border: 2px solid rgba(255,255,255,0.3); border-radius: 4px; color: inherit; cursor: pointer; font-size: 0.85rem; margin-top: 1rem; }
       .success-msg { color: #6bcb77; font-size: 0.85rem; margin-top: 0.5rem; display: none; }
       .loading-teams { opacity: 0.5; font-size: 0.85rem; padding: 0.5rem; }
+      .section-highlight { border-color: rgba(255,217,61,0.5) !important; box-shadow: 0 0 0 2px rgba(255,217,61,0.15); }
     </style>
   </head>
   <body>
@@ -160,8 +97,13 @@
           <div class="nav-dropdown" id="nav-settings-dropdown">
             <button class="nav-dropdown-btn" onclick="document.getElementById('nav-settings-dropdown').classList.toggle('open')">Settings ▾</button>
             <div class="nav-dropdown-menu">
+              <span class="menu-label">Preferences</span>
+              <a href="settings.html">All Preferences</a>
               <a href="settings.html#sports">Sports Preferences</a>
               <a href="settings.html#teams">Team Preferences</a>
+              <a href="settings.html#gambling">Gambling Preferences</a>
+              <a href="settings.html#fantasy">Fantasy Preferences</a>
+              <div class="menu-divider"></div>
               <a href="#" id="nav-signout">Logout</a>
             </div>
           </div>
@@ -170,7 +112,7 @@
       </nav>
       <div class="hero-content">
         <h2>Settings</h2>
-        <p>Manage your favorite sports and teams.</p>
+        <p>Manage your preferences.</p>
       </div>
     </header>
 
@@ -210,8 +152,9 @@
           <div class="checkbox-grid" id="search-grid"></div>
         </div>
 
+        <!-- SPORTS SECTION -->
         <div class="pref-section" id="sports">
-          <h4>1️⃣ Favorite Sports</h4>
+          <h4>1️⃣ 🏈 Sports Preferences</h4>
           <div class="checkbox-grid" id="sports-grid">
             <label><input type="checkbox" value="nfl" /><span class="sport-emoji">🏈</span> NFL</label>
             <label><input type="checkbox" value="nba" /><span class="sport-emoji">🏀</span> NBA</label>
@@ -224,14 +167,30 @@
           </div>
         </div>
 
-        <div id="favorite-sport-sections" id="teams"></div>
+        <!-- TEAMS SECTION -->
+        <div id="teams">
+          <div id="favorite-sport-sections"></div>
+          <div class="other-sports-wrap" id="other-sports-wrap" style="display:none;">
+            <button class="other-sports-toggle" id="other-sports-toggle">
+              <span>➕ Other Sports</span>
+              <span id="other-sports-arrow">▼</span>
+            </button>
+            <div class="other-sports-content" id="other-sports-content"></div>
+          </div>
+        </div>
 
-        <div class="other-sports-wrap" id="other-sports-wrap" style="display:none;">
-          <button class="other-sports-toggle" id="other-sports-toggle">
-            <span>➕ Other Sports</span>
-            <span id="other-sports-arrow">▼</span>
-          </button>
-          <div class="other-sports-content" id="other-sports-content"></div>
+        <!-- GAMBLING SECTION -->
+        <div class="coming-soon-section" id="gambling">
+          <span class="coming-soon-badge">Coming Soon</span>
+          <h4>🎲 Gambling Preferences</h4>
+          <p>Set your preferred sportsbooks, bet types, odds format (American / Decimal / Fractional), and bankroll settings.</p>
+        </div>
+
+        <!-- FANTASY SECTION -->
+        <div class="coming-soon-section" id="fantasy">
+          <span class="coming-soon-badge">Coming Soon</span>
+          <h4>🏆 Fantasy Preferences</h4>
+          <p>Connect your fantasy leagues, set your platforms (ESPN, Yahoo, Sleeper), and get personalized fantasy insights.</p>
         </div>
 
         <button class="save-btn" id="save-btn">Save Preferences</button>
@@ -267,7 +226,7 @@
       // Close dropdown when clicking outside
       document.addEventListener('click', (e) => {
         const dropdown = document.getElementById('nav-settings-dropdown');
-        if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
+        if (dropdown && !dropdown.contains(e.target)) dropdown.classList.remove('open');
       });
 
       // Nav signout
@@ -276,6 +235,22 @@
         await signOut(auth);
         window.location.href = 'login.html';
       });
+
+      // Hash-based scrolling and highlight
+      function handleHash() {
+        const hash = window.location.hash;
+        if (!hash) return;
+        const target = document.querySelector(hash);
+        if (target) {
+          setTimeout(() => {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            target.classList.add('section-highlight');
+            setTimeout(() => target.classList.remove('section-highlight'), 2000);
+          }, 500);
+        }
+      }
+
+      window.addEventListener('hashchange', handleHash);
 
       const sportMeta = {
         nfl:          { label: 'NFL Teams', emoji: '🏈', college: false },
@@ -659,6 +634,7 @@
         }));
         updateSections();
         loadRecommendations();
+        handleHash();
       }
 
       let currentUser = null;
