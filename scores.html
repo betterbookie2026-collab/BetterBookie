@@ -77,7 +77,7 @@
         justify-content: center;
         gap: 0.5rem;
         margin-bottom: 1rem;
-   flex-wrap: wrap;
+        flex-wrap: wrap;
       }
       .season-nav select {
         padding: 0.4rem 0.75rem;
@@ -110,6 +110,40 @@
         opacity: 0.6;
       }
       .season-type-btn.active { background: rgba(255,255,255,0.15); opacity: 1; border-color: rgba(255,255,255,0.5); }
+      .team-filter-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+      }
+      .team-filter-wrap label { opacity: 0.6; font-size: 0.85rem; }
+      .team-filter-wrap select {
+        padding: 0.4rem 0.75rem;
+        border: 1px solid rgba(255,255,255,0.3);
+        background: #2a2a4e;
+        color: #ffffff;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        min-width: 200px;
+      }
+      .team-filter-wrap select option {
+        background: #2a2a4e;
+        color: #ffffff;
+      }
+      .clear-filter-btn {
+        padding: 0.4rem 0.75rem;
+        border: 1px solid rgba(255,255,255,0.2);
+        background: transparent;
+        color: inherit;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        opacity: 0.6;
+      }
+      .clear-filter-btn:hover { opacity: 1; }
       .odds-cards {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -125,7 +159,7 @@
         transition: background 0.15s;
       }
       .odds-card:hover { background: rgba(255,255,255,0.08); }
-      .odds-card h4 { margin: 0 0 0.5rem; font-size: 1rem; display: flex; align-items: center; gap: 0.4rem; }
+      .odds-card h4 { margin: 0 0 0.5rem; font-size: 1rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
       .odds-card p { margin: 0.25rem 0; font-size: 0.9rem; opacity: 0.8; }
       .score { font-size: 1.4rem; font-weight: bold; margin: 0.5rem 0; }
       .team-logo-sm { width: 22px; height: 22px; object-fit: contain; vertical-align: middle; }
@@ -163,19 +197,8 @@
         padding-bottom: 0.4rem;
         border-bottom: 1px solid rgba(255,255,255,0.08);
       }
-      .score-line-grid {
-        display: grid;
-        gap: 0.25rem;
-        font-size: 0.85rem;
-        overflow-x: auto;
-      }
-      .score-line-row {
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-        padding: 0.3rem 0;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-      }
+      .score-line-grid { display: grid; gap: 0.25rem; font-size: 0.85rem; overflow-x: auto; }
+      .score-line-row { display: flex; gap: 0.5rem; align-items: center; padding: 0.3rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
       .score-line-team { flex: 1; display: flex; align-items: center; gap: 0.4rem; min-width: 140px; }
       .score-line-team img { width: 18px; height: 18px; object-fit: contain; }
       .score-line-periods { display: flex; gap: 0.75rem; }
@@ -320,6 +343,14 @@
           <button id="next-week-btn">Next ▶</button>
         </div>
 
+        <div class="team-filter-wrap">
+          <label>Filter by team:</label>
+          <select id="team-filter-select">
+            <option value="">All Teams</option>
+          </select>
+          <button class="clear-filter-btn" id="clear-team-filter">✕ Clear</button>
+        </div>
+
         <div id="cards-container" class="odds-cards">
           <div class="loading">Loading scores...</div>
         </div>
@@ -350,7 +381,6 @@
       const VERCEL = 'https://better-bookie-five.vercel.app';
       const currentYear = new Date().getFullYear();
 
-      // Sport config
       const sportConfig = {
         nfl:    { hasWeeks: true,  weekCount: 18, preWeeks: 4 },
         nba:    { hasWeeks: false, weekCount: 0 },
@@ -365,21 +395,21 @@
       let currentSeasonType = 2;
       let currentWeek = 1;
       let maxWeek = 18;
+      let currentTeamFilter = '';
       const scoresCache = {};
       const boxscoreCache = {};
 
-      // Populate season dropdown (last 10 years)
       function populateSeasons() {
-  const select = document.getElementById('season-select');
-  select.innerHTML = '';
-  for (let y = currentYear; y >= 1990; y--) {
-    const opt = document.createElement('option');
-    opt.value = y;
-    opt.textContent = y;
-    if (y === currentYear) opt.selected = true;
-    select.appendChild(opt);
-  }
-}
+        const select = document.getElementById('season-select');
+        select.innerHTML = '';
+        for (let y = currentYear; y >= 1990; y--) {
+          const opt = document.createElement('option');
+          opt.value = y;
+          opt.textContent = y;
+          if (y === currentYear) opt.selected = true;
+          select.appendChild(opt);
+        }
+      }
 
       function getStatusClass(status) {
         if (!status) return '';
@@ -400,6 +430,28 @@
           return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
         }
         return detail || type || 'N/A';
+      }
+
+      async function populateTeamFilter(events) {
+        const select = document.getElementById('team-filter-select');
+        const teams = new Set();
+        events.forEach(event => {
+          const competition = event.competitions?.[0];
+          const competitors = competition?.competitors ?? [];
+          competitors.forEach(c => {
+            const name = c.team?.displayName ?? c.team?.name;
+            if (name) teams.add(name);
+          });
+        });
+        const sorted = [...teams].sort();
+        select.innerHTML = '<option value="">All Teams</option>';
+        sorted.forEach(name => {
+          const opt = document.createElement('option');
+          opt.value = name;
+          opt.textContent = name;
+          if (name === currentTeamFilter) opt.selected = true;
+          select.appendChild(opt);
+        });
       }
 
       async function toggleBoxScore(gameId, sport, panelEl, btnEl) {
@@ -433,8 +485,6 @@
         const competitors = competition?.competitors ?? [];
         const homeTeam = competitors.find(c => c.homeAway === 'home') ?? competitors[0];
         const awayTeam = competitors.find(c => c.homeAway === 'away') ?? competitors[1];
-
-        // Line scores (quarters/periods/innings)
         const homeLinescores = homeTeam?.linescores ?? [];
         const awayLinescores = awayTeam?.linescores ?? [];
 
@@ -477,7 +527,6 @@
           `;
         }
 
-        // Team stats
         let teamStatsHtml = '';
         const boxscore = data.boxscore;
         if (boxscore?.teams?.length > 0) {
@@ -508,7 +557,6 @@
           }
         }
 
-        // Player stats
         let playerStatsHtml = '';
         const players = boxscore?.players ?? data.players ?? [];
         if (players.length > 0) {
@@ -612,18 +660,27 @@
 
       async function fetchScores() {
         const cacheKey = `${currentSport}-${currentSeason}-${currentSeasonType}-${currentWeek}`;
-        if (scoresCache[cacheKey]) { renderScores(scoresCache[cacheKey], currentSport); return; }
         document.getElementById('cards-container').innerHTML = '<div class="loading">Loading scores...</div>';
         try {
-          let url = `${VERCEL}/api/espn-scores?sport=${currentSport}&season=${currentSeason}&seasontype=${currentSeasonType}`;
-          if (sportConfig[currentSport]?.hasWeeks && currentSeasonType === 2) {
-            url += `&week=${currentWeek}`;
+          let events = scoresCache[cacheKey];
+          if (!events) {
+            let url = `${VERCEL}/api/espn-scores?sport=${currentSport}&season=${currentSeason}&seasontype=${currentSeasonType}`;
+            if (sportConfig[currentSport]?.hasWeeks && currentSeasonType === 2) {
+              url += `&week=${currentWeek}`;
+            }
+            const res = await fetch(url);
+            const data = await res.json();
+            events = data.events ?? [];
+            scoresCache[cacheKey] = events;
           }
-          const res = await fetch(url);
-          const data = await res.json();
-          const events = data.events ?? [];
-          scoresCache[cacheKey] = events;
-          renderScores(events, currentSport);
+          await populateTeamFilter(events);
+          const filtered = currentTeamFilter
+            ? events.filter(event => {
+                const competitors = event.competitions?.[0]?.competitors ?? [];
+                return competitors.some(c => (c.team?.displayName ?? c.team?.name) === currentTeamFilter);
+              })
+            : events;
+          renderScores(filtered, currentSport);
         } catch (err) {
           document.getElementById('cards-container').innerHTML = '<div class="loading">Failed to load scores.</div>';
         }
@@ -650,6 +707,8 @@
           btn.classList.add('active');
           currentSport = btn.dataset.sport;
           currentWeek = 1;
+          currentTeamFilter = '';
+          document.getElementById('team-filter-select').value = '';
           updateWeekNav();
           fetchScores();
         });
@@ -659,6 +718,8 @@
       document.getElementById('season-select').addEventListener('change', (e) => {
         currentSeason = parseInt(e.target.value);
         currentWeek = 1;
+        currentTeamFilter = '';
+        document.getElementById('team-filter-select').value = '';
         fetchScores();
       });
 
@@ -669,6 +730,8 @@
           btn.classList.add('active');
           currentSeasonType = parseInt(btn.dataset.type);
           currentWeek = 1;
+          currentTeamFilter = '';
+          document.getElementById('team-filter-select').value = '';
           updateWeekNav();
           fetchScores();
         });
@@ -680,6 +743,18 @@
       });
       document.getElementById('next-week-btn').addEventListener('click', () => {
         if (currentWeek < maxWeek) { currentWeek++; updateWeekNav(); fetchScores(); }
+      });
+
+      // Team filter
+      document.getElementById('team-filter-select').addEventListener('change', (e) => {
+        currentTeamFilter = e.target.value;
+        fetchScores();
+      });
+
+      document.getElementById('clear-team-filter').addEventListener('click', () => {
+        currentTeamFilter = '';
+        document.getElementById('team-filter-select').value = '';
+        fetchScores();
       });
 
       // RECORDS
@@ -706,9 +781,7 @@
         if (children.length > 0 && children[0]?.children) {
           children.forEach(conf => {
             (conf.children ?? []).forEach(div => {
-              (div.standings?.entries ?? []).forEach(entry => {
-                teams.push(entry);
-              });
+              (div.standings?.entries ?? []).forEach(entry => teams.push(entry));
             });
           });
         } else {
