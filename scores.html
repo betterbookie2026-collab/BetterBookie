@@ -21,10 +21,7 @@
         font-size: 0.95rem;
         border-radius: 4px;
       }
-      .odds-nav button.active {
-        background: #fff;
-        color: #000;
-      }
+      .odds-nav button.active { background: #fff; color: #000; }
       .odds-cards {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -37,26 +34,10 @@
         border-radius: 8px;
         padding: 1.25rem;
       }
-      .odds-card h4 {
-        margin: 0 0 0.5rem;
-        font-size: 1rem;
-      }
-      .odds-card p {
-        margin: 0.25rem 0;
-        font-size: 0.9rem;
-        opacity: 0.8;
-      }
-      .score {
-        font-size: 1.4rem;
-        font-weight: bold;
-        margin: 0.5rem 0;
-      }
-      .loading {
-        text-align: center;
-        padding: 3rem;
-        opacity: 0.6;
-        grid-column: 1/-1;
-      }
+      .odds-card h4 { margin: 0 0 0.5rem; font-size: 1rem; }
+      .odds-card p { margin: 0.25rem 0; font-size: 0.9rem; opacity: 0.8; }
+      .score { font-size: 1.4rem; font-weight: bold; margin: 0.5rem 0; }
+      .loading { text-align: center; padding: 3rem; opacity: 0.6; grid-column: 1/-1; }
       .sport-label {
         display: inline-block;
         font-size: 0.7rem;
@@ -76,22 +57,15 @@
     <header class="hero">
       <nav class="nav">
         <h1 class="logo"><a href="index.html" style="text-decoration:none;color:inherit;">BetterBookie</a></h1>
-        <button
-          class="menu-toggle"
-          id="menu-toggle"
-          type="button"
-          aria-label="Toggle menu"
-          aria-expanded="false"
-        >
-          ☰
-        </button>
+        <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false">☰</button>
         <div class="nav-links" id="nav-links">
           <a href="index.html#features">Features</a>
           <a href="scores.html">Scores</a>
           <a href="odds.html">Live Odds</a>
           <a href="injuries.html">Injuries</a>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="settings.html">Settings</a>
           <a href="login.html">Login</a>
-          <a href="index.html#signup" class="btn btn-small">Get Started</a>
         </div>
       </nav>
       <div class="hero-content">
@@ -107,7 +81,6 @@
         <button data-sport="mlb">MLB</button>
         <button data-sport="nhl">NHL</button>
       </div>
-
       <div id="cards-container" class="odds-cards">
         <div class="loading">Loading scores...</div>
       </div>
@@ -133,12 +106,10 @@
       function renderScores(games, sport) {
         const cardsContainer = document.getElementById('cards-container');
         const sportLabel = sport.toUpperCase();
-
         if (!Array.isArray(games) || games.length === 0) {
           cardsContainer.innerHTML = '<div class="loading">No scores found for this sport.</div>';
           return;
         }
-
         cardsContainer.innerHTML = games.slice(0, 24).map(game => {
           const home = game.teams?.home?.name ?? game.home_team ?? 'Home';
           const away = game.teams?.away?.name ?? game.away_team ?? 'Away';
@@ -147,7 +118,6 @@
           const status = game.status?.long ?? game.status?.short ?? game.status ?? 'N/A';
           const date = game.date ?? game.commence_time ?? null;
           const displayDate = date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
-
           return `
             <div class="odds-card">
               <span class="sport-label">${sportLabel}</span>
@@ -161,23 +131,16 @@
       }
 
       async function fetchScores(sport) {
-        const cacheKey = sport;
-        if (cache[cacheKey]) {
-          renderScores(cache[cacheKey], sport);
-          return;
-        }
-
-        const cardsContainer = document.getElementById('cards-container');
-        cardsContainer.innerHTML = '<div class="loading">Loading scores...</div>';
-
+        if (cache[sport]) { renderScores(cache[sport], sport); return; }
+        document.getElementById('cards-container').innerHTML = '<div class="loading">Loading scores...</div>';
         try {
           const res = await fetch(`https://better-bookie-five.vercel.app/api/scores?sport=${sport}`);
           const data = await res.json();
           const games = data.response ?? [];
-          cache[cacheKey] = games;
+          cache[sport] = games;
           renderScores(games, sport);
         } catch (err) {
-          cardsContainer.innerHTML = '<div class="loading">Failed to load scores. Please try again.</div>';
+          document.getElementById('cards-container').innerHTML = '<div class="loading">Failed to load scores. Please try again.</div>';
         }
       }
 
