@@ -8,259 +8,148 @@
     <style>
       .dashboard-wrap {
         padding: 2rem;
-        max-width: 900px;
+        max-width: 1000px;
         margin: 0 auto;
       }
-      .dashboard-wrap h3 { margin-bottom: 0.5rem; }
-      .user-info {
-        opacity: 0.6;
-        font-size: 0.9rem;
-        margin-bottom: 1rem;
-      }
-      .intro-snippet {
-        background: rgba(255,255,255,0.05);
-        border-left: 3px solid #ffd93d;
-        border-radius: 4px;
-        padding: 1rem 1.25rem;
-        margin-bottom: 1.5rem;
-        font-size: 0.95rem;
-        line-height: 1.6;
-        opacity: 0.9;
-      }
-      .intro-snippet ol {
-        margin: 0.5rem 0 0 1.25rem;
-        padding: 0;
-      }
-      .intro-snippet li { margin-bottom: 0.25rem; }
-      .pref-section {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 8px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-      }
-      .pref-section h4 {
-        margin: 0 0 1rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        opacity: 0.7;
-        font-size: 0.8rem;
-      }
-      .recommended-section {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,200,0,0.3);
-        border-radius: 8px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-      }
-      .recommended-section h4 {
-        margin: 0 0 1rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        opacity: 0.7;
-        font-size: 0.8rem;
-        color: #ffd93d;
-      }
-      .recommended-cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 0.75rem;
-      }
-      .recommended-card {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 8px;
-        padding: 1rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
-        cursor: pointer;
-        transition: background 0.15s, border-color 0.15s;
-        position: relative;
-      }
-      .recommended-card:hover { background: rgba(255,255,255,0.08); }
-      .recommended-card.selected {
-        border-color: #6bcb77;
-        background: rgba(107,203,119,0.1);
-      }
-      .recommended-card img {
-        width: 48px;
-        height: 48px;
-        object-fit: contain;
-      }
-      .recommended-card span { font-size: 0.8rem; text-align: center; opacity: 0.9; }
-      .recommended-card .sport-badge { font-size: 0.65rem; opacity: 0.5; text-transform: uppercase; }
-      .recommended-card .check {
-        position: absolute;
-        top: 0.4rem;
-        right: 0.4rem;
-        color: #6bcb77;
-        font-size: 0.8rem;
-        display: none;
-      }
-      .recommended-card.selected .check { display: block; }
-      .location-note { font-size: 0.8rem; opacity: 0.5; margin-bottom: 1rem; }
-      .search-wrap { margin-bottom: 1.5rem; }
-      .search-wrap input {
-        width: 100%;
-        padding: 0.75rem 1rem;
-        border-radius: 4px;
-        border: 2px solid rgba(255,255,255,0.2);
-        background: rgba(255,255,255,0.05);
-        color: inherit;
-        font-size: 0.95rem;
-        box-sizing: border-box;
-      }
-      .search-wrap input:focus { outline: none; border-color: rgba(255,255,255,0.5); }
-      .search-results {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 8px;
-        padding: 1rem 1.5rem;
-        margin-bottom: 1.5rem;
-        display: none;
-      }
-      .search-results h4 {
-        margin: 0 0 1rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        opacity: 0.7;
-        font-size: 0.8rem;
-      }
-      .checkbox-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 0.5rem;
-      }
-      .checkbox-grid label {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.9rem;
-        cursor: pointer;
-        padding: 0.4rem 0.5rem;
-        border-radius: 4px;
-        transition: background 0.15s;
-      }
-      .checkbox-grid label:hover { background: rgba(255,255,255,0.08); }
-      .checkbox-grid input[type="checkbox"] {
-        width: 16px;
-        height: 16px;
-        cursor: pointer;
-        flex-shrink: 0;
-      }
-      .team-logo {
-        width: 24px;
-        height: 24px;
-        object-fit: contain;
-        flex-shrink: 0;
-      }
-      .sport-emoji { font-size: 1.1rem; flex-shrink: 0; }
-      .sport-tag {
-        font-size: 0.7rem;
-        opacity: 0.5;
-        margin-left: auto;
-        padding-right: 0.25rem;
-      }
-      .team-nickname { font-size: 0.75rem; opacity: 0.45; margin-left: 0.1rem; }
-      .no-results { opacity: 0.5; font-size: 0.9rem; padding: 0.5rem; }
-      .conference-filter {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-        grid-column: 1/-1;
-      }
-      .conf-btn {
-        padding: 0.3rem 0.75rem;
-        border: 1px solid rgba(255,255,255,0.3);
-        border-radius: 20px;
-        background: transparent;
-        color: inherit;
-        cursor: pointer;
-        font-size: 0.8rem;
-        transition: background 0.15s;
-      }
-      .conf-btn:hover { background: rgba(255,255,255,0.1); }
-      .conf-btn.active { background: #fff; color: #000; border-color: #fff; }
-      .show-more-wrap {
-        grid-column: 1/-1;
-        margin-top: 1rem;
-        padding-top: 1rem;
-        border-top: 1px solid rgba(255,255,255,0.1);
-      }
-      .show-more-btn {
-        background: transparent;
-        border: 1px solid rgba(255,255,255,0.3);
-        border-radius: 4px;
-        color: inherit;
-        padding: 0.4rem 1rem;
-        cursor: pointer;
-        font-size: 0.85rem;
-        margin-bottom: 0.75rem;
-      }
-      .show-more-btn:hover { background: rgba(255,255,255,0.08); }
-      .extra-teams {
-        display: none;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 0.5rem;
-        margin-top: 0.75rem;
-      }
-      .extra-teams label {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.9rem;
-        cursor: pointer;
-        padding: 0.4rem 0.5rem;
-        border-radius: 4px;
-        transition: background 0.15s;
-      }
-      .extra-teams label:hover { background: rgba(255,255,255,0.08); }
-      .extra-teams input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
-      .other-sports-wrap { margin-top: 2rem; }
-      .other-sports-toggle {
-        width: 100%;
-        padding: 0.75rem 1.5rem;
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 8px;
-        color: inherit;
-        cursor: pointer;
-        font-size: 0.95rem;
-        text-align: left;
+      .welcome-bar {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 1rem;
       }
-      .other-sports-toggle:hover { background: rgba(255,255,255,0.08); }
-      .other-sports-content { display: none; }
-      .save-btn {
-        padding: 0.65rem 2rem;
-        background: #fff;
-        color: #000;
-        border: none;
+      .welcome-bar h3 { margin: 0; }
+      .welcome-bar a {
+        font-size: 0.85rem;
+        opacity: 0.6;
+        color: inherit;
+        text-decoration: none;
+        border: 1px solid rgba(255,255,255,0.3);
+        padding: 0.3rem 0.75rem;
         border-radius: 4px;
-        font-size: 0.95rem;
-        font-weight: 600;
-        cursor: pointer;
-        margin-top: 1rem;
       }
-      .save-btn:hover { opacity: 0.9; }
-      .signout-btn {
-        padding: 0.5rem 1.25rem;
+      .welcome-bar a:hover { opacity: 1; }
+      .tab-nav {
+        display: flex;
+        gap: 0;
+        margin-bottom: 2rem;
+        border-bottom: 2px solid rgba(255,255,255,0.1);
+      }
+      .tab-btn {
+        padding: 0.75rem 1.5rem;
         background: transparent;
-        border: 2px solid rgba(255,255,255,0.3);
+        border: none;
+        color: inherit;
+        cursor: pointer;
+        font-size: 0.95rem;
+        opacity: 0.5;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        transition: opacity 0.15s;
+      }
+      .tab-btn:hover { opacity: 0.8; }
+      .tab-btn.active {
+        opacity: 1;
+        border-bottom: 2px solid #fff;
+        font-weight: 600;
+      }
+      .tab-content { display: none; }
+      .tab-content.active { display: block; }
+      .feed-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+      .feed-card {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        padding: 1.25rem;
+      }
+      .feed-card h4 { margin: 0 0 0.5rem; font-size: 1rem; }
+      .feed-card p { margin: 0.25rem 0; font-size: 0.9rem; opacity: 0.8; }
+      .sport-label {
+        display: inline-block;
+        font-size: 0.7rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        background: rgba(255,255,255,0.15);
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .team-logo-sm {
+        width: 20px;
+        height: 20px;
+        object-fit: contain;
+        vertical-align: middle;
+        margin-right: 0.25rem;
+      }
+      .status-out { color: #ff6b6b; }
+      .status-questionable { color: #ffd93d; }
+      .status-probable { color: #6bcb77; }
+      .status-final { color: #6bcb77; }
+      .status-live { color: #ffd93d; }
+      .feed-table-wrap {
+        overflow-x: auto;
+        margin-bottom: 2rem;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+      }
+      th, td {
+        text-align: left;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+      }
+      th {
+        opacity: 0.6;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+      }
+      .td-team {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      .loading {
+        text-align: center;
+        padding: 3rem;
+        opacity: 0.6;
+      }
+      .no-favorites {
+        text-align: center;
+        padding: 3rem;
+        opacity: 0.6;
+      }
+      .no-favorites a {
+        color: inherit;
+        text-decoration: underline;
+      }
+      .section-title {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        opacity: 0.5;
+        margin: 2rem 0 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+      }
+      .signout-btn {
+        padding: 0.4rem 1rem;
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.3);
         border-radius: 4px;
         color: inherit;
         cursor: pointer;
-        font-size: 0.85rem;
-        margin-top: 1rem;
+        font-size: 0.8rem;
       }
-      .success-msg { color: #6bcb77; font-size: 0.85rem; margin-top: 0.5rem; display: none; }
-      .loading-teams { opacity: 0.5; font-size: 0.85rem; padding: 0.5rem; }
     </style>
   </head>
   <body>
@@ -273,73 +162,95 @@
           <a href="scores.html">Scores</a>
           <a href="odds.html">Live Odds</a>
           <a href="injuries.html">Injuries</a>
-          <a href="login.html">Login</a>
           <a href="dashboard.html">Dashboard</a>
+          <a href="settings.html">Settings</a>
         </div>
       </nav>
       <div class="hero-content">
-        <h2>Your Dashboard</h2>
-        <p>Personalize your BetterBookie experience.</p>
+        <h2>My Dashboard</h2>
+        <p>Your personalized sports feed.</p>
       </div>
     </header>
 
     <section class="features">
       <div class="dashboard-wrap">
-        <h3 id="welcome-msg">Welcome!</h3>
-        <p class="user-info" id="user-email"></p>
-
-        <div class="intro-snippet">
-          🏆 <strong>Set up your personalized feed in 3 easy steps:</strong>
-          <ol>
-            <li>✅ <strong>Select your favorite sports</strong> from the list below</li>
-            <li>🏟️ <strong>Pick your favorite teams</strong> — they'll appear based on the sports you chose</li>
-            <li>🔍 <strong>Can't find your team?</strong> Use the search bar to find any team by name or nickname</li>
-          </ol>
-        </div>
-
-        <div class="recommended-section" id="recommended-section" style="display:none;">
-          <h4>⭐ Recommended For You</h4>
-          <p class="location-note" id="location-note"></p>
-          <div class="recommended-cards" id="recommended-cards"></div>
-        </div>
-
-        <div class="search-wrap">
-          <input type="text" id="team-search" placeholder="🔍 Search by team name or nickname (e.g. Chiefs, Dawgs, Pens)..." />
-        </div>
-
-        <div class="search-results" id="search-results">
-          <h4>Search Results</h4>
-          <div class="checkbox-grid" id="search-grid"></div>
-        </div>
-
-        <div class="pref-section">
-          <h4>1️⃣ Favorite Sports</h4>
-          <div class="checkbox-grid" id="sports-grid">
-            <label><input type="checkbox" value="nfl" /><span class="sport-emoji">🏈</span> NFL</label>
-            <label><input type="checkbox" value="nba" /><span class="sport-emoji">🏀</span> NBA</label>
-            <label><input type="checkbox" value="mlb" /><span class="sport-emoji">⚾</span> MLB</label>
-            <label><input type="checkbox" value="nhl" /><span class="sport-emoji">🏒</span> NHL</label>
-            <label><input type="checkbox" value="ncaafb" /><span class="sport-emoji">🏈</span> College Football</label>
-            <label><input type="checkbox" value="ncaabb" /><span class="sport-emoji">🏀</span> College Basketball</label>
-            <label><input type="checkbox" value="ncaasb" /><span class="sport-emoji">⚾</span> College Baseball</label>
-            <label><input type="checkbox" value="ncaasoftball" /><span class="sport-emoji">🥎</span> College Softball</label>
+        <div class="welcome-bar">
+          <h3 id="welcome-msg">Welcome!</h3>
+          <div style="display:flex;gap:0.5rem;align-items:center;">
+            <a href="settings.html">⚙️ Settings</a>
+            <button class="signout-btn" id="signout-btn">Sign Out</button>
           </div>
         </div>
 
-        <div id="favorite-sport-sections"></div>
-
-        <div class="other-sports-wrap" id="other-sports-wrap" style="display:none;">
-          <button class="other-sports-toggle" id="other-sports-toggle">
-            <span>➕ Other Sports</span>
-            <span id="other-sports-arrow">▼</span>
-          </button>
-          <div class="other-sports-content" id="other-sports-content"></div>
+        <div class="tab-nav">
+          <button class="tab-btn active" data-tab="odds">🎲 Live Odds</button>
+          <button class="tab-btn" data-tab="injuries">🤕 Injuries</button>
+          <button class="tab-btn" data-tab="scores">📊 Scores</button>
         </div>
 
-        <button class="save-btn" id="save-btn">Save Preferences</button>
-        <p class="success-msg" id="success-msg">✅ Preferences saved!</p>
-        <br />
-        <button class="signout-btn" id="signout-btn">Sign Out</button>
+        <!-- ODDS TAB -->
+        <div class="tab-content active" id="tab-odds">
+          <div class="loading" id="odds-loading">Loading your odds...</div>
+          <div class="feed-cards" id="odds-cards" style="display:none;"></div>
+          <div class="section-title" id="odds-table-title" style="display:none;">All Odds for Your Teams</div>
+          <div class="feed-table-wrap" id="odds-table-wrap" style="display:none;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Home</th>
+                  <th>Away</th>
+                  <th>Home Odds</th>
+                  <th>Away Odds</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody id="odds-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- INJURIES TAB -->
+        <div class="tab-content" id="tab-injuries">
+          <div class="loading" id="injuries-loading">Loading your injury report...</div>
+          <div class="feed-cards" id="injuries-cards" style="display:none;"></div>
+          <div class="section-title" id="injuries-table-title" style="display:none;">Full Injury Report for Your Teams</div>
+          <div class="feed-table-wrap" id="injuries-table-wrap" style="display:none;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Player</th>
+                  <th>Team</th>
+                  <th>Description</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="injuries-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SCORES TAB -->
+        <div class="tab-content" id="tab-scores">
+          <div class="loading" id="scores-loading">Loading your scores...</div>
+          <div class="feed-cards" id="scores-cards" style="display:none;"></div>
+          <div class="section-title" id="scores-table-title" style="display:none;">All Scores for Your Teams</div>
+          <div class="feed-table-wrap" id="scores-table-wrap" style="display:none;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Sport</th>
+                  <th>Home</th>
+                  <th>Away</th>
+                  <th>Score</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="scores-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     </section>
 
@@ -351,7 +262,7 @@
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
       import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-      import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+      import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyC2sgfkqCVFU1RfiWsArIWjpvpebKVxT64",
@@ -366,361 +277,269 @@
       const auth = getAuth(app);
       const db = getFirestore(app);
 
-      const sportMeta = {
-        nfl:          { label: 'NFL Teams', emoji: '🏈', college: false },
-        nba:          { label: 'NBA Teams', emoji: '🏀', college: false },
-        mlb:          { label: 'MLB Teams', emoji: '⚾', college: false },
-        nhl:          { label: 'NHL Teams', emoji: '🏒', college: false },
-        ncaafb:       { label: 'College Football Teams', emoji: '🏈', college: true },
-        ncaabb:       { label: 'College Basketball Teams', emoji: '🏀', college: true },
-        ncaasb:       { label: 'College Baseball Teams', emoji: '⚾', college: true },
-        ncaasoftball: { label: 'College Softball Teams', emoji: '🥎', college: true },
-      };
+      const VERCEL = 'https://better-bookie-five.vercel.app';
 
-      const locationTeams = {
-        'louisiana': ['New Orleans Saints', 'New Orleans Pelicans', 'LSU Tigers', 'Tulane Green Wave'],
-        'new orleans': ['New Orleans Saints', 'New Orleans Pelicans', 'LSU Tigers', 'Tulane Green Wave'],
-        'baton rouge': ['LSU Tigers', 'New Orleans Saints', 'New Orleans Pelicans'],
-        'new york': ['New York Giants', 'New York Jets', 'New York Knicks', 'Brooklyn Nets', 'New York Yankees', 'New York Mets', 'New York Rangers', 'New York Islanders'],
-        'los angeles': ['Los Angeles Lakers', 'Los Angeles Clippers', 'Los Angeles Rams', 'Los Angeles Chargers', 'Los Angeles Dodgers', 'Los Angeles Angels', 'Los Angeles Kings', 'USC Trojans', 'UCLA Bruins'],
-        'san francisco': ['San Francisco 49ers', 'Golden State Warriors', 'San Francisco Giants', 'San Jose Sharks'],
-        'sacramento': ['Sacramento Kings', 'San Francisco 49ers', 'Golden State Warriors'],
-        'san diego': ['San Diego Padres', 'Los Angeles Chargers'],
-        'dallas': ['Dallas Cowboys', 'Dallas Mavericks', 'Dallas Stars', 'Texas Rangers', 'TCU Horned Frogs', 'Baylor Bears'],
-        'houston': ['Houston Texans', 'Houston Rockets', 'Houston Astros', 'Houston Cougars'],
-        'austin': ['Texas Longhorns', 'Dallas Cowboys', 'Houston Texans', 'San Antonio Spurs'],
-        'san antonio': ['San Antonio Spurs', 'Texas Longhorns', 'Houston Texans'],
-        'texas': ['Dallas Cowboys', 'Houston Texans', 'Texas Longhorns', 'Texas A&M Aggies', 'Houston Rockets'],
-        'miami': ['Miami Dolphins', 'Miami Heat', 'Miami Marlins', 'Florida Panthers', 'Miami Hurricanes', 'Florida Gators', 'Florida State Seminoles'],
-        'orlando': ['Orlando Magic', 'Tampa Bay Buccaneers', 'Jacksonville Jaguars', 'UCF Knights'],
-        'tampa': ['Tampa Bay Buccaneers', 'Tampa Bay Rays', 'Tampa Bay Lightning', 'Florida Gators', 'Florida State Seminoles'],
-        'jacksonville': ['Jacksonville Jaguars', 'Florida Gators', 'Florida State Seminoles'],
-        'florida': ['Miami Dolphins', 'Tampa Bay Buccaneers', 'Jacksonville Jaguars', 'Miami Heat', 'Orlando Magic', 'Florida Gators', 'Florida State Seminoles'],
-        'chicago': ['Chicago Bears', 'Chicago Bulls', 'Chicago Cubs', 'Chicago White Sox', 'Chicago Blackhawks', 'Northwestern Wildcats', 'Notre Dame Fighting Irish'],
-        'philadelphia': ['Philadelphia Eagles', 'Philadelphia 76ers', 'Philadelphia Phillies', 'Philadelphia Flyers', 'Penn State Nittany Lions', 'Villanova Wildcats'],
-        'pittsburgh': ['Pittsburgh Steelers', 'Pittsburgh Pirates', 'Pittsburgh Penguins'],
-        'cleveland': ['Cleveland Browns', 'Cleveland Cavaliers', 'Cleveland Guardians', 'Ohio State Buckeyes'],
-        'columbus': ['Ohio State Buckeyes', 'Cleveland Browns', 'Cleveland Cavaliers'],
-        'cincinnati': ['Cincinnati Bengals', 'Cincinnati Reds', 'Ohio State Buckeyes', 'Cincinnati Bearcats'],
-        'ohio': ['Cleveland Browns', 'Cincinnati Bengals', 'Ohio State Buckeyes', 'Cleveland Cavaliers', 'Cleveland Guardians'],
-        'atlanta': ['Atlanta Falcons', 'Atlanta Hawks', 'Atlanta Braves', 'Georgia Bulldogs', 'Georgia Tech Yellow Jackets'],
-        'georgia': ['Atlanta Falcons', 'Atlanta Hawks', 'Atlanta Braves', 'Georgia Bulldogs', 'Georgia Tech Yellow Jackets'],
-        'boston': ['New England Patriots', 'Boston Celtics', 'Boston Red Sox', 'Boston Bruins', 'Boston College Eagles'],
-        'detroit': ['Detroit Lions', 'Detroit Pistons', 'Detroit Tigers', 'Detroit Red Wings', 'Michigan Wolverines', 'Michigan State Spartans'],
-        'michigan': ['Detroit Lions', 'Detroit Pistons', 'Detroit Tigers', 'Detroit Red Wings', 'Michigan Wolverines', 'Michigan State Spartans'],
-        'denver': ['Denver Broncos', 'Denver Nuggets', 'Colorado Rockies', 'Colorado Avalanche', 'Colorado Buffaloes'],
-        'seattle': ['Seattle Seahawks', 'Seattle Kraken', 'Seattle Mariners', 'Washington Huskies'],
-        'minneapolis': ['Minnesota Vikings', 'Minnesota Timberwolves', 'Minnesota Twins', 'Minnesota Wild', 'Minnesota Golden Gophers'],
-        'minnesota': ['Minnesota Vikings', 'Minnesota Timberwolves', 'Minnesota Twins', 'Minnesota Wild', 'Minnesota Golden Gophers'],
-        'phoenix': ['Arizona Cardinals', 'Phoenix Suns', 'Arizona Diamondbacks', 'Arizona Wildcats', 'Arizona State Sun Devils'],
-        'arizona': ['Arizona Cardinals', 'Phoenix Suns', 'Arizona Diamondbacks', 'Arizona Wildcats', 'Arizona State Sun Devils'],
-        'nashville': ['Tennessee Titans', 'Nashville Predators', 'Tennessee Volunteers'],
-        'memphis': ['Memphis Grizzlies', 'Tennessee Volunteers', 'Memphis Tigers'],
-        'tennessee': ['Tennessee Titans', 'Nashville Predators', 'Tennessee Volunteers', 'Memphis Grizzlies'],
-        'charlotte': ['Carolina Panthers', 'Charlotte Hornets', 'North Carolina Tar Heels', 'NC State Wolfpack', 'Duke Blue Devils'],
-        'north carolina': ['Carolina Panthers', 'Charlotte Hornets', 'North Carolina Tar Heels', 'NC State Wolfpack', 'Duke Blue Devils'],
-        'baltimore': ['Baltimore Ravens', 'Baltimore Orioles', 'Maryland Terrapins'],
-        'las vegas': ['Las Vegas Raiders', 'Vegas Golden Knights'],
-        'kansas city': ['Kansas City Chiefs', 'Kansas City Royals', 'Kansas Jayhawks'],
-        'st. louis': ['St. Louis Blues', 'St. Louis Cardinals'],
-        'indianapolis': ['Indianapolis Colts', 'Indiana Pacers', 'Indiana Hoosiers', 'Purdue Boilermakers'],
-        'milwaukee': ['Milwaukee Bucks', 'Milwaukee Brewers', 'Green Bay Packers', 'Wisconsin Badgers'],
-        'green bay': ['Green Bay Packers', 'Wisconsin Badgers', 'Milwaukee Bucks'],
-        'portland': ['Portland Trail Blazers', 'Oregon Ducks', 'Oregon State Beavers'],
-        'salt lake city': ['Utah Jazz', 'Utah Utes'],
-        'oklahoma city': ['Oklahoma City Thunder', 'Oklahoma Sooners', 'Oklahoma State Cowboys'],
-        'south carolina': ['Carolina Panthers', 'South Carolina Gamecocks', 'Clemson Tigers'],
-        'alabama': ['Alabama Crimson Tide', 'Auburn Tigers', 'Tennessee Titans'],
-        'birmingham': ['Alabama Crimson Tide', 'Auburn Tigers'],
-        'arkansas': ['Arkansas Razorbacks', 'Kansas City Chiefs', 'Dallas Cowboys'],
-        'mississippi': ['Ole Miss Rebels', 'Mississippi State Bulldogs', 'New Orleans Saints'],
-        'kentucky': ['Kentucky Wildcats', 'Louisville Cardinals', 'Cincinnati Bengals'],
-        'louisville': ['Louisville Cardinals', 'Kentucky Wildcats', 'Cincinnati Bengals'],
-      };
+      const teamLogoCache = {};
 
-      const nicknames = {
-        'chiefs': 'Kansas City Chiefs', 'pats': 'New England Patriots',
-        'patriots': 'New England Patriots', 'cowboys': 'Dallas Cowboys',
-        'eagles': 'Philadelphia Eagles', 'niners': 'San Francisco 49ers',
-        'ravens': 'Baltimore Ravens', 'steelers': 'Pittsburgh Steelers',
-        'browns': 'Cleveland Browns', 'bengals': 'Cincinnati Bengals',
-        'broncos': 'Denver Broncos', 'raiders': 'Las Vegas Raiders',
-        'chargers': 'Los Angeles Chargers', 'bills': 'Buffalo Bills',
-        'dolphins': 'Miami Dolphins', 'jets': 'New York Jets',
-        'giants': 'New York Giants', 'commanders': 'Washington Commanders',
-        'bears': 'Chicago Bears', 'packers': 'Green Bay Packers',
-        'vikings': 'Minnesota Vikings', 'lions': 'Detroit Lions',
-        'falcons': 'Atlanta Falcons', 'saints': 'New Orleans Saints',
-        'bucs': 'Tampa Bay Buccaneers', 'rams': 'Los Angeles Rams',
-        'texans': 'Houston Texans', 'colts': 'Indianapolis Colts',
-        'jags': 'Jacksonville Jaguars', 'titans': 'Tennessee Titans',
-        'lakers': 'Los Angeles Lakers', 'celtics': 'Boston Celtics',
-        'warriors': 'Golden State Warriors', 'dubs': 'Golden State Warriors',
-        'nets': 'Brooklyn Nets', 'knicks': 'New York Knicks',
-        'bulls': 'Chicago Bulls', 'heat': 'Miami Heat',
-        'bucks': 'Milwaukee Bucks', 'sixers': 'Philadelphia 76ers',
-        'raptors': 'Toronto Raptors', 'cavs': 'Cleveland Cavaliers',
-        'mavs': 'Dallas Mavericks', 'nuggets': 'Denver Nuggets',
-        'pistons': 'Detroit Pistons', 'rockets': 'Houston Rockets',
-        'pacers': 'Indiana Pacers', 'clippers': 'Los Angeles Clippers',
-        'grizz': 'Memphis Grizzlies', 'wolves': 'Minnesota Timberwolves',
-        'pelicans': 'New Orleans Pelicans', 'okc': 'Oklahoma City Thunder',
-        'thunder': 'Oklahoma City Thunder', 'magic': 'Orlando Magic',
-        'suns': 'Phoenix Suns', 'blazers': 'Portland Trail Blazers',
-        'kings': 'Sacramento Kings', 'spurs': 'San Antonio Spurs',
-        'jazz': 'Utah Jazz', 'wizards': 'Washington Wizards',
-        'yanks': 'New York Yankees', 'yankees': 'New York Yankees',
-        'sox': 'Boston Red Sox', 'dodgers': 'Los Angeles Dodgers',
-        'cubs': 'Chicago Cubs', 'astros': 'Houston Astros',
-        'braves': 'Atlanta Braves', 'mets': 'New York Mets',
-        'phillies': 'Philadelphia Phillies', 'padres': 'San Diego Padres',
-        'brewers': 'Milwaukee Brewers', 'reds': 'Cincinnati Reds',
-        'pirates': 'Pittsburgh Pirates', 'tigers': 'Detroit Tigers',
-        'twins': 'Minnesota Twins', 'guardians': 'Cleveland Guardians',
-        'royals': 'Kansas City Royals', 'angels': 'Los Angeles Angels',
-        'mariners': 'Seattle Mariners', 'rangers': 'Texas Rangers',
-        'rays': 'Tampa Bay Rays', 'orioles': 'Baltimore Orioles',
-        'jays': 'Toronto Blue Jays', 'nats': 'Washington Nationals',
-        'rockies': 'Colorado Rockies', 'marlins': 'Miami Marlins',
-        'dbacks': 'Arizona Diamondbacks',
-        'bruins': 'Boston Bruins', 'sabres': 'Buffalo Sabres',
-        'flames': 'Calgary Flames', 'canes': 'Carolina Hurricanes',
-        'avs': 'Colorado Avalanche', 'stars': 'Dallas Stars',
-        'wings': 'Detroit Red Wings', 'oilers': 'Edmonton Oilers',
-        'habs': 'Montreal Canadiens', 'preds': 'Nashville Predators',
-        'devils': 'New Jersey Devils', 'isles': 'New York Islanders',
-        'sens': 'Ottawa Senators', 'flyers': 'Philadelphia Flyers',
-        'pens': 'Pittsburgh Penguins', 'sharks': 'San Jose Sharks',
-        'kraken': 'Seattle Kraken', 'blues': 'St. Louis Blues',
-        'bolts': 'Tampa Bay Lightning', 'leafs': 'Toronto Maple Leafs',
-        'ducks': 'Anaheim Ducks', 'canucks': 'Vancouver Canucks',
-        'vgk': 'Vegas Golden Knights', 'caps': 'Washington Capitals',
-        'dawgs': 'Georgia Bulldogs', 'bulldogs': 'Georgia Bulldogs',
-        'tide': 'Alabama Crimson Tide', 'bama': 'Alabama Crimson Tide',
-        'buckeyes': 'Ohio State Buckeyes', 'wolverines': 'Michigan Wolverines',
-        'longhorns': 'Texas Longhorns', 'sooners': 'Oklahoma Sooners',
-        'irish': 'Notre Dame Fighting Irish', 'lsu': 'LSU Tigers',
-        'vols': 'Tennessee Volunteers', 'gators': 'Florida Gators',
-        'aggies': 'Texas A&M Aggies', 'rebels': 'Ole Miss Rebels',
-        'utes': 'Utah Utes', 'blue devils': 'Duke Blue Devils',
-        'wildcats': 'Kentucky Wildcats', 'jayhawks': 'Kansas Jayhawks',
-        'unc': 'North Carolina Tar Heels', 'zags': 'Gonzaga Bulldogs',
-        'uconn': 'Connecticut Huskies', 'spartans': 'Michigan State Spartans',
-        'razorbacks': 'Arkansas Razorbacks',
-      };
-
-      const TOP_N = 30;
-      const collegeSports = ['ncaafb', 'ncaabb', 'ncaasb', 'ncaasoftball'];
-      let allTeams = [];
-      let savedPrefs = { sports: [], teams: [] };
-      const loadedTeams = {};
-
-      async function loadRecommendations() {
-        if (!navigator.geolocation) return;
-        navigator.geolocation.getCurrentPosition(async (pos) => {
-          try {
-            const { latitude, longitude } = pos.coords;
-            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
-            const data = await res.json();
-            const city = (data.address.city || data.address.town || data.address.village || '').toLowerCase();
-            const state = (data.address.state || '').toLowerCase();
-            const locationKey = Object.keys(locationTeams).find(k =>
-              city.includes(k) || state.includes(k) || k.includes(city)
-            );
-            if (!locationKey) return;
-            const teamNames = locationTeams[locationKey];
-            const matched = teamNames.map(name => allTeams.find(t => t.name === name)).filter(Boolean);
-            if (matched.length === 0) return;
-            const section = document.getElementById('recommended-section');
-            const cards = document.getElementById('recommended-cards');
-            const note = document.getElementById('location-note');
-            note.textContent = `Based on your location near ${data.address.city || data.address.state}`;
-            section.style.display = 'block';
-            cards.innerHTML = matched.map(t => `
-              <div class="recommended-card ${savedPrefs.teams?.includes(t.name) ? 'selected' : ''}" data-team="${t.name}">
-                <span class="check">✓</span>
-                <img src="${t.logo}" alt="${t.name}" onerror="this.style.display='none'" />
-                <span>${t.name}</span>
-                <span class="sport-badge">${t.sport}</span>
-              </div>
-            `).join('');
-            cards.querySelectorAll('.recommended-card').forEach(card => {
-              card.addEventListener('click', () => {
-                card.classList.toggle('selected');
-                const mainCb = document.querySelector(`input[value="${card.dataset.team}"]`);
-                if (mainCb) mainCb.checked = card.classList.contains('selected');
-              });
-            });
-          } catch (e) { console.log('Location lookup failed', e); }
-        }, () => {});
+      async function getLogos(sport) {
+        if (teamLogoCache[sport]) return teamLogoCache[sport];
+        try {
+          const res = await fetch(`${VERCEL}/api/logos?sport=${sport}`);
+          const teams = await res.json();
+          const map = {};
+          teams.forEach(t => map[t.name] = t.logo);
+          teamLogoCache[sport] = map;
+          return map;
+        } catch { return {}; }
       }
 
-      function buildTeamLabel(t, sportKey) {
-        const isCollege = collegeSports.includes(sportKey);
-        const emoji = isCollege ? sportMeta[sportKey]?.emoji ?? '' : '';
-        const label = document.createElement('label');
-        label.innerHTML = `
-          <input type="checkbox" value="${t.name}" />
-          <img src="${t.logo}" class="team-logo" alt="${t.name}" onerror="this.style.display='none'" />
-          ${isCollege ? `<span style="font-size:0.9rem;">${emoji}</span>` : ''}
-          ${t.name}
-        `;
-        if (savedPrefs.teams?.includes(t.name)) {
-          label.querySelector('input').checked = true;
-        }
-        return label;
+      function logoImg(url, name) {
+        return url ? `<img src="${url}" class="team-logo-sm" alt="${name}" onerror="this.style.display='none'">` : '';
       }
 
-      function renderConferenceFilter(container, teams, sportKey) {
-        const conferences = ['All', ...new Set(teams.map(t => t.conference).filter(Boolean).sort())];
-        const filterDiv = document.createElement('div');
-        filterDiv.className = 'conference-filter';
-        filterDiv.innerHTML = conferences.map(c =>
-          `<button class="conf-btn ${c === 'All' ? 'active' : ''}" data-conf="${c}">${c}</button>`
-        ).join('');
-        container.appendChild(filterDiv);
-        filterDiv.querySelectorAll('.conf-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            filterDiv.querySelectorAll('.conf-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            const selected = btn.dataset.conf;
-            const filtered = selected === 'All' ? teams : teams.filter(t => t.conference === selected);
-            renderTeamList(container, filtered, filterDiv, sportKey);
-          });
+      function getStatusClass(status) {
+        if (!status) return '';
+        const s = status.toLowerCase();
+        if (s.includes('out')) return 'status-out';
+        if (s.includes('question')) return 'status-questionable';
+        if (s.includes('probable')) return 'status-probable';
+        if (s.includes('final') || s.includes('ft')) return 'status-final';
+        if (s.includes('live') || s.includes('progress')) return 'status-live';
+        return '';
+      }
+
+      // Tab switching
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          btn.classList.add('active');
+          document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
         });
-      }
-
-      function renderTeamList(container, teams, filterEl, sportKey) {
-        Array.from(container.children).forEach(c => { if (c !== filterEl) c.remove(); });
-        const top = teams.slice(0, TOP_N);
-        const rest = teams.slice(TOP_N);
-        top.forEach(t => container.appendChild(buildTeamLabel(t, sportKey)));
-        if (rest.length > 0) {
-          const wrap = document.createElement('div');
-          wrap.className = 'show-more-wrap';
-          wrap.style.gridColumn = '1/-1';
-          const btn = document.createElement('button');
-          btn.className = 'show-more-btn';
-          btn.textContent = `+ Show ${rest.length} more teams`;
-          const extra = document.createElement('div');
-          extra.className = 'extra-teams';
-          rest.forEach(t => extra.appendChild(buildTeamLabel(t, sportKey)));
-          btn.addEventListener('click', () => {
-            const hidden = extra.style.display !== 'grid';
-            extra.style.display = hidden ? 'grid' : 'none';
-            btn.textContent = hidden ? `− Hide extra teams` : `+ Show ${rest.length} more teams`;
-          });
-          wrap.appendChild(btn);
-          wrap.appendChild(extra);
-          container.appendChild(wrap);
-        }
-      }
-
-      function buildSectionFor(sport, teams) {
-        const meta = sportMeta[sport];
-        const section = document.createElement('div');
-        section.className = 'pref-section';
-        section.id = `section-${sport}`;
-        section.innerHTML = `<h4>${meta.emoji} ${meta.label}</h4>`;
-        const grid = document.createElement('div');
-        grid.className = 'checkbox-grid';
-        grid.id = `${sport}-teams`;
-        section.appendChild(grid);
-        if (meta.college) {
-          renderConferenceFilter(grid, teams, sport);
-          renderTeamList(grid, teams, grid.querySelector('.conference-filter'), sport);
-        } else {
-          teams.forEach(t => grid.appendChild(buildTeamLabel(t, sport)));
-        }
-        return section;
-      }
-
-      function updateSections() {
-        const selectedSports = [...document.querySelectorAll('#sports-grid input:checked')].map(cb => cb.value);
-        const favContainer = document.getElementById('favorite-sport-sections');
-        const otherContent = document.getElementById('other-sports-content');
-        const otherWrap = document.getElementById('other-sports-wrap');
-        favContainer.innerHTML = '';
-        otherContent.innerHTML = '';
-        const otherSports = Object.keys(sportMeta).filter(s => !selectedSports.includes(s));
-        selectedSports.forEach(sport => {
-          if (loadedTeams[sport]) favContainer.appendChild(buildSectionFor(sport, loadedTeams[sport]));
-        });
-        if (otherSports.length > 0) {
-          otherWrap.style.display = 'block';
-          otherSports.forEach(sport => {
-            if (loadedTeams[sport]) otherContent.appendChild(buildSectionFor(sport, loadedTeams[sport]));
-          });
-        } else {
-          otherWrap.style.display = 'none';
-        }
-      }
-
-      document.getElementById('other-sports-toggle').addEventListener('click', () => {
-        const content = document.getElementById('other-sports-content');
-        const arrow = document.getElementById('other-sports-arrow');
-        const isHidden = content.style.display !== 'block';
-        content.style.display = isHidden ? 'block' : 'none';
-        arrow.textContent = isHidden ? '▲' : '▼';
       });
 
-      document.getElementById('sports-grid').addEventListener('change', updateSections);
+      async function loadOdds(favTeams) {
+        const sports = ['americanfootball_nfl', 'basketball_nba', 'baseball_mlb'];
+        const logoMaps = await Promise.all([
+          getLogos('nfl'), getLogos('nba'), getLogos('mlb')
+        ]);
+        const allLogoMap = { ...logoMaps[0], ...logoMaps[1], ...logoMaps[2] };
 
-      document.getElementById('team-search').addEventListener('input', (e) => {
-        const query = e.target.value.trim().toLowerCase();
-        const resultsBox = document.getElementById('search-results');
-        const searchGrid = document.getElementById('search-grid');
-        if (!query) { resultsBox.style.display = 'none'; return; }
-        const nicknameMatch = nicknames[query];
-        const matches = allTeams.filter(t => {
-          const fullName = t.name.toLowerCase();
-          const abbr = (t.abbreviation || '').toLowerCase();
-          return fullName.includes(query) || abbr === query || (nicknameMatch && t.name === nicknameMatch);
-        });
-        resultsBox.style.display = 'block';
-        if (matches.length === 0) {
-          searchGrid.innerHTML = '<p class="no-results">No teams found. Try a nickname like "Dawgs", "Tide", "Pens", or "Dubs".</p>';
+        let allGames = [];
+        await Promise.all(sports.map(async sport => {
+          try {
+            const res = await fetch(`${VERCEL}/api/odds?sport=${sport}`);
+            const data = await res.json();
+            if (Array.isArray(data)) allGames.push(...data);
+          } catch {}
+        }));
+
+        const favGames = allGames.filter(g =>
+          favTeams.includes(g.home_team) || favTeams.includes(g.away_team)
+        );
+
+        document.getElementById('odds-loading').style.display = 'none';
+
+        if (favGames.length === 0) {
+          document.getElementById('odds-cards').innerHTML = `<div class="no-favorites" style="grid-column:1/-1;">No odds found for your favorite teams right now. <a href="settings.html">Update your teams</a></div>`;
+          document.getElementById('odds-cards').style.display = 'grid';
           return;
         }
-        searchGrid.innerHTML = matches.map(t => {
-          const existing = document.querySelector(`input[value="${t.name}"]:not(.search-cb)`);
-          const isChecked = existing ? existing.checked : false;
-          const nickname = Object.entries(nicknames).find(([k, v]) => v === t.name)?.[0] ?? '';
-          const sportKey = Object.keys(sportMeta).find(k => k.toUpperCase() === t.sport) ?? '';
-          const isCollege = collegeSports.includes(sportKey);
-          const emoji = isCollege ? sportMeta[sportKey]?.emoji ?? '' : '';
+
+        // Cards (top 6)
+        document.getElementById('odds-cards').style.display = 'grid';
+        document.getElementById('odds-cards').innerHTML = favGames.slice(0, 6).map(game => {
+          const home = game.home_team;
+          const away = game.away_team;
+          const bookmaker = game.bookmakers?.[0];
+          const market = bookmaker?.markets?.find(m => m.key === 'h2h');
+          const homeOdds = market?.outcomes?.find(o => o.name === home)?.price ?? 'N/A';
+          const awayOdds = market?.outcomes?.find(o => o.name === away)?.price ?? 'N/A';
+          const date = new Date(game.commence_time).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
           return `
-            <label>
-              <input type="checkbox" value="${t.name}" data-sport="${t.sport}" ${isChecked ? 'checked' : ''} class="search-cb" />
-              <img src="${t.logo}" class="team-logo" alt="${t.name}" onerror="this.style.display='none'" />
-              ${isCollege ? `<span style="font-size:0.9rem;">${emoji}</span>` : ''}
-              <span>
-                ${t.name}
-                ${nickname ? `<span class="team-nickname">(${nickname})</span>` : ''}
-              </span>
-              <span class="sport-tag">${t.sport}${t.conference ? ` · ${t.conference}` : ''}</span>
-            </label>
+            <div class="feed-card">
+              <span class="sport-label">${game.sport_key?.includes('nfl') ? 'NFL' : game.sport_key?.includes('nba') ? 'NBA' : 'MLB'}</span>
+              <h4>${logoImg(allLogoMap[home], home)}${home} vs ${logoImg(allLogoMap[away], away)}${away}</h4>
+              <p>📅 ${date}</p>
+              <p>${logoImg(allLogoMap[home], home)}${home}: <strong>${homeOdds > 0 ? '+' : ''}${homeOdds}</strong></p>
+              <p>${logoImg(allLogoMap[away], away)}${away}: <strong>${awayOdds > 0 ? '+' : ''}${awayOdds}</strong></p>
+              <p style="opacity:0.4;font-size:0.8rem;">via ${bookmaker?.title ?? 'N/A'}</p>
+            </div>
           `;
         }).join('');
-        document.querySelectorAll('.search-cb').forEach(cb => {
-          cb.addEventListener('change', () => {
-            const mainCb = document.querySelector(`input[value="${cb.value}"]:not(.search-cb)`);
-            if (mainCb) mainCb.checked = cb.checked;
-          });
-        });
-      });
 
-      async function loadAllTeams() {
-        await Promise.all(Object.keys(sportMeta).map(async sport => {
+        // Table
+        document.getElementById('odds-table-title').style.display = 'block';
+        document.getElementById('odds-table-wrap').style.display = 'block';
+        document.getElementById('odds-table-body').innerHTML = favGames.map(game => {
+          const home = game.home_team;
+          const away = game.away_team;
+          const bookmaker = game.bookmakers?.[0];
+          const market = bookmaker?.markets?.find(m => m.key === 'h2h');
+          const homeOdds = market?.outcomes?.find(o => o.name === home)?.price ?? 'N/A';
+          const awayOdds = market?.outcomes?.find(o => o.name === away)?.price ?? 'N/A';
+          const date = new Date(game.commence_time).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+          return `
+            <tr>
+              <td><div class="td-team">${logoImg(allLogoMap[home], home)}${home}</div></td>
+              <td><div class="td-team">${logoImg(allLogoMap[away], away)}${away}</div></td>
+              <td>${homeOdds > 0 ? '+' : ''}${homeOdds}</td>
+              <td>${awayOdds > 0 ? '+' : ''}${awayOdds}</td>
+              <td>${date}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      async function loadInjuries(favTeams) {
+        const nflTeamIds = {
+          'Las Vegas Raiders': 1, 'New England Patriots': 2, 'New York Jets': 3,
+          'Buffalo Bills': 4, 'Miami Dolphins': 5, 'Baltimore Ravens': 6,
+          'Pittsburgh Steelers': 7, 'Cleveland Browns': 8, 'Cincinnati Bengals': 9,
+          'Houston Texans': 10, 'Indianapolis Colts': 11, 'Jacksonville Jaguars': 12,
+          'Tennessee Titans': 13, 'Kansas City Chiefs': 14, 'Los Angeles Chargers': 15,
+          'Denver Broncos': 16, 'Dallas Cowboys': 17, 'New York Giants': 18,
+          'Philadelphia Eagles': 19, 'Washington Commanders': 20, 'Chicago Bears': 21,
+          'Green Bay Packers': 22, 'Minnesota Vikings': 23, 'Detroit Lions': 24,
+          'Atlanta Falcons': 25, 'Carolina Panthers': 26, 'New Orleans Saints': 27,
+          'Tampa Bay Buccaneers': 28, 'Los Angeles Rams': 29, 'Seattle Seahawks': 30,
+          'San Francisco 49ers': 31, 'Arizona Cardinals': 32,
+        };
+
+        const logoMap = await getLogos('nfl');
+        const favNFLTeams = favTeams.filter(t => nflTeamIds[t]);
+        let allInjuries = [];
+
+        await Promise.all(favNFLTeams.map(async team => {
+          const id = nflTeamIds[team];
           try {
-            const res = await fetch(`https://better-bookie-five.vercel.app/api/logos?sport=${sport}`);
-            const teams = await res.json();
-            loadedTeams[sport] = teams;
-            teams.forEach(t => allTeams.push({ ...t, sport: sport.toUpperCase() }));
-          } catch (e) { loadedTeams[sport] = []; }
+            const res = await fetch(`${VERCEL}/api/injuries?sport=nfl&team=${id}`);
+            const data = await res.json();
+            if (data.response) allInjuries.push(...data.response);
+          } catch {}
         }));
-        updateSections();
-        loadRecommendations();
+
+        document.getElementById('injuries-loading').style.display = 'none';
+
+        if (allInjuries.length === 0) {
+          document.getElementById('injuries-cards').innerHTML = `<div class="no-favorites" style="grid-column:1/-1;">No injury data found for your favorite NFL teams right now. <a href="settings.html">Update your teams</a></div>`;
+          document.getElementById('injuries-cards').style.display = 'grid';
+          return;
+        }
+
+        // Cards (top 6)
+        document.getElementById('injuries-cards').style.display = 'grid';
+        document.getElementById('injuries-cards').innerHTML = allInjuries.slice(0, 6).map(item => {
+          const player = item.player?.name ?? 'Unknown';
+          const team = item.team?.name ?? 'Unknown';
+          const status = item.status ?? 'N/A';
+          const description = item.description ?? 'N/A';
+          const date = item.date ? new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
+          return `
+            <div class="feed-card">
+              <span class="sport-label">NFL</span>
+              <h4>${logoImg(logoMap[team], team)}${player}</h4>
+              <p>🏟️ ${team}</p>
+              <p>🤕 ${description}</p>
+              <p>📅 ${date}</p>
+              <p>Status: <strong class="${getStatusClass(status)}">${status}</strong></p>
+            </div>
+          `;
+        }).join('');
+
+        // Table
+        document.getElementById('injuries-table-title').style.display = 'block';
+        document.getElementById('injuries-table-wrap').style.display = 'block';
+        document.getElementById('injuries-table-body').innerHTML = allInjuries.map(item => {
+          const player = item.player?.name ?? 'Unknown';
+          const team = item.team?.name ?? 'Unknown';
+          const status = item.status ?? 'N/A';
+          const description = item.description ?? 'N/A';
+          return `
+            <tr>
+              <td>${player}</td>
+              <td><div class="td-team">${logoImg(logoMap[team], team)}${team}</div></td>
+              <td>${description}</td>
+              <td class="${getStatusClass(status)}">${status}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      async function loadScores(favTeams) {
+        const sports = ['nfl', 'nba', 'mlb', 'nhl'];
+        const logoMaps = await Promise.all(sports.map(s => getLogos(s)));
+        const allLogoMap = Object.assign({}, ...logoMaps);
+
+        let allGames = [];
+        await Promise.all(sports.map(async sport => {
+          try {
+            const res = await fetch(`${VERCEL}/api/scores?sport=${sport}`);
+            const data = await res.json();
+            if (data.response) {
+              data.response.forEach(g => {
+                g._sport = sport.toUpperCase();
+                allGames.push(g);
+              });
+            }
+          } catch {}
+        }));
+
+        const favGames = allGames.filter(g => {
+          const home = g.teams?.home?.name ?? '';
+          const away = g.teams?.away?.name ?? '';
+          return favTeams.includes(home) || favTeams.includes(away);
+        });
+
+        document.getElementById('scores-loading').style.display = 'none';
+
+        if (favGames.length === 0) {
+          document.getElementById('scores-cards').innerHTML = `<div class="no-favorites" style="grid-column:1/-1;">No scores found for your favorite teams right now. <a href="settings.html">Update your teams</a></div>`;
+          document.getElementById('scores-cards').style.display = 'grid';
+          return;
+        }
+
+        // Cards (top 6)
+        document.getElementById('scores-cards').style.display = 'grid';
+        document.getElementById('scores-cards').innerHTML = favGames.slice(0, 6).map(game => {
+          const home = game.teams?.home?.name ?? 'Home';
+          const away = game.teams?.away?.name ?? 'Away';
+          const homeScore = game.scores?.home?.total ?? game.scores?.home ?? '-';
+          const awayScore = game.scores?.away?.total ?? game.scores?.away ?? '-';
+          const status = game.status?.long ?? game.status?.short ?? 'N/A';
+          const date = game.date ? new Date(game.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
+          return `
+            <div class="feed-card">
+              <span class="sport-label">${game._sport}</span>
+              <p class="${getStatusClass(status)}" style="font-size:0.8rem;margin-bottom:0.5rem;">● ${status}</p>
+              <h4>${logoImg(allLogoMap[away], away)}${away} @ ${logoImg(allLogoMap[home], home)}${home}</h4>
+              <p style="font-size:1.3rem;font-weight:bold;">${awayScore} – ${homeScore}</p>
+              <p>📅 ${date}</p>
+            </div>
+          `;
+        }).join('');
+
+        // Table
+        document.getElementById('scores-table-title').style.display = 'block';
+        document.getElementById('scores-table-wrap').style.display = 'block';
+        document.getElementById('scores-table-body').innerHTML = favGames.map(game => {
+          const home = game.teams?.home?.name ?? 'Home';
+          const away = game.teams?.away?.name ?? 'Away';
+          const homeScore = game.scores?.home?.total ?? game.scores?.home ?? '-';
+          const awayScore = game.scores?.away?.total ?? game.scores?.away ?? '-';
+          const status = game.status?.long ?? game.status?.short ?? 'N/A';
+          const date = game.date ? new Date(game.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'N/A';
+          return `
+            <tr>
+              <td>${game._sport}</td>
+              <td><div class="td-team">${logoImg(allLogoMap[home], home)}${home}</div></td>
+              <td><div class="td-team">${logoImg(allLogoMap[away], away)}${away}</div></td>
+              <td>${awayScore} – ${homeScore}</td>
+              <td class="${getStatusClass(status)}">${status}</td>
+              <td>${date}</td>
+            </tr>
+          `;
+        }).join('');
       }
 
       let currentUser = null;
@@ -728,31 +547,25 @@
       onAuthStateChanged(auth, async user => {
         if (!user) { window.location.href = 'login.html'; return; }
         currentUser = user;
-        document.getElementById('welcome-msg').textContent = `Welcome, ${user.displayName || user.email}!`;
-        document.getElementById('user-email').textContent = user.email;
+        document.getElementById('welcome-msg').textContent = `Welcome back, ${user.displayName || user.email}!`;
+
         const docRef = doc(db, 'users', user.uid);
         const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          savedPrefs = docSnap.data();
-          if (savedPrefs.sports) {
-            savedPrefs.sports.forEach(val => {
-              const cb = document.querySelector(`#sports-grid input[value="${val}"]`);
-              if (cb) cb.checked = true;
-            });
-          }
-        }
-        await loadAllTeams();
-      });
 
-      document.getElementById('save-btn').addEventListener('click', async () => {
-        if (!currentUser) return;
-        const sports = [...document.querySelectorAll('#sports-grid input:checked')].map(cb => cb.value);
-        const teamSet = new Set([...document.querySelectorAll('.pref-section input[type="checkbox"]:checked, .extra-teams input:checked')].map(cb => cb.value));
-        document.querySelectorAll('.recommended-card.selected').forEach(card => teamSet.add(card.dataset.team));
-        await setDoc(doc(db, 'users', currentUser.uid), { sports, teams: [...teamSet] });
-        const msg = document.getElementById('success-msg');
-        msg.style.display = 'block';
-        setTimeout(() => msg.style.display = 'none', 3000);
+        if (!docSnap.exists() || !docSnap.data().teams?.length) {
+          document.getElementById('odds-loading').innerHTML = `<div class="no-favorites">No favorite teams set yet. <a href="settings.html">Go to Settings</a> to pick your teams!</div>`;
+          document.getElementById('injuries-loading').innerHTML = `<div class="no-favorites">No favorite teams set yet. <a href="settings.html">Go to Settings</a> to pick your teams!</div>`;
+          document.getElementById('scores-loading').innerHTML = `<div class="no-favorites">No favorite teams set yet. <a href="settings.html">Go to Settings</a> to pick your teams!</div>`;
+          return;
+        }
+
+        const favTeams = docSnap.data().teams ?? [];
+
+        await Promise.all([
+          loadOdds(favTeams),
+          loadInjuries(favTeams),
+          loadScores(favTeams),
+        ]);
       });
 
       document.getElementById('signout-btn').addEventListener('click', async () => {
