@@ -11,9 +11,7 @@
         max-width: 900px;
         margin: 0 auto;
       }
-      .dashboard-wrap h3 {
-        margin-bottom: 0.5rem;
-      }
+      .dashboard-wrap h3 { margin-bottom: 0.5rem; }
       .user-info {
         opacity: 0.6;
         font-size: 0.9rem;
@@ -33,9 +31,7 @@
         opacity: 0.7;
         font-size: 0.8rem;
       }
-      .search-wrap {
-        margin-bottom: 1.5rem;
-      }
+      .search-wrap { margin-bottom: 1.5rem; }
       .search-wrap input {
         width: 100%;
         padding: 0.75rem 1rem;
@@ -80,9 +76,7 @@
         border-radius: 4px;
         transition: background 0.15s;
       }
-      .checkbox-grid label:hover {
-        background: rgba(255,255,255,0.08);
-      }
+      .checkbox-grid label:hover { background: rgba(255,255,255,0.08); }
       .checkbox-grid input[type="checkbox"] {
         width: 16px;
         height: 16px;
@@ -95,10 +89,7 @@
         object-fit: contain;
         flex-shrink: 0;
       }
-      .sport-emoji {
-        font-size: 1.1rem;
-        flex-shrink: 0;
-      }
+      .sport-emoji { font-size: 1.1rem; flex-shrink: 0; }
       .sport-tag {
         font-size: 0.7rem;
         opacity: 0.5;
@@ -115,6 +106,23 @@
         font-size: 0.9rem;
         padding: 0.5rem;
       }
+      .show-more-wrap {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255,255,255,0.1);
+      }
+      .show-more-btn {
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 4px;
+        color: inherit;
+        padding: 0.4rem 1rem;
+        cursor: pointer;
+        font-size: 0.85rem;
+        margin-bottom: 0.75rem;
+      }
+      .show-more-btn:hover { background: rgba(255,255,255,0.08); }
+      .extra-teams { display: none; }
       .save-btn {
         padding: 0.65rem 2rem;
         background: #fff;
@@ -154,15 +162,7 @@
     <header class="hero">
       <nav class="nav">
         <h1 class="logo"><a href="index.html" style="text-decoration:none;color:inherit;">BetterBookie</a></h1>
-        <button
-          class="menu-toggle"
-          id="menu-toggle"
-          type="button"
-          aria-label="Toggle menu"
-          aria-expanded="false"
-        >
-          ☰
-        </button>
+        <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false">☰</button>
         <div class="nav-links" id="nav-links">
           <a href="index.html#features">Features</a>
           <a href="scores.html">Scores</a>
@@ -184,7 +184,7 @@
         <p class="user-info" id="user-email"></p>
 
         <div class="search-wrap">
-          <input type="text" id="team-search" placeholder="🔍 Search by team name or nickname (e.g. Chiefs, Lakers, Dawgs)..." />
+          <input type="text" id="team-search" placeholder="🔍 Search by team name or nickname (e.g. Chiefs, Dawgs, Pens)..." />
         </div>
 
         <div class="search-results" id="search-results">
@@ -277,182 +277,134 @@
       const db = getFirestore(app);
 
       const nicknames = {
-        // NFL
-        'chiefs': 'Kansas City Chiefs',
-        'pats': 'New England Patriots',
-        'patriots': 'New England Patriots',
-        'cowboys': 'Dallas Cowboys',
-        'boys': 'Dallas Cowboys',
-        'eagles': 'Philadelphia Eagles',
-        'niners': 'San Francisco 49ers',
-        '49ers': 'San Francisco 49ers',
-        'seahawks': 'Seattle Seahawks',
-        'ravens': 'Baltimore Ravens',
-        'steelers': 'Pittsburgh Steelers',
-        'browns': 'Cleveland Browns',
-        'bengals': 'Cincinnati Bengals',
-        'broncos': 'Denver Broncos',
-        'raiders': 'Las Vegas Raiders',
-        'chargers': 'Los Angeles Chargers',
-        'bills': 'Buffalo Bills',
-        'dolphins': 'Miami Dolphins',
-        'jets': 'New York Jets',
-        'giants': 'New York Giants',
-        'commanders': 'Washington Commanders',
-        'bears': 'Chicago Bears',
-        'packers': 'Green Bay Packers',
-        'vikings': 'Minnesota Vikings',
-        'lions': 'Detroit Lions',
-        'falcons': 'Atlanta Falcons',
-        'panthers': 'Carolina Panthers',
-        'saints': 'New Orleans Saints',
-        'bucs': 'Tampa Bay Buccaneers',
-        'rams': 'Los Angeles Rams',
-        'cardinals': 'Arizona Cardinals',
-        'texans': 'Houston Texans',
-        'colts': 'Indianapolis Colts',
-        'jags': 'Jacksonville Jaguars',
-        'titans': 'Tennessee Titans',
-        // NBA
-        'lakers': 'Los Angeles Lakers',
-        'celtics': 'Boston Celtics',
-        'warriors': 'Golden State Warriors',
-        'dubs': 'Golden State Warriors',
-        'nets': 'Brooklyn Nets',
-        'knicks': 'New York Knicks',
-        'bulls': 'Chicago Bulls',
-        'heat': 'Miami Heat',
-        'bucks': 'Milwaukee Bucks',
-        'sixers': 'Philadelphia 76ers',
-        'raptors': 'Toronto Raptors',
-        'cavs': 'Cleveland Cavaliers',
-        'mavs': 'Dallas Mavericks',
-        'nuggets': 'Denver Nuggets',
-        'pistons': 'Detroit Pistons',
-        'rockets': 'Houston Rockets',
-        'pacers': 'Indiana Pacers',
-        'clippers': 'Los Angeles Clippers',
-        'grizz': 'Memphis Grizzlies',
-        'wolves': 'Minnesota Timberwolves',
-        'pelicans': 'New Orleans Pelicans',
-        'thunder': 'Oklahoma City Thunder',
-        'okc': 'Oklahoma City Thunder',
-        'magic': 'Orlando Magic',
-        'suns': 'Phoenix Suns',
-        'blazers': 'Portland Trail Blazers',
-        'kings': 'Sacramento Kings',
-        'spurs': 'San Antonio Spurs',
-        'jazz': 'Utah Jazz',
-        'wizards': 'Washington Wizards',
-        // MLB
-        'yanks': 'New York Yankees',
-        'yankees': 'New York Yankees',
-        'sox': 'Boston Red Sox',
-        'dodgers': 'Los Angeles Dodgers',
-        'cubs': 'Chicago Cubs',
-        'astros': 'Houston Astros',
-        'braves': 'Atlanta Braves',
-        'mets': 'New York Mets',
-        'phillies': 'Philadelphia Phillies',
-        'giants': 'San Francisco Giants',
-        'padres': 'San Diego Padres',
-        'brewers': 'Milwaukee Brewers',
-        'reds': 'Cincinnati Reds',
-        'pirates': 'Pittsburgh Pirates',
-        'tigers': 'Detroit Tigers',
-        'twins': 'Minnesota Twins',
-        'guardians': 'Cleveland Guardians',
-        'royals': 'Kansas City Royals',
-        'angels': 'Los Angeles Angels',
-        'mariners': 'Seattle Mariners',
-        'rangers': 'Texas Rangers',
-        'rays': 'Tampa Bay Rays',
-        'orioles': 'Baltimore Orioles',
-        'jays': 'Toronto Blue Jays',
-        'nats': 'Washington Nationals',
-        'rockies': 'Colorado Rockies',
-        'marlins': 'Miami Marlins',
+        'chiefs': 'Kansas City Chiefs', 'pats': 'New England Patriots',
+        'patriots': 'New England Patriots', 'cowboys': 'Dallas Cowboys',
+        'eagles': 'Philadelphia Eagles', 'niners': 'San Francisco 49ers',
+        'ravens': 'Baltimore Ravens', 'steelers': 'Pittsburgh Steelers',
+        'browns': 'Cleveland Browns', 'bengals': 'Cincinnati Bengals',
+        'broncos': 'Denver Broncos', 'raiders': 'Las Vegas Raiders',
+        'chargers': 'Los Angeles Chargers', 'bills': 'Buffalo Bills',
+        'dolphins': 'Miami Dolphins', 'jets': 'New York Jets',
+        'giants': 'New York Giants', 'commanders': 'Washington Commanders',
+        'bears': 'Chicago Bears', 'packers': 'Green Bay Packers',
+        'vikings': 'Minnesota Vikings', 'lions': 'Detroit Lions',
+        'falcons': 'Atlanta Falcons', 'saints': 'New Orleans Saints',
+        'bucs': 'Tampa Bay Buccaneers', 'rams': 'Los Angeles Rams',
+        'texans': 'Houston Texans', 'colts': 'Indianapolis Colts',
+        'jags': 'Jacksonville Jaguars', 'titans': 'Tennessee Titans',
+        'lakers': 'Los Angeles Lakers', 'celtics': 'Boston Celtics',
+        'warriors': 'Golden State Warriors', 'dubs': 'Golden State Warriors',
+        'nets': 'Brooklyn Nets', 'knicks': 'New York Knicks',
+        'bulls': 'Chicago Bulls', 'heat': 'Miami Heat',
+        'bucks': 'Milwaukee Bucks', 'sixers': 'Philadelphia 76ers',
+        'raptors': 'Toronto Raptors', 'cavs': 'Cleveland Cavaliers',
+        'mavs': 'Dallas Mavericks', 'nuggets': 'Denver Nuggets',
+        'pistons': 'Detroit Pistons', 'rockets': 'Houston Rockets',
+        'pacers': 'Indiana Pacers', 'clippers': 'Los Angeles Clippers',
+        'grizz': 'Memphis Grizzlies', 'wolves': 'Minnesota Timberwolves',
+        'pelicans': 'New Orleans Pelicans', 'okc': 'Oklahoma City Thunder',
+        'thunder': 'Oklahoma City Thunder', 'magic': 'Orlando Magic',
+        'suns': 'Phoenix Suns', 'blazers': 'Portland Trail Blazers',
+        'kings': 'Sacramento Kings', 'spurs': 'San Antonio Spurs',
+        'jazz': 'Utah Jazz', 'wizards': 'Washington Wizards',
+        'yanks': 'New York Yankees', 'yankees': 'New York Yankees',
+        'sox': 'Boston Red Sox', 'dodgers': 'Los Angeles Dodgers',
+        'cubs': 'Chicago Cubs', 'astros': 'Houston Astros',
+        'braves': 'Atlanta Braves', 'mets': 'New York Mets',
+        'phillies': 'Philadelphia Phillies', 'padres': 'San Diego Padres',
+        'brewers': 'Milwaukee Brewers', 'reds': 'Cincinnati Reds',
+        'pirates': 'Pittsburgh Pirates', 'tigers': 'Detroit Tigers',
+        'twins': 'Minnesota Twins', 'guardians': 'Cleveland Guardians',
+        'royals': 'Kansas City Royals', 'angels': 'Los Angeles Angels',
+        'mariners': 'Seattle Mariners', 'rangers': 'Texas Rangers',
+        'rays': 'Tampa Bay Rays', 'orioles': 'Baltimore Orioles',
+        'jays': 'Toronto Blue Jays', 'nats': 'Washington Nationals',
+        'rockies': 'Colorado Rockies', 'marlins': 'Miami Marlins',
         'dbacks': 'Arizona Diamondbacks',
-        // NHL
-        'bruins': 'Boston Bruins',
-        'sabres': 'Buffalo Sabres',
-        'flames': 'Calgary Flames',
-        'canes': 'Carolina Hurricanes',
-        'hawks': 'Chicago Blackhawks',
-        'avs': 'Colorado Avalanche',
-        'stars': 'Dallas Stars',
-        'wings': 'Detroit Red Wings',
-        'oilers': 'Edmonton Oilers',
-        'habs': 'Montreal Canadiens',
-        'preds': 'Nashville Predators',
-        'devils': 'New Jersey Devils',
-        'isles': 'New York Islanders',
-        'sens': 'Ottawa Senators',
-        'flyers': 'Philadelphia Flyers',
-        'pens': 'Pittsburgh Penguins',
-        'sharks': 'San Jose Sharks',
-        'kraken': 'Seattle Kraken',
-        'blues': 'St. Louis Blues',
-        'bolts': 'Tampa Bay Lightning',
-        'leafs': 'Toronto Maple Leafs',
-        'ducks': 'Anaheim Ducks',
-        'canucks': 'Vancouver Canucks',
-        'vgk': 'Vegas Golden Knights',
-        'caps': 'Washington Capitals',
-        // College
-        'dawgs': 'Georgia Bulldogs',
-        'bulldogs': 'Georgia Bulldogs',
-        'tide': 'Alabama Crimson Tide',
-        'bama': 'Alabama Crimson Tide',
-        'buckeyes': 'Ohio State Buckeyes',
-        'wolverines': 'Michigan Wolverines',
-        'longhorns': 'Texas Longhorns',
-        'sooners': 'Oklahoma Sooners',
-        'irish': 'Notre Dame Fighting Irish',
-        'tigers': 'LSU Tigers',
-        'nittany lions': 'Penn State Nittany Lions',
-        'ducks': 'Oregon Ducks',
-        'seminoles': 'Florida State Seminoles',
-        'vols': 'Tennessee Volunteers',
-        'hurricanes': 'Miami Hurricanes',
-        'trojans': 'USC Trojans',
-        'gators': 'Florida Gators',
-        'aggies': 'Texas A&M Aggies',
-        'rebels': 'Ole Miss Rebels',
-        'utes': 'Utah Utes',
-        'blue devils': 'Duke Blue Devils',
-        'wildcats': 'Kentucky Wildcats',
-        'jayhawks': 'Kansas Jayhawks',
-        'tar heels': 'North Carolina Tar Heels',
-        'unc': 'North Carolina Tar Heels',
-        'bruins': 'UCLA Bruins',
-        'zags': 'Gonzaga Bulldogs',
-        'huskies': 'Connecticut Huskies',
-        'uconn': 'Connecticut Huskies',
-        'spartans': 'Michigan State Spartans',
-        'boilermakers': 'Purdue Boilermakers',
+        'bruins': 'Boston Bruins', 'sabres': 'Buffalo Sabres',
+        'flames': 'Calgary Flames', 'canes': 'Carolina Hurricanes',
+        'avs': 'Colorado Avalanche', 'stars': 'Dallas Stars',
+        'wings': 'Detroit Red Wings', 'oilers': 'Edmonton Oilers',
+        'habs': 'Montreal Canadiens', 'preds': 'Nashville Predators',
+        'devils': 'New Jersey Devils', 'isles': 'New York Islanders',
+        'sens': 'Ottawa Senators', 'flyers': 'Philadelphia Flyers',
+        'pens': 'Pittsburgh Penguins', 'sharks': 'San Jose Sharks',
+        'kraken': 'Seattle Kraken', 'blues': 'St. Louis Blues',
+        'bolts': 'Tampa Bay Lightning', 'leafs': 'Toronto Maple Leafs',
+        'ducks': 'Anaheim Ducks', 'canucks': 'Vancouver Canucks',
+        'vgk': 'Vegas Golden Knights', 'caps': 'Washington Capitals',
+        'dawgs': 'Georgia Bulldogs', 'bulldogs': 'Georgia Bulldogs',
+        'tide': 'Alabama Crimson Tide', 'bama': 'Alabama Crimson Tide',
+        'buckeyes': 'Ohio State Buckeyes', 'wolverines': 'Michigan Wolverines',
+        'longhorns': 'Texas Longhorns', 'sooners': 'Oklahoma Sooners',
+        'irish': 'Notre Dame Fighting Irish', 'lsu': 'LSU Tigers',
+        'vols': 'Tennessee Volunteers', 'gators': 'Florida Gators',
+        'aggies': 'Texas A&M Aggies', 'rebels': 'Ole Miss Rebels',
+        'utes': 'Utah Utes', 'blue devils': 'Duke Blue Devils',
+        'wildcats': 'Kentucky Wildcats', 'jayhawks': 'Kansas Jayhawks',
+        'unc': 'North Carolina Tar Heels', 'zags': 'Gonzaga Bulldogs',
+        'uconn': 'Connecticut Huskies', 'spartans': 'Michigan State Spartans',
         'razorbacks': 'Arkansas Razorbacks',
       };
 
+      const collegeSports = ['ncaafb', 'ncaabb', 'ncaasb', 'ncaasoftball'];
+      const TOP_N = 30;
       let allTeams = [];
       let savedPrefs = { sports: [], teams: [] };
+
+      function buildTeamHTML(t) {
+        return `
+          <label>
+            <input type="checkbox" value="${t.name}" />
+            <img src="${t.logo}" class="team-logo" alt="${t.name}" onerror="this.style.display='none'" />
+            ${t.name}
+          </label>
+        `;
+      }
 
       async function loadTeams(sport, containerId) {
         try {
           const res = await fetch(`https://better-bookie-five.vercel.app/api/logos?sport=${sport}`);
           const teams = await res.json();
           const container = document.getElementById(containerId);
+          const isCollege = collegeSports.includes(sport);
 
-          container.innerHTML = teams.map(t => `
-            <label>
-              <input type="checkbox" value="${t.name}" />
-              <img src="${t.logo}" class="team-logo" alt="${t.name}" onerror="this.style.display='none'" />
-              ${t.name}
-            </label>
-          `).join('');
+          if (isCollege && teams.length > TOP_N) {
+            const topTeams = teams.slice(0, TOP_N);
+            const restTeams = teams.slice(TOP_N);
+
+            container.innerHTML = `
+              <div class="checkbox-grid" id="${containerId}-top">
+                ${topTeams.map(buildTeamHTML).join('')}
+              </div>
+              <div class="show-more-wrap">
+                <button class="show-more-btn" data-target="${containerId}-extra">
+                  + Show ${restTeams.length} more teams
+                </button>
+                <div class="checkbox-grid extra-teams" id="${containerId}-extra">
+                  ${restTeams.map(buildTeamHTML).join('')}
+                </div>
+              </div>
+            `;
+
+            // Show more button toggle
+            container.querySelector('.show-more-btn').addEventListener('click', (e) => {
+              const btn = e.target;
+              const extra = document.getElementById(btn.dataset.target);
+              const isHidden = extra.style.display === 'none' || extra.style.display === '';
+              extra.style.display = isHidden ? 'grid' : 'none';
+              btn.textContent = isHidden
+                ? `− Hide extra teams`
+                : `+ Show ${restTeams.length} more teams`;
+            });
+
+          } else {
+            container.innerHTML = `<div class="checkbox-grid">${teams.map(buildTeamHTML).join('')}</div>`;
+          }
 
           teams.forEach(t => allTeams.push({ ...t, sport: sport.toUpperCase() }));
 
+          // Restore saved preferences
           savedPrefs.teams.forEach(val => {
             const cb = document.querySelector(`#${containerId} input[value="${val}"]`);
             if (cb) cb.checked = true;
@@ -468,19 +420,13 @@
         const resultsBox = document.getElementById('search-results');
         const searchGrid = document.getElementById('search-grid');
 
-        if (!query) {
-          resultsBox.style.display = 'none';
-          return;
-        }
+        if (!query) { resultsBox.style.display = 'none'; return; }
 
         const nicknameMatch = nicknames[query];
-
         const matches = allTeams.filter(t => {
           const fullName = t.name.toLowerCase();
           const abbr = (t.abbreviation || '').toLowerCase();
-          return fullName.includes(query) ||
-                 abbr === query ||
-                 (nicknameMatch && t.name === nicknameMatch);
+          return fullName.includes(query) || abbr === query || (nicknameMatch && t.name === nicknameMatch);
         });
 
         resultsBox.style.display = 'block';
@@ -518,10 +464,7 @@
       let currentUser = null;
 
       onAuthStateChanged(auth, async user => {
-        if (!user) {
-          window.location.href = 'login.html';
-          return;
-        }
+        if (!user) { window.location.href = 'login.html'; return; }
         currentUser = user;
         document.getElementById('welcome-msg').textContent = `Welcome, ${user.displayName || user.email}!`;
         document.getElementById('user-email').textContent = user.email;
