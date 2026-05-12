@@ -26,6 +26,14 @@
       .nav-dropdown-menu a:hover { opacity: 1; background: rgba(255,255,255,0.05); }
       .nav-dropdown-menu .menu-divider { border-top: 1px solid rgba(255,255,255,0.1); margin: 0.25rem 0; }
 .nav-dropdown-menu .menu-label { padding: 0.4rem 1rem 0.1rem; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.4; display: block; }
+      .weather-strip { padding: 2rem 1.5rem 0.5rem; max-width: 1100px; margin: 0 auto; }
+      .weather-strip h3 { margin: 0 0 0.75rem; font-size: 1.05rem; opacity: 0.85; }
+      .weather-strip-row { display: flex; gap: 0.6rem; overflow-x: auto; padding-bottom: 0.5rem; scrollbar-width: thin; }
+      .wx-tile { flex: 0 0 auto; min-width: 220px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem 0.9rem; font-size: 0.82rem; }
+      .wx-tile .wx-match { font-weight: 600; margin-bottom: 0.2rem; opacity: 0.95; }
+      .wx-tile .wx-time { font-size: 0.72rem; opacity: 0.55; margin-bottom: 0.4rem; }
+      .wx-tile .wx-line { font-size: 0.8rem; opacity: 0.85; }
+      .weather-strip-empty { opacity: 0.5; font-size: 0.85rem; }
     </style>
   </head>
   <body>
@@ -61,6 +69,11 @@
       </div>
     </header>
 
+    <section class="weather-strip" id="todays-weather" style="display:none;">
+      <h3>🌤️ Today's Outdoor Games</h3>
+      <div class="weather-strip-row" id="weather-strip-row"></div>
+    </section>
+
     <section class="features" id="features">
       <h3>Explore BetterBookie</h3>
       <div class="feature-grid">
@@ -87,6 +100,67 @@
     </footer>
 
     <script src="script.js"></script>
+    <script src="stadium-coords.js"></script>
+    <script>
+      (async function loadTodaysWeather() {
+        const VERCEL = 'https://better-bookie-five.vercel.app';
+        const section = document.getElementById('todays-weather');
+        const row = document.getElementById('weather-strip-row');
+        if (!section || !row) return;
+
+        const today = new Date();
+        const ymd = `${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}`;
+        const isoYmd = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+        async function loadSport(sport) {
+          try {
+            const r = await fetch(`${VERCEL}/api/espn-scores?sport=${sport}&date=${ymd}`);
+            const j = await r.json();
+            return (j?.events ?? []).map(e => ({ event: e, sport }));
+          } catch { return []; }
+        }
+
+        const all = (await Promise.all(['nfl', 'mlb'].map(loadSport))).flat();
+        const candidates = [];
+        for (const { event, sport } of all) {
+          const comp = event.competitions?.[0];
+          if (!comp) continue;
+          if ((comp.status?.type?.name ?? '') === 'STATUS_FINAL') continue;
+          const home = (comp.competitors ?? []).find(c => c.homeAway === 'home');
+          const away = (comp.competitors ?? []).find(c => c.homeAway === 'away');
+          const homeName = home?.team?.displayName;
+          const awayName = away?.team?.displayName;
+          const coords = window.STADIUM_COORDS?.[homeName];
+          if (!coords || coords.roof === 'dome') continue;
+          candidates.push({ sport, homeName, awayName, when: event.date, coords });
+        }
+        if (candidates.length === 0) return;
+
+        section.style.display = 'block';
+        row.innerHTML = '';
+        candidates.slice(0, 8).forEach(g => {
+          const tile = document.createElement('div');
+          tile.className = 'wx-tile';
+          const time = new Date(g.when).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+          const roofNote = g.coords.roof === 'retractable' ? ' · retractable' : '';
+          tile.innerHTML = `
+            <div class="wx-match">${g.awayName} @ ${g.homeName}</div>
+            <div class="wx-time">${g.sport.toUpperCase()} · ${time}${roofNote}</div>
+            <div class="wx-line">⏳ Loading…</div>
+          `;
+          row.appendChild(tile);
+          const line = tile.querySelector('.wx-line');
+          fetch(`${VERCEL}/api/weather?lat=${g.coords.lat}&lon=${g.coords.lon}&at=${encodeURIComponent(g.when)}`)
+            .then(r => r.ok ? r.json() : null)
+            .then(data => {
+              const p = data?.period;
+              if (!p) { line.textContent = '—'; return; }
+              line.textContent = `🌤️ ${p.temperature}°${p.temperatureUnit} · ${p.shortForecast} · ${p.windSpeed} ${p.windDirection}`;
+            })
+            .catch(() => { line.textContent = '—'; });
+        });
+      })();
+    </script>
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
       import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";

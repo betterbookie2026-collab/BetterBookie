@@ -400,6 +400,7 @@
     </footer>
 
     <script src="script.js"></script>
+    <script src="stadium-coords.js"></script>
     <script>
       const VERCEL = 'https://better-bookie-five.vercel.app';
       const currentYear = new Date().getFullYear();
@@ -679,6 +680,59 @@
           || '<div class="boxscore-loading">Detailed box score not available for this game.</div>';
       }
 
+      const weatherCache = {};
+      function weatherCacheKey(coords, kind, date) {
+        return `${kind}|${coords.lat},${coords.lon}|${date ?? ''}`;
+      }
+      function isFinalStatus(competition) {
+        return (competition.status?.type?.name ?? '') === 'STATUS_FINAL';
+      }
+      async function fetchForecast(coords, atIso) {
+        const key = weatherCacheKey(coords, 'fc', atIso);
+        if (weatherCache[key]) return weatherCache[key];
+        const url = `${VERCEL}/api/weather?lat=${coords.lat}&lon=${coords.lon}` +
+          (atIso ? `&at=${encodeURIComponent(atIso)}` : '');
+        const p = fetch(url).then(r => r.ok ? r.json() : null).catch(() => null);
+        weatherCache[key] = p;
+        return p;
+      }
+      async function fetchHistorical(coords, dateYmd) {
+        const key = weatherCacheKey(coords, 'hist', dateYmd);
+        if (weatherCache[key]) return weatherCache[key];
+        const url = `${VERCEL}/api/weather-history?lat=${coords.lat}&lon=${coords.lon}&date=${dateYmd}`;
+        const p = fetch(url).then(r => r.ok ? r.json() : null).catch(() => null);
+        weatherCache[key] = p;
+        return p;
+      }
+      function renderWeatherLine(el, competition, homeName, eventDateIso) {
+        const coords = window.STADIUM_COORDS?.[homeName];
+        if (!coords) return; // sport/team not covered (e.g. NCAAFB v1)
+        if (coords.roof === 'dome') {
+          el.textContent = '🏟️ Indoor venue';
+          return;
+        }
+        const roofNote = coords.roof === 'retractable' ? ' · retractable roof' : '';
+        el.textContent = '⏳ Loading weather…';
+        if (isFinalStatus(competition)) {
+          const ymd = new Date(eventDateIso).toISOString().slice(0, 10);
+          fetchHistorical(coords, ymd).then(data => {
+            if (!data || data.error) { el.textContent = ''; return; }
+            const parts = [];
+            if (data.tmax != null) parts.push(`H ${Math.round(data.tmax)}°F`);
+            if (data.tmin != null) parts.push(`L ${Math.round(data.tmin)}°F`);
+            if (data.prcp != null && data.prcp > 0) parts.push(`${data.prcp}" rain`);
+            if (data.snow != null && data.snow > 0) parts.push(`${data.snow}" snow`);
+            el.textContent = parts.length ? `📊 ${parts.join(' · ')}${roofNote}` : '';
+          });
+        } else {
+          fetchForecast(coords, eventDateIso).then(data => {
+            const p = data?.period;
+            if (!p) { el.textContent = ''; return; }
+            el.textContent = `🌤️ ${p.temperature}°${p.temperatureUnit} · ${p.shortForecast} · ${p.windSpeed} ${p.windDirection}${roofNote}`;
+          });
+        }
+      }
+
       function renderScores(events, sport) {
         const container = document.getElementById('cards-container');
         if (!Array.isArray(events) || events.length === 0) {
@@ -723,8 +777,10 @@
             <p class="score">${awayScore} – ${homeScore}</p>
             ${displayDate ? `<p>📅 ${displayDate}</p>` : ''}
             ${venue ? `<p style="opacity:0.4;font-size:0.78rem;">📍 ${venue}</p>` : ''}
+            <p class="weather-line" style="opacity:0.55;font-size:0.78rem;margin:0.15rem 0 0.4rem;"></p>
             <button class="view-boxscore-btn">▼ View Box Score</button>
           `;
+          renderWeatherLine(card.querySelector('.weather-line'), competition, homeName, event.date);
 
           const panel = document.createElement('div');
           panel.className = 'boxscore-panel';

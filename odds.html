@@ -129,6 +129,7 @@
     </footer>
 
     <script src="script.js"></script>
+    <script src="stadium-coords.js"></script>
     <script>
       const teamLogos = {
         'Arizona Cardinals': 'https://a.espncdn.com/i/teamlogos/nfl/500/ari.png',
@@ -231,6 +232,34 @@
         return src ? `<img src="${src}" style="width:${size}px;height:${size}px;object-fit:contain;" alt="${name}" onerror="this.style.display='none'" />` : '';
       }
 
+      const VERCEL_WX = 'https://better-bookie-five.vercel.app';
+      const weatherCache = {};
+      async function fetchForecast(coords, atIso) {
+        const key = `${coords.lat},${coords.lon}|${atIso ?? ''}`;
+        if (weatherCache[key]) return weatherCache[key];
+        const url = `${VERCEL_WX}/api/weather?lat=${coords.lat}&lon=${coords.lon}` +
+          (atIso ? `&at=${encodeURIComponent(atIso)}` : '');
+        const p = fetch(url).then(r => r.ok ? r.json() : null).catch(() => null);
+        weatherCache[key] = p;
+        return p;
+      }
+      function populateWeatherLines(root) {
+        root.querySelectorAll('.weather-line').forEach(el => {
+          const homeName = el.dataset.home;
+          const atIso = el.dataset.at;
+          const coords = window.STADIUM_COORDS?.[homeName];
+          if (!coords) return;
+          if (coords.roof === 'dome') { el.textContent = '🏟️ Indoor venue'; return; }
+          const roofNote = coords.roof === 'retractable' ? ' · retractable roof' : '';
+          el.textContent = '⏳ Loading weather…';
+          fetchForecast(coords, atIso).then(data => {
+            const p = data?.period;
+            if (!p) { el.textContent = ''; return; }
+            el.textContent = `🌤️ ${p.temperature}°${p.temperatureUnit} · ${p.shortForecast} · ${p.windSpeed} ${p.windDirection}${roofNote}`;
+          });
+        });
+      }
+
       let currentSport = 'americanfootball_nfl';
 
       async function fetchOdds(sport) {
@@ -262,10 +291,12 @@
                 <p>📅 ${date}</p>
                 <div class="team-row">${logoImg(home)} <span>${home}: <strong>${homeOdds > 0 ? '+' : ''}${homeOdds}</strong></span></div>
                 <div class="team-row">${logoImg(away)} <span>${away}: <strong>${awayOdds > 0 ? '+' : ''}${awayOdds}</strong></span></div>
+                <p class="weather-line" data-home="${home}" data-at="${game.commence_time}" style="opacity:0.55;font-size:0.78rem;margin:0.4rem 0 0.2rem;"></p>
                 <p style="opacity:0.5;font-size:0.8rem;margin-top:0.5rem;">via ${bookmaker?.title ?? 'N/A'}</p>
               </div>
             `;
           }).join('');
+          populateWeatherLines(cardsContainer);
           tableBody.innerHTML = data.map(game => {
             const home = game.home_team;
             const away = game.away_team;
