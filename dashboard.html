@@ -169,6 +169,26 @@
         cursor: pointer;
         flex-shrink: 0;
       }
+      .other-sports-wrap {
+        margin-top: 2rem;
+      }
+      .other-sports-toggle {
+        width: 100%;
+        padding: 0.75rem 1.5rem;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        color: inherit;
+        cursor: pointer;
+        font-size: 0.95rem;
+        text-align: left;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+      }
+      .other-sports-toggle:hover { background: rgba(255,255,255,0.08); }
+      .other-sports-content { display: none; }
       .save-btn {
         padding: 0.65rem 2rem;
         background: #fff;
@@ -240,7 +260,7 @@
 
         <div class="pref-section">
           <h4>Favorite Sports</h4>
-          <div class="checkbox-grid">
+          <div class="checkbox-grid" id="sports-grid">
             <label><input type="checkbox" value="nfl" /><span class="sport-emoji">🏈</span> NFL</label>
             <label><input type="checkbox" value="nba" /><span class="sport-emoji">🏀</span> NBA</label>
             <label><input type="checkbox" value="mlb" /><span class="sport-emoji">⚾</span> MLB</label>
@@ -252,44 +272,16 @@
           </div>
         </div>
 
-        <div class="pref-section">
-          <h4>Favorite NFL Teams</h4>
-          <div class="checkbox-grid" id="nfl-teams"><p class="loading-teams">Loading teams...</p></div>
-        </div>
+        <!-- Favorite sport team sections (shown when sport is selected) -->
+        <div id="favorite-sport-sections"></div>
 
-        <div class="pref-section">
-          <h4>Favorite NBA Teams</h4>
-          <div class="checkbox-grid" id="nba-teams"><p class="loading-teams">Loading teams...</p></div>
-        </div>
-
-        <div class="pref-section">
-          <h4>Favorite MLB Teams</h4>
-          <div class="checkbox-grid" id="mlb-teams"><p class="loading-teams">Loading teams...</p></div>
-        </div>
-
-        <div class="pref-section">
-          <h4>Favorite NHL Teams</h4>
-          <div class="checkbox-grid" id="nhl-teams"><p class="loading-teams">Loading teams...</p></div>
-        </div>
-
-        <div class="pref-section">
-          <h4>Favorite College Football Teams</h4>
-          <div class="checkbox-grid" id="ncaafb-teams"><p class="loading-teams">Loading teams...</p></div>
-        </div>
-
-        <div class="pref-section">
-          <h4>Favorite College Basketball Teams</h4>
-          <div class="checkbox-grid" id="ncaabb-teams"><p class="loading-teams">Loading teams...</p></div>
-        </div>
-
-        <div class="pref-section">
-          <h4>Favorite College Baseball Teams</h4>
-          <div class="checkbox-grid" id="ncaasb-teams"><p class="loading-teams">Loading teams...</p></div>
-        </div>
-
-        <div class="pref-section">
-          <h4>Favorite College Softball Teams</h4>
-          <div class="checkbox-grid" id="ncaasoftball-teams"><p class="loading-teams">Loading teams...</p></div>
+        <!-- Other sports section -->
+        <div class="other-sports-wrap" id="other-sports-wrap" style="display:none;">
+          <button class="other-sports-toggle" id="other-sports-toggle">
+            <span>➕ Other Sports</span>
+            <span id="other-sports-arrow">▼</span>
+          </button>
+          <div class="other-sports-content" id="other-sports-content"></div>
         </div>
 
         <button class="save-btn" id="save-btn">Save Preferences</button>
@@ -321,6 +313,17 @@
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
       const db = getFirestore(app);
+
+      const sportMeta = {
+        nfl:          { label: 'NFL Teams', emoji: '🏈', college: false },
+        nba:          { label: 'NBA Teams', emoji: '🏀', college: false },
+        mlb:          { label: 'MLB Teams', emoji: '⚾', college: false },
+        nhl:          { label: 'NHL Teams', emoji: '🏒', college: false },
+        ncaafb:       { label: 'College Football Teams', emoji: '🏈', college: true },
+        ncaabb:       { label: 'College Basketball Teams', emoji: '🏀', college: true },
+        ncaasb:       { label: 'College Baseball Teams', emoji: '⚾', college: true },
+        ncaasoftball: { label: 'College Softball Teams', emoji: '🥎', college: true },
+      };
 
       const nicknames = {
         'chiefs': 'Kansas City Chiefs', 'pats': 'New England Patriots',
@@ -393,42 +396,33 @@
         'razorbacks': 'Arkansas Razorbacks',
       };
 
-      const collegeSports = ['ncaafb', 'ncaabb', 'ncaasb', 'ncaasoftball'];
       const TOP_N = 30;
+      const collegeSports = ['ncaafb', 'ncaabb', 'ncaasb', 'ncaasoftball'];
       let allTeams = [];
       let savedPrefs = { sports: [], teams: [] };
+      const loadedTeams = {};
 
-      // Store teams per sport for conference filtering
-      const sportTeams = {};
-
-      function buildTeamHTML(t) {
-        return `
-          <label>
-            <input type="checkbox" value="${t.name}" />
-            <img src="${t.logo}" class="team-logo" alt="${t.name}" onerror="this.style.display='none'" />
-            ${t.name}
-          </label>
+      function buildTeamLabel(t) {
+        const label = document.createElement('label');
+        label.innerHTML = `
+          <input type="checkbox" value="${t.name}" />
+          <img src="${t.logo}" class="team-logo" alt="${t.name}" onerror="this.style.display='none'" />
+          ${t.name}
         `;
+        if (savedPrefs.teams?.includes(t.name)) {
+          label.querySelector('input').checked = true;
+        }
+        return label;
       }
 
-      function renderConferenceFilter(sport, containerId, teams) {
+      function renderConferenceFilter(container, teams, containerId) {
         const conferences = ['All', ...new Set(teams.map(t => t.conference).filter(Boolean).sort())];
-        const filterId = `${containerId}-conf-filter`;
-
-        // Insert conference filter buttons before the grid
-        const container = document.getElementById(containerId);
-        let filterDiv = document.getElementById(filterId);
-        if (!filterDiv) {
-          filterDiv = document.createElement('div');
-          filterDiv.className = 'conference-filter';
-          filterDiv.id = filterId;
-          filterDiv.style.gridColumn = '1/-1';
-          container.insertBefore(filterDiv, container.firstChild);
-        }
-
-        filterDiv.innerHTML = conferences.map(c => `
-          <button class="conf-btn ${c === 'All' ? 'active' : ''}" data-conf="${c}">${c}</button>
-        `).join('');
+        const filterDiv = document.createElement('div');
+        filterDiv.className = 'conference-filter';
+        filterDiv.innerHTML = conferences.map(c =>
+          `<button class="conf-btn ${c === 'All' ? 'active' : ''}" data-conf="${c}">${c}</button>`
+        ).join('');
+        container.appendChild(filterDiv);
 
         filterDiv.querySelectorAll('.conf-btn').forEach(btn => {
           btn.addEventListener('click', () => {
@@ -436,95 +430,105 @@
             btn.classList.add('active');
             const selected = btn.dataset.conf;
             const filtered = selected === 'All' ? teams : teams.filter(t => t.conference === selected);
-            renderCollegeTeams(containerId, filtered, teams);
+            renderTeamList(container, filtered, filterDiv);
           });
         });
       }
 
-      function renderCollegeTeams(containerId, teamsToShow, allSportTeams) {
-        const container = document.getElementById(containerId);
-        const filterId = `${containerId}-conf-filter`;
-        const filterEl = document.getElementById(filterId);
+      function renderTeamList(container, teams, filterEl) {
+        // Remove everything except the filter
+        Array.from(container.children).forEach(c => { if (c !== filterEl) c.remove(); });
 
-        // Remove existing team labels and show-more but keep filter
-        Array.from(container.children).forEach(child => {
-          if (child.id !== filterId) child.remove();
-        });
+        const top = teams.slice(0, TOP_N);
+        const rest = teams.slice(TOP_N);
 
-        const top = teamsToShow.slice(0, TOP_N);
-        const rest = teamsToShow.slice(TOP_N);
-
-        top.forEach(t => {
-          const label = document.createElement('label');
-          label.innerHTML = `
-            <input type="checkbox" value="${t.name}" />
-            <img src="${t.logo}" class="team-logo" alt="${t.name}" onerror="this.style.display='none'" />
-            ${t.name}
-          `;
-          container.appendChild(label);
-          // Restore checked state
-          if (savedPrefs.teams?.includes(t.name)) {
-            label.querySelector('input').checked = true;
-          }
-        });
+        top.forEach(t => container.appendChild(buildTeamLabel(t)));
 
         if (rest.length > 0) {
-          const showMoreWrap = document.createElement('div');
-          showMoreWrap.className = 'show-more-wrap';
-          showMoreWrap.style.gridColumn = '1/-1';
-          showMoreWrap.innerHTML = `
-            <button class="show-more-btn">+ Show ${rest.length} more teams</button>
-            <div class="extra-teams" id="${containerId}-extra">
-              ${rest.map(buildTeamHTML).join('')}
-            </div>
-          `;
-          container.appendChild(showMoreWrap);
+          const wrap = document.createElement('div');
+          wrap.className = 'show-more-wrap';
+          wrap.style.gridColumn = '1/-1';
+          const btn = document.createElement('button');
+          btn.className = 'show-more-btn';
+          btn.textContent = `+ Show ${rest.length} more teams`;
+          const extra = document.createElement('div');
+          extra.className = 'extra-teams';
+          rest.forEach(t => extra.appendChild(buildTeamLabel(t)));
+          btn.addEventListener('click', () => {
+            const hidden = extra.style.display !== 'grid';
+            extra.style.display = hidden ? 'grid' : 'none';
+            btn.textContent = hidden ? `− Hide extra teams` : `+ Show ${rest.length} more teams`;
+          });
+          wrap.appendChild(btn);
+          wrap.appendChild(extra);
+          container.appendChild(wrap);
+        }
+      }
 
-          // Restore checked state in extra teams
-          rest.forEach(t => {
-            if (savedPrefs.teams?.includes(t.name)) {
-              const cb = showMoreWrap.querySelector(`input[value="${t.name}"]`);
-              if (cb) cb.checked = true;
+      function buildSectionFor(sport, teams) {
+        const meta = sportMeta[sport];
+        const section = document.createElement('div');
+        section.className = 'pref-section';
+        section.id = `section-${sport}`;
+        section.innerHTML = `<h4>${meta.emoji} ${meta.label}</h4>`;
+
+        const grid = document.createElement('div');
+        grid.className = 'checkbox-grid';
+        grid.id = `${sport}-teams`;
+        section.appendChild(grid);
+
+        if (meta.college) {
+          renderConferenceFilter(grid, teams, `${sport}-teams`);
+          renderTeamList(grid, teams, grid.querySelector('.conference-filter'));
+        } else {
+          teams.forEach(t => grid.appendChild(buildTeamLabel(t)));
+        }
+
+        return section;
+      }
+
+      function updateSections() {
+        const selectedSports = [...document.querySelectorAll('#sports-grid input:checked')].map(cb => cb.value);
+        const favContainer = document.getElementById('favorite-sport-sections');
+        const otherContent = document.getElementById('other-sports-content');
+        const otherWrap = document.getElementById('other-sports-wrap');
+
+        favContainer.innerHTML = '';
+        otherContent.innerHTML = '';
+
+        const otherSports = Object.keys(sportMeta).filter(s => !selectedSports.includes(s));
+
+        selectedSports.forEach(sport => {
+          if (loadedTeams[sport]) {
+            favContainer.appendChild(buildSectionFor(sport, loadedTeams[sport]));
+          }
+        });
+
+        if (otherSports.length > 0) {
+          otherWrap.style.display = 'block';
+          otherSports.forEach(sport => {
+            if (loadedTeams[sport]) {
+              otherContent.appendChild(buildSectionFor(sport, loadedTeams[sport]));
             }
           });
-
-          showMoreWrap.querySelector('.show-more-btn').addEventListener('click', (e) => {
-            const btn = e.target;
-            const extra = showMoreWrap.querySelector('.extra-teams');
-            const isHidden = extra.style.display === 'none' || extra.style.display === '';
-            extra.style.display = isHidden ? 'grid' : 'none';
-            btn.textContent = isHidden ? `− Hide extra teams` : `+ Show ${rest.length} more teams`;
-          });
+        } else {
+          otherWrap.style.display = 'none';
         }
       }
 
-      async function loadTeams(sport, containerId) {
-        try {
-          const res = await fetch(`https://better-bookie-five.vercel.app/api/logos?sport=${sport}`);
-          const teams = await res.json();
-          const container = document.getElementById(containerId);
-          const isCollege = collegeSports.includes(sport);
+      // Other sports toggle
+      document.getElementById('other-sports-toggle').addEventListener('click', () => {
+        const content = document.getElementById('other-sports-content');
+        const arrow = document.getElementById('other-sports-arrow');
+        const isHidden = content.style.display !== 'block';
+        content.style.display = isHidden ? 'block' : 'none';
+        arrow.textContent = isHidden ? '▲' : '▼';
+      });
 
-          sportTeams[sport] = teams;
-          teams.forEach(t => allTeams.push({ ...t, sport: sport.toUpperCase() }));
+      // Update sections when sports checkboxes change
+      document.getElementById('sports-grid').addEventListener('change', updateSections);
 
-          if (isCollege) {
-            container.innerHTML = '';
-            renderConferenceFilter(sport, containerId, teams);
-            renderCollegeTeams(containerId, teams, teams);
-          } else {
-            container.innerHTML = teams.map(buildTeamHTML).join('');
-            savedPrefs.teams?.forEach(val => {
-              const cb = document.querySelector(`#${containerId} input[value="${val}"]`);
-              if (cb) cb.checked = true;
-            });
-          }
-
-        } catch (err) {
-          document.getElementById(containerId).innerHTML = '<p class="loading-teams">Failed to load teams.</p>';
-        }
-      }
-
+      // Search
       document.getElementById('team-search').addEventListener('input', (e) => {
         const query = e.target.value.trim().toLowerCase();
         const resultsBox = document.getElementById('search-results');
@@ -571,6 +575,20 @@
         });
       });
 
+      async function loadAllTeams() {
+        await Promise.all(Object.keys(sportMeta).map(async sport => {
+          try {
+            const res = await fetch(`https://better-bookie-five.vercel.app/api/logos?sport=${sport}`);
+            const teams = await res.json();
+            loadedTeams[sport] = teams;
+            teams.forEach(t => allTeams.push({ ...t, sport: sport.toUpperCase() }));
+          } catch (e) {
+            loadedTeams[sport] = [];
+          }
+        }));
+        updateSections();
+      }
+
       let currentUser = null;
 
       onAuthStateChanged(auth, async user => {
@@ -585,28 +603,19 @@
           savedPrefs = docSnap.data();
           if (savedPrefs.sports) {
             savedPrefs.sports.forEach(val => {
-              const cb = document.querySelector(`.pref-section:first-of-type input[value="${val}"]`);
+              const cb = document.querySelector(`#sports-grid input[value="${val}"]`);
               if (cb) cb.checked = true;
             });
           }
         }
 
-        await Promise.all([
-          loadTeams('nfl', 'nfl-teams'),
-          loadTeams('nba', 'nba-teams'),
-          loadTeams('mlb', 'mlb-teams'),
-          loadTeams('nhl', 'nhl-teams'),
-          loadTeams('ncaafb', 'ncaafb-teams'),
-          loadTeams('ncaabb', 'ncaabb-teams'),
-          loadTeams('ncaasb', 'ncaasb-teams'),
-          loadTeams('ncaasoftball', 'ncaasoftball-teams'),
-        ]);
+        await loadAllTeams();
       });
 
       document.getElementById('save-btn').addEventListener('click', async () => {
         if (!currentUser) return;
-        const sports = [...document.querySelectorAll('.pref-section:first-of-type input:checked')].map(cb => cb.value);
-        const teams = [...document.querySelectorAll('.pref-section:not(:first-of-type) input:checked')].map(cb => cb.value);
+        const sports = [...document.querySelectorAll('#sports-grid input:checked')].map(cb => cb.value);
+        const teams = [...document.querySelectorAll('.pref-section input[type="checkbox"]:checked, .extra-teams input:checked')].map(cb => cb.value);
         await setDoc(doc(db, 'users', currentUser.uid), { sports, teams });
         const msg = document.getElementById('success-msg');
         msg.style.display = 'block';
