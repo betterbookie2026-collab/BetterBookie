@@ -54,6 +54,12 @@
       }
       .td-team { display: flex; align-items: center; gap: 0.4rem; }
       .td-logo { width: 20px; height: 20px; object-fit: contain; }
+      .nav-dropdown { position: relative; display: inline-block; }
+      .nav-dropdown-btn { background: transparent; border: none; color: inherit; cursor: pointer; font-size: 1rem; padding: 0; font-family: inherit; }
+      .nav-dropdown-menu { display: none; position: absolute; top: 100%; right: 0; background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; min-width: 180px; z-index: 100; padding: 0.5rem 0; }
+      .nav-dropdown.open .nav-dropdown-menu { display: block; }
+      .nav-dropdown-menu a { display: block; padding: 0.6rem 1rem; color: inherit; text-decoration: none; font-size: 0.9rem; opacity: 0.8; }
+      .nav-dropdown-menu a:hover { opacity: 1; background: rgba(255,255,255,0.05); }
     </style>
   </head>
   <body>
@@ -67,7 +73,14 @@
           <a href="odds.html">Live Odds</a>
           <a href="injuries.html">Injuries</a>
           <a href="dashboard.html">Dashboard</a>
-          <a href="settings.html">Settings</a>
+          <div class="nav-dropdown" id="nav-settings-dropdown">
+            <button class="nav-dropdown-btn" onclick="document.getElementById('nav-settings-dropdown').classList.toggle('open')">Settings ▾</button>
+            <div class="nav-dropdown-menu">
+              <a href="settings.html#sports">Sports Preferences</a>
+              <a href="settings.html#teams">Team Preferences</a>
+              <a href="#" id="nav-signout">Logout</a>
+            </div>
+          </div>
           <a href="login.html" id="nav-login">Login</a>
         </div>
       </nav>
@@ -284,7 +297,8 @@
 
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-      import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+      import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
       const app = initializeApp({
         apiKey: "AIzaSyC2sgfkqCVFU1RfiWsArIWjpvpebKVxT64",
         authDomain: "betterbookie.firebaseapp.com",
@@ -294,9 +308,21 @@
         appId: "1:995577929895:web:303a93aa15628d6c503b82"
       });
       const auth = getAuth(app);
+
       onAuthStateChanged(auth, user => {
         const loginLink = document.getElementById('nav-login');
         if (loginLink) loginLink.style.display = user ? 'none' : 'inline';
+      });
+
+      document.addEventListener('click', (e) => {
+        const dropdown = document.getElementById('nav-settings-dropdown');
+        if (dropdown && !dropdown.contains(e.target)) dropdown.classList.remove('open');
+      });
+
+      document.getElementById('nav-signout')?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await signOut(auth);
+        window.location.href = 'login.html';
       });
     </script>
   </body>
