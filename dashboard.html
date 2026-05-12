@@ -15,8 +15,23 @@
       .user-info {
         opacity: 0.6;
         font-size: 0.9rem;
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
       }
+      .intro-snippet {
+        background: rgba(255,255,255,0.05);
+        border-left: 3px solid #ffd93d;
+        border-radius: 4px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        opacity: 0.9;
+      }
+      .intro-snippet ol {
+        margin: 0.5rem 0 0 1.25rem;
+        padding: 0;
+      }
+      .intro-snippet li { margin-bottom: 0.25rem; }
       .pref-section {
         background: rgba(255,255,255,0.05);
         border: 1px solid rgba(255,255,255,0.1);
@@ -74,16 +89,8 @@
         height: 48px;
         object-fit: contain;
       }
-      .recommended-card span {
-        font-size: 0.8rem;
-        text-align: center;
-        opacity: 0.9;
-      }
-      .recommended-card .sport-badge {
-        font-size: 0.65rem;
-        opacity: 0.5;
-        text-transform: uppercase;
-      }
+      .recommended-card span { font-size: 0.8rem; text-align: center; opacity: 0.9; }
+      .recommended-card .sport-badge { font-size: 0.65rem; opacity: 0.5; text-transform: uppercase; }
       .recommended-card .check {
         position: absolute;
         top: 0.4rem;
@@ -93,11 +100,7 @@
         display: none;
       }
       .recommended-card.selected .check { display: block; }
-      .location-note {
-        font-size: 0.8rem;
-        opacity: 0.5;
-        margin-bottom: 1rem;
-      }
+      .location-note { font-size: 0.8rem; opacity: 0.5; margin-bottom: 1rem; }
       .search-wrap { margin-bottom: 1.5rem; }
       .search-wrap input {
         width: 100%;
@@ -109,10 +112,7 @@
         font-size: 0.95rem;
         box-sizing: border-box;
       }
-      .search-wrap input:focus {
-        outline: none;
-        border-color: rgba(255,255,255,0.5);
-      }
+      .search-wrap input:focus { outline: none; border-color: rgba(255,255,255,0.5); }
       .search-results {
         background: rgba(255,255,255,0.05);
         border: 1px solid rgba(255,255,255,0.1);
@@ -163,16 +163,8 @@
         margin-left: auto;
         padding-right: 0.25rem;
       }
-      .team-nickname {
-        font-size: 0.75rem;
-        opacity: 0.45;
-        margin-left: 0.1rem;
-      }
-      .no-results {
-        opacity: 0.5;
-        font-size: 0.9rem;
-        padding: 0.5rem;
-      }
+      .team-nickname { font-size: 0.75rem; opacity: 0.45; margin-left: 0.1rem; }
+      .no-results { opacity: 0.5; font-size: 0.9rem; padding: 0.5rem; }
       .conference-filter {
         display: flex;
         flex-wrap: wrap;
@@ -191,11 +183,7 @@
         transition: background 0.15s;
       }
       .conf-btn:hover { background: rgba(255,255,255,0.1); }
-      .conf-btn.active {
-        background: #fff;
-        color: #000;
-        border-color: #fff;
-      }
+      .conf-btn.active { background: #fff; color: #000; border-color: #fff; }
       .show-more-wrap {
         grid-column: 1/-1;
         margin-top: 1rem;
@@ -230,12 +218,7 @@
         transition: background 0.15s;
       }
       .extra-teams label:hover { background: rgba(255,255,255,0.08); }
-      .extra-teams input[type="checkbox"] {
-        width: 16px;
-        height: 16px;
-        cursor: pointer;
-        flex-shrink: 0;
-      }
+      .extra-teams input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
       .other-sports-wrap { margin-top: 2rem; }
       .other-sports-toggle {
         width: 100%;
@@ -276,17 +259,8 @@
         font-size: 0.85rem;
         margin-top: 1rem;
       }
-      .success-msg {
-        color: #6bcb77;
-        font-size: 0.85rem;
-        margin-top: 0.5rem;
-        display: none;
-      }
-      .loading-teams {
-        opacity: 0.5;
-        font-size: 0.85rem;
-        padding: 0.5rem;
-      }
+      .success-msg { color: #6bcb77; font-size: 0.85rem; margin-top: 0.5rem; display: none; }
+      .loading-teams { opacity: 0.5; font-size: 0.85rem; padding: 0.5rem; }
     </style>
   </head>
   <body>
@@ -305,7 +279,7 @@
       </nav>
       <div class="hero-content">
         <h2>Your Dashboard</h2>
-        <p>Set your favorite sports and teams.</p>
+        <p>Personalize your BetterBookie experience.</p>
       </div>
     </header>
 
@@ -314,7 +288,15 @@
         <h3 id="welcome-msg">Welcome!</h3>
         <p class="user-info" id="user-email"></p>
 
-        <!-- Recommended section -->
+        <div class="intro-snippet">
+          🏆 <strong>Set up your personalized feed in 3 easy steps:</strong>
+          <ol>
+            <li>✅ <strong>Select your favorite sports</strong> from the list below</li>
+            <li>🏟️ <strong>Pick your favorite teams</strong> — they'll appear based on the sports you chose</li>
+            <li>🔍 <strong>Can't find your team?</strong> Use the search bar to find any team by name or nickname</li>
+          </ol>
+        </div>
+
         <div class="recommended-section" id="recommended-section" style="display:none;">
           <h4>⭐ Recommended For You</h4>
           <p class="location-note" id="location-note"></p>
@@ -331,7 +313,7 @@
         </div>
 
         <div class="pref-section">
-          <h4>Favorite Sports</h4>
+          <h4>1️⃣ Favorite Sports</h4>
           <div class="checkbox-grid" id="sports-grid">
             <label><input type="checkbox" value="nfl" /><span class="sport-emoji">🏈</span> NFL</label>
             <label><input type="checkbox" value="nba" /><span class="sport-emoji">🏀</span> NBA</label>
@@ -384,99 +366,6 @@
       const auth = getAuth(app);
       const db = getFirestore(app);
 
-      // Location to teams mapping
-      const locationTeams = {
-        // Louisiana
-        'louisiana': ['New Orleans Saints', 'New Orleans Pelicans', 'LSU Tigers', 'Tulane Green Wave'],
-        'new orleans': ['New Orleans Saints', 'New Orleans Pelicans', 'LSU Tigers', 'Tulane Green Wave'],
-        'baton rouge': ['LSU Tigers', 'New Orleans Saints', 'New Orleans Pelicans'],
-        // New York
-        'new york': ['New York Giants', 'New York Jets', 'New York Knicks', 'Brooklyn Nets', 'New York Yankees', 'New York Mets', 'New York Rangers', 'New York Islanders'],
-        'new york city': ['New York Giants', 'New York Jets', 'New York Knicks', 'Brooklyn Nets', 'New York Yankees', 'New York Mets', 'New York Rangers'],
-        // California
-        'los angeles': ['Los Angeles Lakers', 'Los Angeles Clippers', 'Los Angeles Rams', 'Los Angeles Chargers', 'Los Angeles Dodgers', 'Los Angeles Angels', 'Los Angeles Kings', 'Anaheim Ducks', 'USC Trojans', 'UCLA Bruins'],
-        'san francisco': ['San Francisco 49ers', 'Golden State Warriors', 'San Francisco Giants', 'Oakland Athletics', 'San Jose Sharks'],
-        'sacramento': ['Sacramento Kings', 'San Francisco 49ers', 'Golden State Warriors'],
-        'san diego': ['San Diego Padres', 'Los Angeles Chargers'],
-        // Texas
-        'dallas': ['Dallas Cowboys', 'Dallas Mavericks', 'Dallas Stars', 'Texas Rangers', 'TCU Horned Frogs', 'Baylor Bears', 'SMU Mustangs'],
-        'houston': ['Houston Texans', 'Houston Rockets', 'Houston Astros', 'Houston Cougars'],
-        'austin': ['Texas Longhorns', 'Dallas Cowboys', 'Houston Texans', 'San Antonio Spurs'],
-        'san antonio': ['San Antonio Spurs', 'Texas Longhorns', 'Houston Texans'],
-        'texas': ['Dallas Cowboys', 'Houston Texans', 'Texas Longhorns', 'Texas A&M Aggies', 'Houston Rockets'],
-        // Florida
-        'miami': ['Miami Dolphins', 'Miami Heat', 'Miami Marlins', 'Florida Panthers', 'Miami Hurricanes', 'Florida Gators', 'Florida State Seminoles'],
-        'orlando': ['Orlando Magic', 'Tampa Bay Buccaneers', 'Jacksonville Jaguars', 'Florida Gators', 'UCF Knights'],
-        'tampa': ['Tampa Bay Buccaneers', 'Tampa Bay Rays', 'Tampa Bay Lightning', 'Florida Gators', 'Florida State Seminoles'],
-        'jacksonville': ['Jacksonville Jaguars', 'Florida Gators', 'Florida State Seminoles'],
-        'florida': ['Miami Dolphins', 'Tampa Bay Buccaneers', 'Jacksonville Jaguars', 'Miami Heat', 'Orlando Magic', 'Florida Gators', 'Florida State Seminoles'],
-        // Illinois
-        'chicago': ['Chicago Bears', 'Chicago Bulls', 'Chicago Cubs', 'Chicago White Sox', 'Chicago Blackhawks', 'Northwestern Wildcats', 'Notre Dame Fighting Irish'],
-        // Pennsylvania
-        'philadelphia': ['Philadelphia Eagles', 'Philadelphia 76ers', 'Philadelphia Phillies', 'Philadelphia Flyers', 'Penn State Nittany Lions', 'Villanova Wildcats'],
-        'pittsburgh': ['Pittsburgh Steelers', 'Pittsburgh Pirates', 'Pittsburgh Penguins', 'Pitt Panthers'],
-        // Ohio
-        'cleveland': ['Cleveland Browns', 'Cleveland Cavaliers', 'Cleveland Guardians', 'Ohio State Buckeyes'],
-        'columbus': ['Ohio State Buckeyes', 'Cleveland Browns', 'Cleveland Cavaliers'],
-        'cincinnati': ['Cincinnati Bengals', 'Cincinnati Reds', 'Ohio State Buckeyes', 'Cincinnati Bearcats'],
-        'ohio': ['Cleveland Browns', 'Cincinnati Bengals', 'Ohio State Buckeyes', 'Cleveland Cavaliers', 'Cleveland Guardians'],
-        // Georgia
-        'atlanta': ['Atlanta Falcons', 'Atlanta Hawks', 'Atlanta Braves', 'Georgia Bulldogs', 'Georgia Tech Yellow Jackets'],
-        'georgia': ['Atlanta Falcons', 'Atlanta Hawks', 'Atlanta Braves', 'Georgia Bulldogs', 'Georgia Tech Yellow Jackets'],
-        // Massachusetts
-        'boston': ['New England Patriots', 'Boston Celtics', 'Boston Red Sox', 'Boston Bruins', 'Boston College Eagles'],
-        // Michigan
-        'detroit': ['Detroit Lions', 'Detroit Pistons', 'Detroit Tigers', 'Detroit Red Wings', 'Michigan Wolverines', 'Michigan State Spartans'],
-        'michigan': ['Detroit Lions', 'Detroit Pistons', 'Detroit Tigers', 'Detroit Red Wings', 'Michigan Wolverines', 'Michigan State Spartans'],
-        // Colorado
-        'denver': ['Denver Broncos', 'Denver Nuggets', 'Colorado Rockies', 'Colorado Avalanche', 'Colorado Buffaloes'],
-        // Washington
-        'seattle': ['Seattle Seahawks', 'Seattle Kraken', 'Seattle Mariners', 'Washington Huskies'],
-        // Minnesota
-        'minneapolis': ['Minnesota Vikings', 'Minnesota Timberwolves', 'Minnesota Twins', 'Minnesota Wild', 'Minnesota Golden Gophers'],
-        'minnesota': ['Minnesota Vikings', 'Minnesota Timberwolves', 'Minnesota Twins', 'Minnesota Wild', 'Minnesota Golden Gophers'],
-        // Arizona
-        'phoenix': ['Arizona Cardinals', 'Phoenix Suns', 'Arizona Diamondbacks', 'Arizona Coyotes', 'Arizona Wildcats', 'Arizona State Sun Devils'],
-        'arizona': ['Arizona Cardinals', 'Phoenix Suns', 'Arizona Diamondbacks', 'Arizona Wildcats', 'Arizona State Sun Devils'],
-        // Tennessee
-        'nashville': ['Tennessee Titans', 'Nashville Predators', 'Tennessee Volunteers'],
-        'memphis': ['Memphis Grizzlies', 'Tennessee Volunteers', 'Memphis Tigers'],
-        'tennessee': ['Tennessee Titans', 'Nashville Predators', 'Tennessee Volunteers', 'Memphis Grizzlies'],
-        // North Carolina
-        'charlotte': ['Carolina Panthers', 'Charlotte Hornets', 'North Carolina Tar Heels', 'NC State Wolfpack', 'Duke Blue Devils'],
-        'north carolina': ['Carolina Panthers', 'Charlotte Hornets', 'North Carolina Tar Heels', 'NC State Wolfpack', 'Duke Blue Devils'],
-        // Maryland
-        'baltimore': ['Baltimore Ravens', 'Baltimore Orioles', 'Maryland Terrapins'],
-        // Nevada
-        'las vegas': ['Las Vegas Raiders', 'Vegas Golden Knights', 'Las Vegas Aces'],
-        // Missouri
-        'kansas city': ['Kansas City Chiefs', 'Kansas City Royals', 'Kansas Jayhawks'],
-        'st. louis': ['St. Louis Blues', 'St. Louis Cardinals'],
-        // Indiana
-        'indianapolis': ['Indianapolis Colts', 'Indiana Pacers', 'Indiana Hoosiers', 'Purdue Boilermakers'],
-        // Wisconsin
-        'milwaukee': ['Milwaukee Bucks', 'Milwaukee Brewers', 'Green Bay Packers', 'Wisconsin Badgers'],
-        'green bay': ['Green Bay Packers', 'Wisconsin Badgers', 'Milwaukee Bucks'],
-        // Oregon
-        'portland': ['Portland Trail Blazers', 'Oregon Ducks', 'Oregon State Beavers'],
-        // Utah
-        'salt lake city': ['Utah Jazz', 'Utah Utes'],
-        // Oklahoma
-        'oklahoma city': ['Oklahoma City Thunder', 'Oklahoma Sooners', 'Oklahoma State Cowboys'],
-        // South Carolina
-        'south carolina': ['Carolina Panthers', 'Charlotte Hornets', 'South Carolina Gamecocks', 'Clemson Tigers'],
-        // Alabama
-        'alabama': ['Alabama Crimson Tide', 'Auburn Tigers', 'Tennessee Titans'],
-        'birmingham': ['Alabama Crimson Tide', 'Auburn Tigers'],
-        // Arkansas
-        'arkansas': ['Arkansas Razorbacks', 'Kansas City Chiefs', 'Dallas Cowboys'],
-        // Mississippi
-        'mississippi': ['Ole Miss Rebels', 'Mississippi State Bulldogs', 'New Orleans Saints'],
-        // Kentucky
-        'kentucky': ['Kentucky Wildcats', 'Louisville Cardinals', 'Cincinnati Bengals'],
-        'louisville': ['Louisville Cardinals', 'Kentucky Wildcats', 'Cincinnati Bengals'],
-      };
-
       const sportMeta = {
         nfl:          { label: 'NFL Teams', emoji: '🏈', college: false },
         nba:          { label: 'NBA Teams', emoji: '🏀', college: false },
@@ -486,6 +375,67 @@
         ncaabb:       { label: 'College Basketball Teams', emoji: '🏀', college: true },
         ncaasb:       { label: 'College Baseball Teams', emoji: '⚾', college: true },
         ncaasoftball: { label: 'College Softball Teams', emoji: '🥎', college: true },
+      };
+
+      const locationTeams = {
+        'louisiana': ['New Orleans Saints', 'New Orleans Pelicans', 'LSU Tigers', 'Tulane Green Wave'],
+        'new orleans': ['New Orleans Saints', 'New Orleans Pelicans', 'LSU Tigers', 'Tulane Green Wave'],
+        'baton rouge': ['LSU Tigers', 'New Orleans Saints', 'New Orleans Pelicans'],
+        'new york': ['New York Giants', 'New York Jets', 'New York Knicks', 'Brooklyn Nets', 'New York Yankees', 'New York Mets', 'New York Rangers', 'New York Islanders'],
+        'los angeles': ['Los Angeles Lakers', 'Los Angeles Clippers', 'Los Angeles Rams', 'Los Angeles Chargers', 'Los Angeles Dodgers', 'Los Angeles Angels', 'Los Angeles Kings', 'USC Trojans', 'UCLA Bruins'],
+        'san francisco': ['San Francisco 49ers', 'Golden State Warriors', 'San Francisco Giants', 'San Jose Sharks'],
+        'sacramento': ['Sacramento Kings', 'San Francisco 49ers', 'Golden State Warriors'],
+        'san diego': ['San Diego Padres', 'Los Angeles Chargers'],
+        'dallas': ['Dallas Cowboys', 'Dallas Mavericks', 'Dallas Stars', 'Texas Rangers', 'TCU Horned Frogs', 'Baylor Bears'],
+        'houston': ['Houston Texans', 'Houston Rockets', 'Houston Astros', 'Houston Cougars'],
+        'austin': ['Texas Longhorns', 'Dallas Cowboys', 'Houston Texans', 'San Antonio Spurs'],
+        'san antonio': ['San Antonio Spurs', 'Texas Longhorns', 'Houston Texans'],
+        'texas': ['Dallas Cowboys', 'Houston Texans', 'Texas Longhorns', 'Texas A&M Aggies', 'Houston Rockets'],
+        'miami': ['Miami Dolphins', 'Miami Heat', 'Miami Marlins', 'Florida Panthers', 'Miami Hurricanes', 'Florida Gators', 'Florida State Seminoles'],
+        'orlando': ['Orlando Magic', 'Tampa Bay Buccaneers', 'Jacksonville Jaguars', 'UCF Knights'],
+        'tampa': ['Tampa Bay Buccaneers', 'Tampa Bay Rays', 'Tampa Bay Lightning', 'Florida Gators', 'Florida State Seminoles'],
+        'jacksonville': ['Jacksonville Jaguars', 'Florida Gators', 'Florida State Seminoles'],
+        'florida': ['Miami Dolphins', 'Tampa Bay Buccaneers', 'Jacksonville Jaguars', 'Miami Heat', 'Orlando Magic', 'Florida Gators', 'Florida State Seminoles'],
+        'chicago': ['Chicago Bears', 'Chicago Bulls', 'Chicago Cubs', 'Chicago White Sox', 'Chicago Blackhawks', 'Northwestern Wildcats', 'Notre Dame Fighting Irish'],
+        'philadelphia': ['Philadelphia Eagles', 'Philadelphia 76ers', 'Philadelphia Phillies', 'Philadelphia Flyers', 'Penn State Nittany Lions', 'Villanova Wildcats'],
+        'pittsburgh': ['Pittsburgh Steelers', 'Pittsburgh Pirates', 'Pittsburgh Penguins'],
+        'cleveland': ['Cleveland Browns', 'Cleveland Cavaliers', 'Cleveland Guardians', 'Ohio State Buckeyes'],
+        'columbus': ['Ohio State Buckeyes', 'Cleveland Browns', 'Cleveland Cavaliers'],
+        'cincinnati': ['Cincinnati Bengals', 'Cincinnati Reds', 'Ohio State Buckeyes', 'Cincinnati Bearcats'],
+        'ohio': ['Cleveland Browns', 'Cincinnati Bengals', 'Ohio State Buckeyes', 'Cleveland Cavaliers', 'Cleveland Guardians'],
+        'atlanta': ['Atlanta Falcons', 'Atlanta Hawks', 'Atlanta Braves', 'Georgia Bulldogs', 'Georgia Tech Yellow Jackets'],
+        'georgia': ['Atlanta Falcons', 'Atlanta Hawks', 'Atlanta Braves', 'Georgia Bulldogs', 'Georgia Tech Yellow Jackets'],
+        'boston': ['New England Patriots', 'Boston Celtics', 'Boston Red Sox', 'Boston Bruins', 'Boston College Eagles'],
+        'detroit': ['Detroit Lions', 'Detroit Pistons', 'Detroit Tigers', 'Detroit Red Wings', 'Michigan Wolverines', 'Michigan State Spartans'],
+        'michigan': ['Detroit Lions', 'Detroit Pistons', 'Detroit Tigers', 'Detroit Red Wings', 'Michigan Wolverines', 'Michigan State Spartans'],
+        'denver': ['Denver Broncos', 'Denver Nuggets', 'Colorado Rockies', 'Colorado Avalanche', 'Colorado Buffaloes'],
+        'seattle': ['Seattle Seahawks', 'Seattle Kraken', 'Seattle Mariners', 'Washington Huskies'],
+        'minneapolis': ['Minnesota Vikings', 'Minnesota Timberwolves', 'Minnesota Twins', 'Minnesota Wild', 'Minnesota Golden Gophers'],
+        'minnesota': ['Minnesota Vikings', 'Minnesota Timberwolves', 'Minnesota Twins', 'Minnesota Wild', 'Minnesota Golden Gophers'],
+        'phoenix': ['Arizona Cardinals', 'Phoenix Suns', 'Arizona Diamondbacks', 'Arizona Wildcats', 'Arizona State Sun Devils'],
+        'arizona': ['Arizona Cardinals', 'Phoenix Suns', 'Arizona Diamondbacks', 'Arizona Wildcats', 'Arizona State Sun Devils'],
+        'nashville': ['Tennessee Titans', 'Nashville Predators', 'Tennessee Volunteers'],
+        'memphis': ['Memphis Grizzlies', 'Tennessee Volunteers', 'Memphis Tigers'],
+        'tennessee': ['Tennessee Titans', 'Nashville Predators', 'Tennessee Volunteers', 'Memphis Grizzlies'],
+        'charlotte': ['Carolina Panthers', 'Charlotte Hornets', 'North Carolina Tar Heels', 'NC State Wolfpack', 'Duke Blue Devils'],
+        'north carolina': ['Carolina Panthers', 'Charlotte Hornets', 'North Carolina Tar Heels', 'NC State Wolfpack', 'Duke Blue Devils'],
+        'baltimore': ['Baltimore Ravens', 'Baltimore Orioles', 'Maryland Terrapins'],
+        'las vegas': ['Las Vegas Raiders', 'Vegas Golden Knights'],
+        'kansas city': ['Kansas City Chiefs', 'Kansas City Royals', 'Kansas Jayhawks'],
+        'st. louis': ['St. Louis Blues', 'St. Louis Cardinals'],
+        'indianapolis': ['Indianapolis Colts', 'Indiana Pacers', 'Indiana Hoosiers', 'Purdue Boilermakers'],
+        'milwaukee': ['Milwaukee Bucks', 'Milwaukee Brewers', 'Green Bay Packers', 'Wisconsin Badgers'],
+        'green bay': ['Green Bay Packers', 'Wisconsin Badgers', 'Milwaukee Bucks'],
+        'portland': ['Portland Trail Blazers', 'Oregon Ducks', 'Oregon State Beavers'],
+        'salt lake city': ['Utah Jazz', 'Utah Utes'],
+        'oklahoma city': ['Oklahoma City Thunder', 'Oklahoma Sooners', 'Oklahoma State Cowboys'],
+        'south carolina': ['Carolina Panthers', 'South Carolina Gamecocks', 'Clemson Tigers'],
+        'alabama': ['Alabama Crimson Tide', 'Auburn Tigers', 'Tennessee Titans'],
+        'birmingham': ['Alabama Crimson Tide', 'Auburn Tigers'],
+        'arkansas': ['Arkansas Razorbacks', 'Kansas City Chiefs', 'Dallas Cowboys'],
+        'mississippi': ['Ole Miss Rebels', 'Mississippi State Bulldogs', 'New Orleans Saints'],
+        'kentucky': ['Kentucky Wildcats', 'Louisville Cardinals', 'Cincinnati Bengals'],
+        'louisville': ['Louisville Cardinals', 'Kentucky Wildcats', 'Cincinnati Bengals'],
       };
 
       const nicknames = {
@@ -565,10 +515,8 @@
       let savedPrefs = { sports: [], teams: [] };
       const loadedTeams = {};
 
-      // Get location and show recommendations
       async function loadRecommendations() {
         if (!navigator.geolocation) return;
-
         navigator.geolocation.getCurrentPosition(async (pos) => {
           try {
             const { latitude, longitude } = pos.coords;
@@ -576,28 +524,18 @@
             const data = await res.json();
             const city = (data.address.city || data.address.town || data.address.village || '').toLowerCase();
             const state = (data.address.state || '').toLowerCase();
-
-            // Find matching teams
             const locationKey = Object.keys(locationTeams).find(k =>
               city.includes(k) || state.includes(k) || k.includes(city)
             );
-
             if (!locationKey) return;
-
             const teamNames = locationTeams[locationKey];
-            const matched = teamNames.map(name => {
-              return allTeams.find(t => t.name === name);
-            }).filter(Boolean);
-
+            const matched = teamNames.map(name => allTeams.find(t => t.name === name)).filter(Boolean);
             if (matched.length === 0) return;
-
             const section = document.getElementById('recommended-section');
             const cards = document.getElementById('recommended-cards');
             const note = document.getElementById('location-note');
-
             note.textContent = `Based on your location near ${data.address.city || data.address.state}`;
             section.style.display = 'block';
-
             cards.innerHTML = matched.map(t => `
               <div class="recommended-card ${savedPrefs.teams?.includes(t.name) ? 'selected' : ''}" data-team="${t.name}">
                 <span class="check">✓</span>
@@ -606,30 +544,25 @@
                 <span class="sport-badge">${t.sport}</span>
               </div>
             `).join('');
-
             cards.querySelectorAll('.recommended-card').forEach(card => {
               card.addEventListener('click', () => {
-                const teamName = card.dataset.team;
                 card.classList.toggle('selected');
-                // Also check/uncheck in main grid
-                const mainCb = document.querySelector(`input[value="${teamName}"]`);
+                const mainCb = document.querySelector(`input[value="${card.dataset.team}"]`);
                 if (mainCb) mainCb.checked = card.classList.contains('selected');
               });
             });
-
-          } catch (e) {
-            console.log('Location lookup failed', e);
-          }
-        }, () => {
-          // User denied location — silently skip
-        });
+          } catch (e) { console.log('Location lookup failed', e); }
+        }, () => {});
       }
 
-      function buildTeamLabel(t) {
+      function buildTeamLabel(t, sportKey) {
+        const isCollege = collegeSports.includes(sportKey);
+        const emoji = isCollege ? sportMeta[sportKey]?.emoji ?? '' : '';
         const label = document.createElement('label');
         label.innerHTML = `
           <input type="checkbox" value="${t.name}" />
           <img src="${t.logo}" class="team-logo" alt="${t.name}" onerror="this.style.display='none'" />
+          ${isCollege ? `<span style="font-size:0.9rem;">${emoji}</span>` : ''}
           ${t.name}
         `;
         if (savedPrefs.teams?.includes(t.name)) {
@@ -638,7 +571,7 @@
         return label;
       }
 
-      function renderConferenceFilter(container, teams) {
+      function renderConferenceFilter(container, teams, sportKey) {
         const conferences = ['All', ...new Set(teams.map(t => t.conference).filter(Boolean).sort())];
         const filterDiv = document.createElement('div');
         filterDiv.className = 'conference-filter';
@@ -646,23 +579,22 @@
           `<button class="conf-btn ${c === 'All' ? 'active' : ''}" data-conf="${c}">${c}</button>`
         ).join('');
         container.appendChild(filterDiv);
-
         filterDiv.querySelectorAll('.conf-btn').forEach(btn => {
           btn.addEventListener('click', () => {
             filterDiv.querySelectorAll('.conf-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             const selected = btn.dataset.conf;
             const filtered = selected === 'All' ? teams : teams.filter(t => t.conference === selected);
-            renderTeamList(container, filtered, filterDiv);
+            renderTeamList(container, filtered, filterDiv, sportKey);
           });
         });
       }
 
-      function renderTeamList(container, teams, filterEl) {
+      function renderTeamList(container, teams, filterEl, sportKey) {
         Array.from(container.children).forEach(c => { if (c !== filterEl) c.remove(); });
         const top = teams.slice(0, TOP_N);
         const rest = teams.slice(TOP_N);
-        top.forEach(t => container.appendChild(buildTeamLabel(t)));
+        top.forEach(t => container.appendChild(buildTeamLabel(t, sportKey)));
         if (rest.length > 0) {
           const wrap = document.createElement('div');
           wrap.className = 'show-more-wrap';
@@ -672,7 +604,7 @@
           btn.textContent = `+ Show ${rest.length} more teams`;
           const extra = document.createElement('div');
           extra.className = 'extra-teams';
-          rest.forEach(t => extra.appendChild(buildTeamLabel(t)));
+          rest.forEach(t => extra.appendChild(buildTeamLabel(t, sportKey)));
           btn.addEventListener('click', () => {
             const hidden = extra.style.display !== 'grid';
             extra.style.display = hidden ? 'grid' : 'none';
@@ -695,10 +627,10 @@
         grid.id = `${sport}-teams`;
         section.appendChild(grid);
         if (meta.college) {
-          renderConferenceFilter(grid, teams);
-          renderTeamList(grid, teams, grid.querySelector('.conference-filter'));
+          renderConferenceFilter(grid, teams, sport);
+          renderTeamList(grid, teams, grid.querySelector('.conference-filter'), sport);
         } else {
-          teams.forEach(t => grid.appendChild(buildTeamLabel(t)));
+          teams.forEach(t => grid.appendChild(buildTeamLabel(t, sport)));
         }
         return section;
       }
@@ -754,10 +686,14 @@
           const existing = document.querySelector(`input[value="${t.name}"]:not(.search-cb)`);
           const isChecked = existing ? existing.checked : false;
           const nickname = Object.entries(nicknames).find(([k, v]) => v === t.name)?.[0] ?? '';
+          const sportKey = Object.keys(sportMeta).find(k => k.toUpperCase() === t.sport) ?? '';
+          const isCollege = collegeSports.includes(sportKey);
+          const emoji = isCollege ? sportMeta[sportKey]?.emoji ?? '' : '';
           return `
             <label>
               <input type="checkbox" value="${t.name}" data-sport="${t.sport}" ${isChecked ? 'checked' : ''} class="search-cb" />
               <img src="${t.logo}" class="team-logo" alt="${t.name}" onerror="this.style.display='none'" />
+              ${isCollege ? `<span style="font-size:0.9rem;">${emoji}</span>` : ''}
               <span>
                 ${t.name}
                 ${nickname ? `<span class="team-nickname">(${nickname})</span>` : ''}
@@ -781,9 +717,7 @@
             const teams = await res.json();
             loadedTeams[sport] = teams;
             teams.forEach(t => allTeams.push({ ...t, sport: sport.toUpperCase() }));
-          } catch (e) {
-            loadedTeams[sport] = [];
-          }
+          } catch (e) { loadedTeams[sport] = []; }
         }));
         updateSections();
         loadRecommendations();
@@ -796,7 +730,6 @@
         currentUser = user;
         document.getElementById('welcome-msg').textContent = `Welcome, ${user.displayName || user.email}!`;
         document.getElementById('user-email').textContent = user.email;
-
         const docRef = doc(db, 'users', user.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
@@ -808,22 +741,14 @@
             });
           }
         }
-
         await loadAllTeams();
       });
 
       document.getElementById('save-btn').addEventListener('click', async () => {
         if (!currentUser) return;
         const sports = [...document.querySelectorAll('#sports-grid input:checked')].map(cb => cb.value);
-
-        // Collect from main grids
         const teamSet = new Set([...document.querySelectorAll('.pref-section input[type="checkbox"]:checked, .extra-teams input:checked')].map(cb => cb.value));
-
-        // Also collect from recommended cards
-        document.querySelectorAll('.recommended-card.selected').forEach(card => {
-          teamSet.add(card.dataset.team);
-        });
-
+        document.querySelectorAll('.recommended-card.selected').forEach(card => teamSet.add(card.dataset.team));
         await setDoc(doc(db, 'users', currentUser.uid), { sports, teams: [...teamSet] });
         const msg = document.getElementById('success-msg');
         msg.style.display = 'block';
