@@ -432,9 +432,10 @@
       }
 
       let currentUser = null;
-
       onAuthStateChanged(auth, async user => {
         if (!user) { window.location.href = 'login.html'; return; }
+        const loginLink = document.getElementById('nav-login');
+        if (loginLink) loginLink.style.display = 'none';
         currentUser = user;
         document.getElementById('welcome-msg').textContent = `Welcome back, ${user.displayName || user.email}!`;
         const docRef = doc(db, 'users', user.uid);
