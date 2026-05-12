@@ -107,6 +107,7 @@
         padding: 0.5rem;
       }
       .show-more-wrap {
+        grid-column: 1/-1;
         margin-top: 1rem;
         padding-top: 1rem;
         border-top: 1px solid rgba(255,255,255,0.1);
@@ -122,7 +123,29 @@
         margin-bottom: 0.75rem;
       }
       .show-more-btn:hover { background: rgba(255,255,255,0.08); }
-      .extra-teams { display: none; }
+      .extra-teams {
+        display: none;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+      }
+      .extra-teams label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+        padding: 0.4rem 0.5rem;
+        border-radius: 4px;
+        transition: background 0.15s;
+      }
+      .extra-teams label:hover { background: rgba(255,255,255,0.08); }
+      .extra-teams input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
       .save-btn {
         padding: 0.65rem 2rem;
         background: #fff;
@@ -374,20 +397,17 @@
             const restTeams = teams.slice(TOP_N);
 
             container.innerHTML = `
-              <div class="checkbox-grid" id="${containerId}-top">
-                ${topTeams.map(buildTeamHTML).join('')}
-              </div>
-              <div class="show-more-wrap">
+              ${topTeams.map(buildTeamHTML).join('')}
+              <div class="show-more-wrap" style="grid-column: 1/-1;">
                 <button class="show-more-btn" data-target="${containerId}-extra">
                   + Show ${restTeams.length} more teams
                 </button>
-                <div class="checkbox-grid extra-teams" id="${containerId}-extra">
+                <div class="extra-teams" id="${containerId}-extra">
                   ${restTeams.map(buildTeamHTML).join('')}
                 </div>
               </div>
             `;
 
-            // Show more button toggle
             container.querySelector('.show-more-btn').addEventListener('click', (e) => {
               const btn = e.target;
               const extra = document.getElementById(btn.dataset.target);
@@ -399,12 +419,11 @@
             });
 
           } else {
-            container.innerHTML = `<div class="checkbox-grid">${teams.map(buildTeamHTML).join('')}</div>`;
+            container.innerHTML = teams.map(buildTeamHTML).join('');
           }
 
           teams.forEach(t => allTeams.push({ ...t, sport: sport.toUpperCase() }));
 
-          // Restore saved preferences
           savedPrefs.teams.forEach(val => {
             const cb = document.querySelector(`#${containerId} input[value="${val}"]`);
             if (cb) cb.checked = true;
