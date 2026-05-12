@@ -6,150 +6,68 @@
     <title>Dashboard – BetterBookie</title>
     <link rel="stylesheet" href="styles.css" />
     <style>
-      .dashboard-wrap {
-        padding: 2rem;
-        max-width: 1000px;
-        margin: 0 auto;
-      }
-      .welcome-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-        flex-wrap: wrap;
-        gap: 1rem;
-      }
+      .dashboard-wrap { padding: 2rem; max-width: 1000px; margin: 0 auto; }
+      .welcome-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
       .welcome-bar h3 { margin: 0; }
-      .welcome-bar a {
-        font-size: 0.85rem;
-        opacity: 0.6;
-        color: inherit;
-        text-decoration: none;
-        border: 1px solid rgba(255,255,255,0.3);
-        padding: 0.3rem 0.75rem;
-        border-radius: 4px;
-      }
+      .welcome-bar a { font-size: 0.85rem; opacity: 0.6; color: inherit; text-decoration: none; border: 1px solid rgba(255,255,255,0.3); padding: 0.3rem 0.75rem; border-radius: 4px; }
       .welcome-bar a:hover { opacity: 1; }
-      .tab-nav {
-        display: flex;
-        gap: 0;
-        margin-bottom: 2rem;
-        border-bottom: 2px solid rgba(255,255,255,0.1);
-      }
-      .tab-btn {
-        padding: 0.75rem 1.5rem;
-        background: transparent;
-        border: none;
-        color: inherit;
-        cursor: pointer;
-        font-size: 0.95rem;
-        opacity: 0.5;
-        border-bottom: 2px solid transparent;
-        margin-bottom: -2px;
-        transition: opacity 0.15s;
-      }
+      .tab-nav { display: flex; gap: 0; margin-bottom: 2rem; border-bottom: 2px solid rgba(255,255,255,0.1); }
+      .tab-btn { padding: 0.75rem 1.5rem; background: transparent; border: none; color: inherit; cursor: pointer; font-size: 0.95rem; opacity: 0.5; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: opacity 0.15s; }
       .tab-btn:hover { opacity: 0.8; }
-      .tab-btn.active {
-        opacity: 1;
-        border-bottom: 2px solid #fff;
-        font-weight: 600;
-      }
+      .tab-btn.active { opacity: 1; border-bottom: 2px solid #fff; font-weight: 600; }
       .tab-content { display: none; }
       .tab-content.active { display: block; }
-      .feed-cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-      }
-      .feed-card {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
+      .my-teams-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        padding: 1rem 1.25rem;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.08);
         border-radius: 8px;
-        padding: 1.25rem;
+        align-items: center;
       }
-      .feed-card h4 { margin: 0 0 0.5rem; font-size: 1rem; }
-      .feed-card p { margin: 0.25rem 0; font-size: 0.9rem; opacity: 0.8; }
-      .sport-label {
-        display: inline-block;
-        font-size: 0.7rem;
-        padding: 0.2rem 0.5rem;
-        border-radius: 4px;
-        background: rgba(255,255,255,0.15);
-        margin-bottom: 0.5rem;
+      .my-teams-label {
+        font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.05em;
+        opacity: 0.5;
+        margin-right: 0.5rem;
+        white-space: nowrap;
       }
-      .team-logo-sm {
-        width: 20px;
-        height: 20px;
-        object-fit: contain;
-        vertical-align: middle;
-        margin-right: 0.25rem;
+      .my-team-chip {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 20px;
+        padding: 0.25rem 0.6rem;
+        font-size: 0.8rem;
       }
+      .my-team-chip img { width: 18px; height: 18px; object-fit: contain; }
+      .feed-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+      .feed-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1.25rem; }
+      .feed-card h4 { margin: 0 0 0.5rem; font-size: 1rem; }
+      .feed-card p { margin: 0.25rem 0; font-size: 0.9rem; opacity: 0.8; }
+      .sport-label { display: inline-block; font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: rgba(255,255,255,0.15); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
+      .team-logo-sm { width: 20px; height: 20px; object-fit: contain; vertical-align: middle; margin-right: 0.25rem; }
       .status-out { color: #ff6b6b; }
       .status-questionable { color: #ffd93d; }
       .status-probable { color: #6bcb77; }
       .status-final { color: #6bcb77; }
       .status-live { color: #ffd93d; }
-      .feed-table-wrap {
-        overflow-x: auto;
-        margin-bottom: 2rem;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.9rem;
-      }
-      th, td {
-        text-align: left;
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-      }
-      th {
-        opacity: 0.6;
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 0.05em;
-      }
-      .td-team {
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-      }
-      .loading {
-        text-align: center;
-        padding: 3rem;
-        opacity: 0.6;
-      }
-      .no-favorites {
-        text-align: center;
-        padding: 3rem;
-        opacity: 0.6;
-      }
-      .no-favorites a {
-        color: inherit;
-        text-decoration: underline;
-      }
-      .section-title {
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        opacity: 0.5;
-        margin: 2rem 0 1rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-      }
-      .signout-btn {
-        padding: 0.4rem 1rem;
-        background: transparent;
-        border: 1px solid rgba(255,255,255,0.3);
-        border-radius: 4px;
-        color: inherit;
-        cursor: pointer;
-        font-size: 0.8rem;
-      }
+      .feed-table-wrap { overflow-x: auto; margin-bottom: 2rem; }
+      table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+      th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+      th { opacity: 0.6; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+      .td-team { display: flex; align-items: center; gap: 0.4rem; }
+      .loading { text-align: center; padding: 3rem; opacity: 0.6; }
+      .no-favorites { text-align: center; padding: 3rem; opacity: 0.6; }
+      .no-favorites a { color: inherit; text-decoration: underline; }
+      .section-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.5; margin: 2rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+      .signout-btn { padding: 0.4rem 1rem; background: transparent; border: 1px solid rgba(255,255,255,0.3); border-radius: 4px; color: inherit; cursor: pointer; font-size: 0.8rem; }
     </style>
   </head>
   <body>
@@ -164,6 +82,7 @@
           <a href="injuries.html">Injuries</a>
           <a href="dashboard.html">Dashboard</a>
           <a href="settings.html">Settings</a>
+          <a href="login.html">Login</a>
         </div>
       </nav>
       <div class="hero-content">
@@ -190,20 +109,16 @@
 
         <!-- ODDS TAB -->
         <div class="tab-content active" id="tab-odds">
+          <div class="my-teams-bar" id="odds-teams-bar" style="display:none;">
+            <span class="my-teams-label">My Teams</span>
+            <div id="odds-teams-chips"></div>
+          </div>
           <div class="loading" id="odds-loading">Loading your odds...</div>
           <div class="feed-cards" id="odds-cards" style="display:none;"></div>
           <div class="section-title" id="odds-table-title" style="display:none;">All Odds for Your Teams</div>
           <div class="feed-table-wrap" id="odds-table-wrap" style="display:none;">
             <table>
-              <thead>
-                <tr>
-                  <th>Home</th>
-                  <th>Away</th>
-                  <th>Home Odds</th>
-                  <th>Away Odds</th>
-                  <th>Time</th>
-                </tr>
-              </thead>
+              <thead><tr><th>Home</th><th>Away</th><th>Home Odds</th><th>Away Odds</th><th>Time</th></tr></thead>
               <tbody id="odds-table-body"></tbody>
             </table>
           </div>
@@ -211,19 +126,16 @@
 
         <!-- INJURIES TAB -->
         <div class="tab-content" id="tab-injuries">
+          <div class="my-teams-bar" id="injuries-teams-bar" style="display:none;">
+            <span class="my-teams-label">My Teams</span>
+            <div id="injuries-teams-chips"></div>
+          </div>
           <div class="loading" id="injuries-loading">Loading your injury report...</div>
           <div class="feed-cards" id="injuries-cards" style="display:none;"></div>
           <div class="section-title" id="injuries-table-title" style="display:none;">Full Injury Report for Your Teams</div>
           <div class="feed-table-wrap" id="injuries-table-wrap" style="display:none;">
             <table>
-              <thead>
-                <tr>
-                  <th>Player</th>
-                  <th>Team</th>
-                  <th>Description</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
+              <thead><tr><th>Player</th><th>Team</th><th>Description</th><th>Status</th></tr></thead>
               <tbody id="injuries-table-body"></tbody>
             </table>
           </div>
@@ -231,21 +143,16 @@
 
         <!-- SCORES TAB -->
         <div class="tab-content" id="tab-scores">
+          <div class="my-teams-bar" id="scores-teams-bar" style="display:none;">
+            <span class="my-teams-label">My Teams</span>
+            <div id="scores-teams-chips"></div>
+          </div>
           <div class="loading" id="scores-loading">Loading your scores...</div>
           <div class="feed-cards" id="scores-cards" style="display:none;"></div>
           <div class="section-title" id="scores-table-title" style="display:none;">All Scores for Your Teams</div>
           <div class="feed-table-wrap" id="scores-table-wrap" style="display:none;">
             <table>
-              <thead>
-                <tr>
-                  <th>Sport</th>
-                  <th>Home</th>
-                  <th>Away</th>
-                  <th>Score</th>
-                  <th>Status</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
+              <thead><tr><th>Sport</th><th>Home</th><th>Away</th><th>Score</th><th>Status</th><th>Date</th></tr></thead>
               <tbody id="scores-table-body"></tbody>
             </table>
           </div>
@@ -278,7 +185,6 @@
       const db = getFirestore(app);
 
       const VERCEL = 'https://better-bookie-five.vercel.app';
-
       const teamLogoCache = {};
 
       async function getLogos(sport) {
@@ -293,8 +199,8 @@
         } catch { return {}; }
       }
 
-      function logoImg(url, name) {
-        return url ? `<img src="${url}" class="team-logo-sm" alt="${name}" onerror="this.style.display='none'">` : '';
+      function logoImg(url, name, size = 20) {
+        return url ? `<img src="${url}" class="team-logo-sm" style="width:${size}px;height:${size}px;" alt="${name}" onerror="this.style.display='none'">` : '';
       }
 
       function getStatusClass(status) {
@@ -308,7 +214,22 @@
         return '';
       }
 
-      // Tab switching
+      function renderMyTeamsBar(barId, chipsId, favTeams, logoMap) {
+        const bar = document.getElementById(barId);
+        const chips = document.getElementById(chipsId);
+        if (!favTeams.length) return;
+        bar.style.display = 'flex';
+        chips.innerHTML = favTeams.map(name => {
+          const logo = logoMap[name] ?? '';
+          return `
+            <div class="my-team-chip">
+              ${logo ? `<img src="${logo}" alt="${name}" onerror="this.style.display='none'">` : ''}
+              ${name}
+            </div>
+          `;
+        }).join('');
+      }
+
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -318,13 +239,9 @@
         });
       });
 
-      async function loadOdds(favTeams) {
+      async function loadOdds(favTeams, allLogoMap) {
+        renderMyTeamsBar('odds-teams-bar', 'odds-teams-chips', favTeams, allLogoMap);
         const sports = ['americanfootball_nfl', 'basketball_nba', 'baseball_mlb'];
-        const logoMaps = await Promise.all([
-          getLogos('nfl'), getLogos('nba'), getLogos('mlb')
-        ]);
-        const allLogoMap = { ...logoMaps[0], ...logoMaps[1], ...logoMaps[2] };
-
         let allGames = [];
         await Promise.all(sports.map(async sport => {
           try {
@@ -333,20 +250,13 @@
             if (Array.isArray(data)) allGames.push(...data);
           } catch {}
         }));
-
-        const favGames = allGames.filter(g =>
-          favTeams.includes(g.home_team) || favTeams.includes(g.away_team)
-        );
-
+        const favGames = allGames.filter(g => favTeams.includes(g.home_team) || favTeams.includes(g.away_team));
         document.getElementById('odds-loading').style.display = 'none';
-
         if (favGames.length === 0) {
           document.getElementById('odds-cards').innerHTML = `<div class="no-favorites" style="grid-column:1/-1;">No odds found for your favorite teams right now. <a href="settings.html">Update your teams</a></div>`;
           document.getElementById('odds-cards').style.display = 'grid';
           return;
         }
-
-        // Cards (top 6)
         document.getElementById('odds-cards').style.display = 'grid';
         document.getElementById('odds-cards').innerHTML = favGames.slice(0, 6).map(game => {
           const home = game.home_team;
@@ -356,9 +266,10 @@
           const homeOdds = market?.outcomes?.find(o => o.name === home)?.price ?? 'N/A';
           const awayOdds = market?.outcomes?.find(o => o.name === away)?.price ?? 'N/A';
           const date = new Date(game.commence_time).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+          const sportLabel = game.sport_key?.includes('nfl') ? 'NFL' : game.sport_key?.includes('nba') ? 'NBA' : 'MLB';
           return `
             <div class="feed-card">
-              <span class="sport-label">${game.sport_key?.includes('nfl') ? 'NFL' : game.sport_key?.includes('nba') ? 'NBA' : 'MLB'}</span>
+              <span class="sport-label">${sportLabel}</span>
               <h4>${logoImg(allLogoMap[home], home)}${home} vs ${logoImg(allLogoMap[away], away)}${away}</h4>
               <p>📅 ${date}</p>
               <p>${logoImg(allLogoMap[home], home)}${home}: <strong>${homeOdds > 0 ? '+' : ''}${homeOdds}</strong></p>
@@ -367,8 +278,6 @@
             </div>
           `;
         }).join('');
-
-        // Table
         document.getElementById('odds-table-title').style.display = 'block';
         document.getElementById('odds-table-wrap').style.display = 'block';
         document.getElementById('odds-table-body').innerHTML = favGames.map(game => {
@@ -391,7 +300,8 @@
         }).join('');
       }
 
-      async function loadInjuries(favTeams) {
+      async function loadInjuries(favTeams, allLogoMap) {
+        renderMyTeamsBar('injuries-teams-bar', 'injuries-teams-chips', favTeams, allLogoMap);
         const nflTeamIds = {
           'Las Vegas Raiders': 1, 'New England Patriots': 2, 'New York Jets': 3,
           'Buffalo Bills': 4, 'Miami Dolphins': 5, 'Baltimore Ravens': 6,
@@ -405,11 +315,8 @@
           'Tampa Bay Buccaneers': 28, 'Los Angeles Rams': 29, 'Seattle Seahawks': 30,
           'San Francisco 49ers': 31, 'Arizona Cardinals': 32,
         };
-
-        const logoMap = await getLogos('nfl');
         const favNFLTeams = favTeams.filter(t => nflTeamIds[t]);
         let allInjuries = [];
-
         await Promise.all(favNFLTeams.map(async team => {
           const id = nflTeamIds[team];
           try {
@@ -418,16 +325,12 @@
             if (data.response) allInjuries.push(...data.response);
           } catch {}
         }));
-
         document.getElementById('injuries-loading').style.display = 'none';
-
         if (allInjuries.length === 0) {
           document.getElementById('injuries-cards').innerHTML = `<div class="no-favorites" style="grid-column:1/-1;">No injury data found for your favorite NFL teams right now. <a href="settings.html">Update your teams</a></div>`;
           document.getElementById('injuries-cards').style.display = 'grid';
           return;
         }
-
-        // Cards (top 6)
         document.getElementById('injuries-cards').style.display = 'grid';
         document.getElementById('injuries-cards').innerHTML = allInjuries.slice(0, 6).map(item => {
           const player = item.player?.name ?? 'Unknown';
@@ -438,7 +341,7 @@
           return `
             <div class="feed-card">
               <span class="sport-label">NFL</span>
-              <h4>${logoImg(logoMap[team], team)}${player}</h4>
+              <h4>${logoImg(allLogoMap[team], team)}${player}</h4>
               <p>🏟️ ${team}</p>
               <p>🤕 ${description}</p>
               <p>📅 ${date}</p>
@@ -446,8 +349,6 @@
             </div>
           `;
         }).join('');
-
-        // Table
         document.getElementById('injuries-table-title').style.display = 'block';
         document.getElementById('injuries-table-wrap').style.display = 'block';
         document.getElementById('injuries-table-body').innerHTML = allInjuries.map(item => {
@@ -458,7 +359,7 @@
           return `
             <tr>
               <td>${player}</td>
-              <td><div class="td-team">${logoImg(logoMap[team], team)}${team}</div></td>
+              <td><div class="td-team">${logoImg(allLogoMap[team], team)}${team}</div></td>
               <td>${description}</td>
               <td class="${getStatusClass(status)}">${status}</td>
             </tr>
@@ -466,40 +367,30 @@
         }).join('');
       }
 
-      async function loadScores(favTeams) {
+      async function loadScores(favTeams, allLogoMap) {
+        renderMyTeamsBar('scores-teams-bar', 'scores-teams-chips', favTeams, allLogoMap);
         const sports = ['nfl', 'nba', 'mlb', 'nhl'];
-        const logoMaps = await Promise.all(sports.map(s => getLogos(s)));
-        const allLogoMap = Object.assign({}, ...logoMaps);
-
         let allGames = [];
         await Promise.all(sports.map(async sport => {
           try {
             const res = await fetch(`${VERCEL}/api/scores?sport=${sport}`);
             const data = await res.json();
             if (data.response) {
-              data.response.forEach(g => {
-                g._sport = sport.toUpperCase();
-                allGames.push(g);
-              });
+              data.response.forEach(g => { g._sport = sport.toUpperCase(); allGames.push(g); });
             }
           } catch {}
         }));
-
         const favGames = allGames.filter(g => {
           const home = g.teams?.home?.name ?? '';
           const away = g.teams?.away?.name ?? '';
           return favTeams.includes(home) || favTeams.includes(away);
         });
-
         document.getElementById('scores-loading').style.display = 'none';
-
         if (favGames.length === 0) {
           document.getElementById('scores-cards').innerHTML = `<div class="no-favorites" style="grid-column:1/-1;">No scores found for your favorite teams right now. <a href="settings.html">Update your teams</a></div>`;
           document.getElementById('scores-cards').style.display = 'grid';
           return;
         }
-
-        // Cards (top 6)
         document.getElementById('scores-cards').style.display = 'grid';
         document.getElementById('scores-cards').innerHTML = favGames.slice(0, 6).map(game => {
           const home = game.teams?.home?.name ?? 'Home';
@@ -518,8 +409,6 @@
             </div>
           `;
         }).join('');
-
-        // Table
         document.getElementById('scores-table-title').style.display = 'block';
         document.getElementById('scores-table-wrap').style.display = 'block';
         document.getElementById('scores-table-body').innerHTML = favGames.map(game => {
@@ -548,23 +437,25 @@
         if (!user) { window.location.href = 'login.html'; return; }
         currentUser = user;
         document.getElementById('welcome-msg').textContent = `Welcome back, ${user.displayName || user.email}!`;
-
         const docRef = doc(db, 'users', user.uid);
         const docSnap = await getDoc(docRef);
-
         if (!docSnap.exists() || !docSnap.data().teams?.length) {
-          document.getElementById('odds-loading').innerHTML = `<div class="no-favorites">No favorite teams set yet. <a href="settings.html">Go to Settings</a> to pick your teams!</div>`;
-          document.getElementById('injuries-loading').innerHTML = `<div class="no-favorites">No favorite teams set yet. <a href="settings.html">Go to Settings</a> to pick your teams!</div>`;
-          document.getElementById('scores-loading').innerHTML = `<div class="no-favorites">No favorite teams set yet. <a href="settings.html">Go to Settings</a> to pick your teams!</div>`;
+          ['odds', 'injuries', 'scores'].forEach(tab => {
+            document.getElementById(`${tab}-loading`).innerHTML = `<div class="no-favorites">No favorite teams set yet. <a href="settings.html">Go to Settings</a> to pick your teams!</div>`;
+          });
           return;
         }
-
         const favTeams = docSnap.data().teams ?? [];
 
+        // Load all logos upfront
+        const sports = ['nfl', 'nba', 'mlb', 'nhl'];
+        const logoMaps = await Promise.all(sports.map(s => getLogos(s)));
+        const allLogoMap = Object.assign({}, ...logoMaps);
+
         await Promise.all([
-          loadOdds(favTeams),
-          loadInjuries(favTeams),
-          loadScores(favTeams),
+          loadOdds(favTeams, allLogoMap),
+          loadInjuries(favTeams, allLogoMap),
+          loadScores(favTeams, allLogoMap),
         ]);
       });
 
