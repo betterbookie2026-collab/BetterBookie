@@ -20,10 +20,7 @@
         font-size: 0.95rem;
         border-radius: 4px;
       }
-      .odds-nav button.active {
-        background: #fff;
-        color: #000;
-      }
+      .odds-nav button.active { background: #fff; color: #000; }
       .odds-cards {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -36,54 +33,15 @@
         border-radius: 8px;
         padding: 1.25rem;
       }
-      .odds-card h4 {
-        margin: 0 0 0.75rem;
-        font-size: 1rem;
-      }
-      .odds-card p {
-        margin: 0.25rem 0;
-        font-size: 0.9rem;
-        opacity: 0.8;
-      }
-      .team-row {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin: 0.4rem 0;
-        font-size: 0.9rem;
-      }
-      .team-logo {
-        width: 24px;
-        height: 24px;
-        object-fit: contain;
-        flex-shrink: 0;
-      }
-      .odds-table-wrap {
-        padding: 1rem 2rem 3rem;
-        overflow-x: auto;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.9rem;
-      }
-      th, td {
-        text-align: left;
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-      }
-      th {
-        opacity: 0.6;
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 0.05em;
-      }
-      .loading {
-        text-align: center;
-        padding: 3rem;
-        opacity: 0.6;
-      }
+      .odds-card h4 { margin: 0 0 0.75rem; font-size: 1rem; }
+      .odds-card p { margin: 0.25rem 0; font-size: 0.9rem; opacity: 0.8; }
+      .team-row { display: flex; align-items: center; gap: 0.5rem; margin: 0.4rem 0; font-size: 0.9rem; }
+      .team-logo { width: 24px; height: 24px; object-fit: contain; flex-shrink: 0; }
+      .odds-table-wrap { padding: 1rem 2rem 3rem; overflow-x: auto; }
+      table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+      th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+      th { opacity: 0.6; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+      .loading { text-align: center; padding: 3rem; opacity: 0.6; }
       .sport-label {
         display: inline-block;
         font-size: 0.7rem;
@@ -94,38 +52,23 @@
         text-transform: uppercase;
         letter-spacing: 0.05em;
       }
-      .td-team {
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-      }
-      .td-logo {
-        width: 20px;
-        height: 20px;
-        object-fit: contain;
-      }
+      .td-team { display: flex; align-items: center; gap: 0.4rem; }
+      .td-logo { width: 20px; height: 20px; object-fit: contain; }
     </style>
   </head>
   <body>
     <header class="hero">
       <nav class="nav">
         <h1 class="logo"><a href="index.html" style="text-decoration:none;color:inherit;">BetterBookie</a></h1>
-        <button
-          class="menu-toggle"
-          id="menu-toggle"
-          type="button"
-          aria-label="Toggle menu"
-          aria-expanded="false"
-        >
-          ☰
-        </button>
+        <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false">☰</button>
         <div class="nav-links" id="nav-links">
           <a href="index.html#features">Features</a>
           <a href="scores.html">Scores</a>
           <a href="odds.html">Live Odds</a>
           <a href="injuries.html">Injuries</a>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="settings.html">Settings</a>
           <a href="login.html">Login</a>
-          <a href="index.html#signup" class="btn btn-small">Get Started</a>
         </div>
       </nav>
       <div class="hero-content">
@@ -140,11 +83,9 @@
         <button data-sport="basketball_nba">NBA</button>
         <button data-sport="baseball_mlb">MLB</button>
       </div>
-
       <div id="cards-container" class="odds-cards">
         <div class="loading">Loading odds...</div>
       </div>
-
       <div class="odds-table-wrap">
         <table>
           <thead>
@@ -170,110 +111,104 @@
     <script src="script.js"></script>
     <script>
       const teamLogos = {
-        // NFL
-        'Arizona Cardinals': 'https://media.api-sports.io/american-football/teams/32.png',
-        'Atlanta Falcons': 'https://media.api-sports.io/american-football/teams/25.png',
-        'Baltimore Ravens': 'https://media.api-sports.io/american-football/teams/6.png',
-        'Buffalo Bills': 'https://media.api-sports.io/american-football/teams/4.png',
-        'Carolina Panthers': 'https://media.api-sports.io/american-football/teams/26.png',
-        'Chicago Bears': 'https://media.api-sports.io/american-football/teams/21.png',
-        'Cincinnati Bengals': 'https://media.api-sports.io/american-football/teams/9.png',
-        'Cleveland Browns': 'https://media.api-sports.io/american-football/teams/8.png',
-        'Dallas Cowboys': 'https://media.api-sports.io/american-football/teams/17.png',
-        'Denver Broncos': 'https://media.api-sports.io/american-football/teams/16.png',
-        'Detroit Lions': 'https://media.api-sports.io/american-football/teams/24.png',
-        'Green Bay Packers': 'https://media.api-sports.io/american-football/teams/22.png',
-        'Houston Texans': 'https://media.api-sports.io/american-football/teams/10.png',
-        'Indianapolis Colts': 'https://media.api-sports.io/american-football/teams/11.png',
-        'Jacksonville Jaguars': 'https://media.api-sports.io/american-football/teams/12.png',
-        'Kansas City Chiefs': 'https://media.api-sports.io/american-football/teams/14.png',
-        'Las Vegas Raiders': 'https://media.api-sports.io/american-football/teams/1.png',
-        'Los Angeles Chargers': 'https://media.api-sports.io/american-football/teams/15.png',
-        'Los Angeles Rams': 'https://media.api-sports.io/american-football/teams/29.png',
-        'Miami Dolphins': 'https://media.api-sports.io/american-football/teams/5.png',
-        'Minnesota Vikings': 'https://media.api-sports.io/american-football/teams/23.png',
-        'New England Patriots': 'https://media.api-sports.io/american-football/teams/2.png',
-        'New Orleans Saints': 'https://media.api-sports.io/american-football/teams/27.png',
-        'New York Giants': 'https://media.api-sports.io/american-football/teams/18.png',
-        'New York Jets': 'https://media.api-sports.io/american-football/teams/3.png',
-        'Philadelphia Eagles': 'https://media.api-sports.io/american-football/teams/19.png',
-        'Pittsburgh Steelers': 'https://media.api-sports.io/american-football/teams/7.png',
-        'San Francisco 49ers': 'https://media.api-sports.io/american-football/teams/31.png',
-        'Seattle Seahawks': 'https://media.api-sports.io/american-football/teams/30.png',
-        'Tampa Bay Buccaneers': 'https://media.api-sports.io/american-football/teams/28.png',
-        'Tennessee Titans': 'https://media.api-sports.io/american-football/teams/13.png',
-        'Washington Commanders': 'https://media.api-sports.io/american-football/teams/20.png',
-        // NBA
-        'Atlanta Hawks': 'https://media.api-sports.io/basketball/teams/1.png',
-        'Boston Celtics': 'https://media.api-sports.io/basketball/teams/2.png',
-        'Brooklyn Nets': 'https://media.api-sports.io/basketball/teams/3.png',
-        'Charlotte Hornets': 'https://media.api-sports.io/basketball/teams/4.png',
-        'Chicago Bulls': 'https://media.api-sports.io/basketball/teams/5.png',
-        'Cleveland Cavaliers': 'https://media.api-sports.io/basketball/teams/6.png',
-        'Dallas Mavericks': 'https://media.api-sports.io/basketball/teams/7.png',
-        'Denver Nuggets': 'https://media.api-sports.io/basketball/teams/8.png',
-        'Detroit Pistons': 'https://media.api-sports.io/basketball/teams/9.png',
-        'Golden State Warriors': 'https://media.api-sports.io/basketball/teams/10.png',
-        'Houston Rockets': 'https://media.api-sports.io/basketball/teams/11.png',
-        'Indiana Pacers': 'https://media.api-sports.io/basketball/teams/12.png',
-        'Los Angeles Clippers': 'https://media.api-sports.io/basketball/teams/13.png',
-        'Los Angeles Lakers': 'https://media.api-sports.io/basketball/teams/14.png',
-        'Memphis Grizzlies': 'https://media.api-sports.io/basketball/teams/15.png',
-        'Miami Heat': 'https://media.api-sports.io/basketball/teams/16.png',
-        'Milwaukee Bucks': 'https://media.api-sports.io/basketball/teams/17.png',
-        'Minnesota Timberwolves': 'https://media.api-sports.io/basketball/teams/18.png',
-        'New Orleans Pelicans': 'https://media.api-sports.io/basketball/teams/19.png',
-        'New York Knicks': 'https://media.api-sports.io/basketball/teams/20.png',
-        'Oklahoma City Thunder': 'https://media.api-sports.io/basketball/teams/21.png',
-        'Orlando Magic': 'https://media.api-sports.io/basketball/teams/22.png',
-        'Philadelphia 76ers': 'https://media.api-sports.io/basketball/teams/23.png',
-        'Phoenix Suns': 'https://media.api-sports.io/basketball/teams/24.png',
-        'Portland Trail Blazers': 'https://media.api-sports.io/basketball/teams/25.png',
-        'Sacramento Kings': 'https://media.api-sports.io/basketball/teams/26.png',
-        'San Antonio Spurs': 'https://media.api-sports.io/basketball/teams/27.png',
-        'Toronto Raptors': 'https://media.api-sports.io/basketball/teams/28.png',
-        'Utah Jazz': 'https://media.api-sports.io/basketball/teams/29.png',
-        'Washington Wizards': 'https://media.api-sports.io/basketball/teams/30.png',
-        // MLB
-        'Arizona Diamondbacks': 'https://media.api-sports.io/baseball/teams/1.png',
-        'Atlanta Braves': 'https://media.api-sports.io/baseball/teams/2.png',
-        'Baltimore Orioles': 'https://media.api-sports.io/baseball/teams/3.png',
-        'Boston Red Sox': 'https://media.api-sports.io/baseball/teams/4.png',
-        'Chicago Cubs': 'https://media.api-sports.io/baseball/teams/5.png',
-        'Chicago White Sox': 'https://media.api-sports.io/baseball/teams/6.png',
-        'Cincinnati Reds': 'https://media.api-sports.io/baseball/teams/7.png',
-        'Cleveland Guardians': 'https://media.api-sports.io/baseball/teams/8.png',
-        'Colorado Rockies': 'https://media.api-sports.io/baseball/teams/9.png',
-        'Detroit Tigers': 'https://media.api-sports.io/baseball/teams/10.png',
-        'Houston Astros': 'https://media.api-sports.io/baseball/teams/11.png',
-        'Kansas City Royals': 'https://media.api-sports.io/baseball/teams/12.png',
-        'Los Angeles Angels': 'https://media.api-sports.io/baseball/teams/13.png',
-        'Los Angeles Dodgers': 'https://media.api-sports.io/baseball/teams/14.png',
-        'Miami Marlins': 'https://media.api-sports.io/baseball/teams/15.png',
-        'Milwaukee Brewers': 'https://media.api-sports.io/baseball/teams/16.png',
-        'Minnesota Twins': 'https://media.api-sports.io/baseball/teams/17.png',
-        'New York Mets': 'https://media.api-sports.io/baseball/teams/18.png',
-        'New York Yankees': 'https://media.api-sports.io/baseball/teams/19.png',
-        'Oakland Athletics': 'https://media.api-sports.io/baseball/teams/20.png',
-        'Philadelphia Phillies': 'https://media.api-sports.io/baseball/teams/21.png',
-        'Pittsburgh Pirates': 'https://media.api-sports.io/baseball/teams/22.png',
-        'San Diego Padres': 'https://media.api-sports.io/baseball/teams/23.png',
-        'San Francisco Giants': 'https://media.api-sports.io/baseball/teams/24.png',
-        'Seattle Mariners': 'https://media.api-sports.io/baseball/teams/25.png',
-        'St. Louis Cardinals': 'https://media.api-sports.io/baseball/teams/26.png',
-        'Tampa Bay Rays': 'https://media.api-sports.io/baseball/teams/27.png',
-        'Texas Rangers': 'https://media.api-sports.io/baseball/teams/28.png',
-        'Toronto Blue Jays': 'https://media.api-sports.io/baseball/teams/29.png',
-        'Washington Nationals': 'https://media.api-sports.io/baseball/teams/30.png',
+        'Arizona Cardinals': 'https://a.espncdn.com/i/teamlogos/nfl/500/ari.png',
+        'Atlanta Falcons': 'https://a.espncdn.com/i/teamlogos/nfl/500/atl.png',
+        'Baltimore Ravens': 'https://a.espncdn.com/i/teamlogos/nfl/500/bal.png',
+        'Buffalo Bills': 'https://a.espncdn.com/i/teamlogos/nfl/500/buf.png',
+        'Carolina Panthers': 'https://a.espncdn.com/i/teamlogos/nfl/500/car.png',
+        'Chicago Bears': 'https://a.espncdn.com/i/teamlogos/nfl/500/chi.png',
+        'Cincinnati Bengals': 'https://a.espncdn.com/i/teamlogos/nfl/500/cin.png',
+        'Cleveland Browns': 'https://a.espncdn.com/i/teamlogos/nfl/500/cle.png',
+        'Dallas Cowboys': 'https://a.espncdn.com/i/teamlogos/nfl/500/dal.png',
+        'Denver Broncos': 'https://a.espncdn.com/i/teamlogos/nfl/500/den.png',
+        'Detroit Lions': 'https://a.espncdn.com/i/teamlogos/nfl/500/det.png',
+        'Green Bay Packers': 'https://a.espncdn.com/i/teamlogos/nfl/500/gb.png',
+        'Houston Texans': 'https://a.espncdn.com/i/teamlogos/nfl/500/hou.png',
+        'Indianapolis Colts': 'https://a.espncdn.com/i/teamlogos/nfl/500/ind.png',
+        'Jacksonville Jaguars': 'https://a.espncdn.com/i/teamlogos/nfl/500/jax.png',
+        'Kansas City Chiefs': 'https://a.espncdn.com/i/teamlogos/nfl/500/kc.png',
+        'Las Vegas Raiders': 'https://a.espncdn.com/i/teamlogos/nfl/500/lv.png',
+        'Los Angeles Chargers': 'https://a.espncdn.com/i/teamlogos/nfl/500/lac.png',
+        'Los Angeles Rams': 'https://a.espncdn.com/i/teamlogos/nfl/500/lar.png',
+        'Miami Dolphins': 'https://a.espncdn.com/i/teamlogos/nfl/500/mia.png',
+        'Minnesota Vikings': 'https://a.espncdn.com/i/teamlogos/nfl/500/min.png',
+        'New England Patriots': 'https://a.espncdn.com/i/teamlogos/nfl/500/ne.png',
+        'New Orleans Saints': 'https://a.espncdn.com/i/teamlogos/nfl/500/no.png',
+        'New York Giants': 'https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png',
+        'New York Jets': 'https://a.espncdn.com/i/teamlogos/nfl/500/nyj.png',
+        'Philadelphia Eagles': 'https://a.espncdn.com/i/teamlogos/nfl/500/phi.png',
+        'Pittsburgh Steelers': 'https://a.espncdn.com/i/teamlogos/nfl/500/pit.png',
+        'San Francisco 49ers': 'https://a.espncdn.com/i/teamlogos/nfl/500/sf.png',
+        'Seattle Seahawks': 'https://a.espncdn.com/i/teamlogos/nfl/500/sea.png',
+        'Tampa Bay Buccaneers': 'https://a.espncdn.com/i/teamlogos/nfl/500/tb.png',
+        'Tennessee Titans': 'https://a.espncdn.com/i/teamlogos/nfl/500/ten.png',
+        'Washington Commanders': 'https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png',
+        'Atlanta Hawks': 'https://a.espncdn.com/i/teamlogos/nba/500/atl.png',
+        'Boston Celtics': 'https://a.espncdn.com/i/teamlogos/nba/500/bos.png',
+        'Brooklyn Nets': 'https://a.espncdn.com/i/teamlogos/nba/500/bkn.png',
+        'Charlotte Hornets': 'https://a.espncdn.com/i/teamlogos/nba/500/cha.png',
+        'Chicago Bulls': 'https://a.espncdn.com/i/teamlogos/nba/500/chi.png',
+        'Cleveland Cavaliers': 'https://a.espncdn.com/i/teamlogos/nba/500/cle.png',
+        'Dallas Mavericks': 'https://a.espncdn.com/i/teamlogos/nba/500/dal.png',
+        'Denver Nuggets': 'https://a.espncdn.com/i/teamlogos/nba/500/den.png',
+        'Detroit Pistons': 'https://a.espncdn.com/i/teamlogos/nba/500/det.png',
+        'Golden State Warriors': 'https://a.espncdn.com/i/teamlogos/nba/500/gs.png',
+        'Houston Rockets': 'https://a.espncdn.com/i/teamlogos/nba/500/hou.png',
+        'Indiana Pacers': 'https://a.espncdn.com/i/teamlogos/nba/500/ind.png',
+        'Los Angeles Clippers': 'https://a.espncdn.com/i/teamlogos/nba/500/lac.png',
+        'Los Angeles Lakers': 'https://a.espncdn.com/i/teamlogos/nba/500/lal.png',
+        'Memphis Grizzlies': 'https://a.espncdn.com/i/teamlogos/nba/500/mem.png',
+        'Miami Heat': 'https://a.espncdn.com/i/teamlogos/nba/500/mia.png',
+        'Milwaukee Bucks': 'https://a.espncdn.com/i/teamlogos/nba/500/mil.png',
+        'Minnesota Timberwolves': 'https://a.espncdn.com/i/teamlogos/nba/500/min.png',
+        'New Orleans Pelicans': 'https://a.espncdn.com/i/teamlogos/nba/500/no.png',
+        'New York Knicks': 'https://a.espncdn.com/i/teamlogos/nba/500/ny.png',
+        'Oklahoma City Thunder': 'https://a.espncdn.com/i/teamlogos/nba/500/okc.png',
+        'Orlando Magic': 'https://a.espncdn.com/i/teamlogos/nba/500/orl.png',
+        'Philadelphia 76ers': 'https://a.espncdn.com/i/teamlogos/nba/500/phi.png',
+        'Phoenix Suns': 'https://a.espncdn.com/i/teamlogos/nba/500/phx.png',
+        'Portland Trail Blazers': 'https://a.espncdn.com/i/teamlogos/nba/500/por.png',
+        'Sacramento Kings': 'https://a.espncdn.com/i/teamlogos/nba/500/sac.png',
+        'San Antonio Spurs': 'https://a.espncdn.com/i/teamlogos/nba/500/sa.png',
+        'Toronto Raptors': 'https://a.espncdn.com/i/teamlogos/nba/500/tor.png',
+        'Utah Jazz': 'https://a.espncdn.com/i/teamlogos/nba/500/utah.png',
+        'Washington Wizards': 'https://a.espncdn.com/i/teamlogos/nba/500/wsh.png',
+        'Arizona Diamondbacks': 'https://a.espncdn.com/i/teamlogos/mlb/500/ari.png',
+        'Atlanta Braves': 'https://a.espncdn.com/i/teamlogos/mlb/500/atl.png',
+        'Baltimore Orioles': 'https://a.espncdn.com/i/teamlogos/mlb/500/bal.png',
+        'Boston Red Sox': 'https://a.espncdn.com/i/teamlogos/mlb/500/bos.png',
+        'Chicago Cubs': 'https://a.espncdn.com/i/teamlogos/mlb/500/chc.png',
+        'Chicago White Sox': 'https://a.espncdn.com/i/teamlogos/mlb/500/chw.png',
+        'Cincinnati Reds': 'https://a.espncdn.com/i/teamlogos/mlb/500/cin.png',
+        'Cleveland Guardians': 'https://a.espncdn.com/i/teamlogos/mlb/500/cle.png',
+        'Colorado Rockies': 'https://a.espncdn.com/i/teamlogos/mlb/500/col.png',
+        'Detroit Tigers': 'https://a.espncdn.com/i/teamlogos/mlb/500/det.png',
+        'Houston Astros': 'https://a.espncdn.com/i/teamlogos/mlb/500/hou.png',
+        'Kansas City Royals': 'https://a.espncdn.com/i/teamlogos/mlb/500/kc.png',
+        'Los Angeles Angels': 'https://a.espncdn.com/i/teamlogos/mlb/500/laa.png',
+        'Los Angeles Dodgers': 'https://a.espncdn.com/i/teamlogos/mlb/500/lad.png',
+        'Miami Marlins': 'https://a.espncdn.com/i/teamlogos/mlb/500/mia.png',
+        'Milwaukee Brewers': 'https://a.espncdn.com/i/teamlogos/mlb/500/mil.png',
+        'Minnesota Twins': 'https://a.espncdn.com/i/teamlogos/mlb/500/min.png',
+        'New York Mets': 'https://a.espncdn.com/i/teamlogos/mlb/500/nym.png',
+        'New York Yankees': 'https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png',
+        'Oakland Athletics': 'https://a.espncdn.com/i/teamlogos/mlb/500/oak.png',
+        'Philadelphia Phillies': 'https://a.espncdn.com/i/teamlogos/mlb/500/phi.png',
+        'Pittsburgh Pirates': 'https://a.espncdn.com/i/teamlogos/mlb/500/pit.png',
+        'San Diego Padres': 'https://a.espncdn.com/i/teamlogos/mlb/500/sd.png',
+        'San Francisco Giants': 'https://a.espncdn.com/i/teamlogos/mlb/500/sf.png',
+        'Seattle Mariners': 'https://a.espncdn.com/i/teamlogos/mlb/500/sea.png',
+        'St. Louis Cardinals': 'https://a.espncdn.com/i/teamlogos/mlb/500/stl.png',
+        'Tampa Bay Rays': 'https://a.espncdn.com/i/teamlogos/mlb/500/tb.png',
+        'Texas Rangers': 'https://a.espncdn.com/i/teamlogos/mlb/500/tex.png',
+        'Toronto Blue Jays': 'https://a.espncdn.com/i/teamlogos/mlb/500/tor.png',
+        'Washington Nationals': 'https://a.espncdn.com/i/teamlogos/mlb/500/wsh.png',
       };
 
-      function getLogo(name) {
-        return teamLogos[name] ?? '';
-      }
-
+      function getLogo(name) { return teamLogos[name] ?? ''; }
       function logoImg(name, size = 24) {
         const src = getLogo(name);
-        return src ? `<img src="${src}" class="team-logo" style="width:${size}px;height:${size}px;object-fit:contain;" alt="${name}" onerror="this.style.display='none'" />` : '';
+        return src ? `<img src="${src}" style="width:${size}px;height:${size}px;object-fit:contain;" alt="${name}" onerror="this.style.display='none'" />` : '';
       }
 
       let currentSport = 'americanfootball_nfl';
@@ -283,19 +218,15 @@
         const tableBody = document.getElementById('odds-table-body');
         cardsContainer.innerHTML = '<div class="loading">Loading odds...</div>';
         tableBody.innerHTML = '<tr><td colspan="5" class="loading">Loading odds...</td></tr>';
-
         try {
           const res = await fetch(`https://better-bookie-five.vercel.app/api/odds?sport=${sport}`);
           const data = await res.json();
-
           if (!Array.isArray(data) || data.length === 0) {
             cardsContainer.innerHTML = '<div class="loading">No games found right now.</div>';
             tableBody.innerHTML = '<tr><td colspan="5" class="loading">No games found.</td></tr>';
             return;
           }
-
           const sportLabel = sport.includes('nfl') ? 'NFL' : sport.includes('nba') ? 'NBA' : 'MLB';
-
           cardsContainer.innerHTML = data.slice(0, 6).map(game => {
             const home = game.home_team;
             const away = game.away_team;
@@ -304,13 +235,10 @@
             const homeOdds = market?.outcomes?.find(o => o.name === home)?.price ?? 'N/A';
             const awayOdds = market?.outcomes?.find(o => o.name === away)?.price ?? 'N/A';
             const date = new Date(game.commence_time).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-
             return `
               <div class="odds-card">
                 <span class="sport-label">${sportLabel}</span>
-                <h4>
-                  ${logoImg(home)} ${home} vs ${logoImg(away)} ${away}
-                </h4>
+                <h4>${logoImg(home)} ${home} vs ${logoImg(away)} ${away}</h4>
                 <p>📅 ${date}</p>
                 <div class="team-row">${logoImg(home)} <span>${home}: <strong>${homeOdds > 0 ? '+' : ''}${homeOdds}</strong></span></div>
                 <div class="team-row">${logoImg(away)} <span>${away}: <strong>${awayOdds > 0 ? '+' : ''}${awayOdds}</strong></span></div>
@@ -318,7 +246,6 @@
               </div>
             `;
           }).join('');
-
           tableBody.innerHTML = data.map(game => {
             const home = game.home_team;
             const away = game.away_team;
@@ -327,7 +254,6 @@
             const homeOdds = market?.outcomes?.find(o => o.name === home)?.price ?? 'N/A';
             const awayOdds = market?.outcomes?.find(o => o.name === away)?.price ?? 'N/A';
             const date = new Date(game.commence_time).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-
             return `
               <tr>
                 <td><div class="td-team">${logoImg(home, 20)} ${home}</div></td>
@@ -338,7 +264,6 @@
               </tr>
             `;
           }).join('');
-
         } catch (err) {
           cardsContainer.innerHTML = '<div class="loading">Failed to load odds. Please try again.</div>';
           tableBody.innerHTML = '<tr><td colspan="5" class="loading">Failed to load odds.</td></tr>';
