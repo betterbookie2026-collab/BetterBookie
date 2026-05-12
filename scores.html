@@ -52,15 +52,91 @@
         gap: 1.5rem;
         padding: 1.5rem 2rem;
       }
+      .game-card-wrap { display: flex; flex-direction: column; }
       .odds-card {
         background: rgba(255,255,255,0.05);
         border: 1px solid rgba(255,255,255,0.1);
         border-radius: 8px;
         padding: 1.25rem;
+        cursor: pointer;
+        transition: background 0.15s;
       }
+      .odds-card:hover { background: rgba(255,255,255,0.08); }
       .odds-card h4 { margin: 0 0 0.5rem; font-size: 1rem; }
       .odds-card p { margin: 0.25rem 0; font-size: 0.9rem; opacity: 0.8; }
       .score { font-size: 1.4rem; font-weight: bold; margin: 0.5rem 0; }
+      .view-boxscore-btn {
+        width: 100%;
+        margin-top: 0.75rem;
+        padding: 0.4rem;
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 4px;
+        color: inherit;
+        cursor: pointer;
+        font-size: 0.8rem;
+        opacity: 0.6;
+        transition: opacity 0.15s;
+      }
+      .view-boxscore-btn:hover { opacity: 1; background: rgba(255,255,255,0.05); }
+      .boxscore-panel {
+        display: none;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        padding: 1.25rem;
+        grid-column: 1 / -1;
+      }
+      .boxscore-panel.open { display: block; }
+      .boxscore-loading { text-align: center; padding: 1.5rem; opacity: 0.5; font-size: 0.85rem; }
+      .boxscore-section { margin-bottom: 1.25rem; }
+      .boxscore-section h5 {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        opacity: 0.5;
+        margin: 0 0 0.75rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+      }
+      .score-grid {
+        display: grid;
+        grid-template-columns: 2fr repeat(5, 1fr);
+        gap: 0.25rem;
+        font-size: 0.85rem;
+      }
+      .score-grid-header { opacity: 0.5; font-size: 0.75rem; text-transform: uppercase; }
+      .score-grid-team { display: flex; align-items: center; gap: 0.4rem; }
+      .score-grid-team img { width: 18px; height: 18px; object-fit: contain; }
+      .score-grid .total { font-weight: bold; }
+      .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+      }
+      .stat-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        padding: 0.3rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+      }
+      .stat-label { opacity: 0.6; }
+      .players-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+      }
+      .player-card {
+        background: rgba(255,255,255,0.04);
+        border-radius: 6px;
+        padding: 0.75rem;
+        font-size: 0.82rem;
+      }
+      .player-card .player-name { font-weight: 600; margin-bottom: 0.3rem; }
+      .player-card .player-team { opacity: 0.5; font-size: 0.75rem; margin-bottom: 0.4rem; }
+      .player-card .player-stat { opacity: 0.8; }
       .loading { text-align: center; padding: 3rem; opacity: 0.6; grid-column: 1/-1; }
       .sport-label {
         display: inline-block;
@@ -90,13 +166,7 @@
       th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
       th { opacity: 0.6; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
       tr:hover td { background: rgba(255,255,255,0.03); }
-      .record-badge {
-        display: inline-block;
-        padding: 0.2rem 0.6rem;
-        border-radius: 4px;
-        font-size: 0.85rem;
-        font-weight: 600;
-      }
+      .record-badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.85rem; font-weight: 600; }
       .record-win { background: rgba(107,203,119,0.15); color: #6bcb77; }
       .record-loss { background: rgba(255,107,107,0.15); color: #ff6b6b; }
       .record-neutral { background: rgba(255,255,255,0.08); }
@@ -119,16 +189,7 @@
       .pct-bar-wrap { display: flex; align-items: center; gap: 0.5rem; }
       .pct-bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.1); flex: 1; max-width: 80px; }
       .pct-bar-fill { height: 100%; border-radius: 3px; background: #6bcb77; }
-      .season-label {
-        display: inline-block;
-        font-size: 0.7rem;
-        padding: 0.15rem 0.5rem;
-        border-radius: 20px;
-        background: rgba(255,217,61,0.15);
-        color: #ffd93d;
-        margin-left: 0.4rem;
-        vertical-align: middle;
-      }
+      .season-label { display: inline-block; font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 20px; background: rgba(255,217,61,0.15); color: #ffd93d; margin-left: 0.4rem; vertical-align: middle; }
       .nav-dropdown { position: relative; display: inline-block; }
       .nav-dropdown-btn { background: transparent; border: none; color: inherit; cursor: pointer; font-size: 1rem; padding: 0; font-family: inherit; }
       .nav-dropdown-menu { display: none; position: absolute; top: 100%; right: 0; background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; min-width: 200px; z-index: 100; padding: 0.5rem 0; }
@@ -168,7 +229,7 @@
       </nav>
       <div class="hero-content">
         <h2>Scores & Records</h2>
-        <p>Historical scores and all-time win/loss records.</p>
+        <p>Historical scores, box scores, and all-time win/loss records.</p>
       </div>
     </header>
 
@@ -213,8 +274,10 @@
 
     <script src="script.js"></script>
     <script>
+      const VERCEL = 'https://better-bookie-five.vercel.app';
       let currentSport = 'nfl';
       const scoresCache = {};
+      const boxscoreCache = {};
 
       function getStatusClass(status) {
         if (!status) return '';
@@ -224,6 +287,130 @@
         return 'status-upcoming';
       }
 
+      function buildBoxScore(data, sport) {
+        const { game, players } = data;
+        if (!game) return '<div class="boxscore-loading">No box score data available.</div>';
+
+        const home = game.teams?.home?.name ?? 'Home';
+        const away = game.teams?.away?.name ?? 'Away';
+
+        // Period scores
+        let periodsHtml = '';
+        const periods = game.scores?.home?.quarter ?? game.scores?.home?.period ?? game.scores?.home?.inning ?? [];
+        const awayPeriods = game.scores?.away?.quarter ?? game.scores?.away?.period ?? game.scores?.away?.inning ?? [];
+
+        if (periods.length > 0) {
+          const periodLabel = sport === 'nfl' ? 'Q' : sport === 'nba' ? 'Q' : sport === 'mlb' ? 'Inn' : 'P';
+          periodsHtml = `
+            <div class="boxscore-section">
+              <h5>Score by ${sport === 'mlb' ? 'Inning' : sport === 'nhl' ? 'Period' : 'Quarter'}</h5>
+              <div class="score-grid">
+                <div class="score-grid-header">Team</div>
+                ${periods.map((_, i) => `<div class="score-grid-header">${periodLabel}${i + 1}</div>`).join('')}
+                <div class="score-grid-header total">Total</div>
+                <div class="score-grid-team">${away}</div>
+                ${awayPeriods.map(p => `<div>${p ?? '-'}</div>`).join('')}
+                <div class="total">${game.scores?.away?.total ?? '-'}</div>
+                <div class="score-grid-team">${home}</div>
+                ${periods.map(p => `<div>${p ?? '-'}</div>`).join('')}
+                <div class="total">${game.scores?.home?.total ?? '-'}</div>
+              </div>
+            </div>
+          `;
+        }
+
+        // Team stats
+        let teamStatsHtml = '';
+        const homeStats = game.statistics?.[0] ?? null;
+        const awayStats = game.statistics?.[1] ?? null;
+        if (homeStats || awayStats) {
+          const statKeys = Object.keys(homeStats ?? awayStats ?? {}).filter(k => k !== 'team');
+          teamStatsHtml = `
+            <div class="boxscore-section">
+              <h5>Team Stats</h5>
+              <div class="stats-grid">
+                <div>
+                  <div class="stat-row"><span class="stat-label" style="font-weight:600;">${away}</span></div>
+                  ${statKeys.slice(0, 8).map(k => `
+                    <div class="stat-row">
+                      <span class="stat-label">${k.replace(/_/g, ' ')}</span>
+                      <span>${awayStats?.[k] ?? '-'}</span>
+                    </div>
+                  `).join('')}
+                </div>
+                <div>
+                  <div class="stat-row"><span class="stat-label" style="font-weight:600;">${home}</span></div>
+                  ${statKeys.slice(0, 8).map(k => `
+                    <div class="stat-row">
+                      <span class="stat-label">${k.replace(/_/g, ' ')}</span>
+                      <span>${homeStats?.[k] ?? '-'}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        // Top players
+        let playersHtml = '';
+        if (players.length > 0) {
+          const topPlayers = players.slice(0, 6);
+          playersHtml = `
+            <div class="boxscore-section">
+              <h5>Top Performers</h5>
+              <div class="players-grid">
+                ${topPlayers.map(p => {
+                  const name = p.player?.name ?? p.name ?? 'Unknown';
+                  const team = p.team?.name ?? '';
+                  const stats = p.statistics?.[0] ?? p.stats ?? {};
+                  const statLine = Object.entries(stats)
+                    .filter(([k, v]) => v && k !== 'team' && k !== 'player')
+                    .slice(0, 3)
+                    .map(([k, v]) => `${k.replace(/_/g, ' ')}: ${v}`)
+                    .join(' · ');
+                  return `
+                    <div class="player-card">
+                      <div class="player-name">${name}</div>
+                      <div class="player-team">${team}</div>
+                      <div class="player-stat">${statLine || 'Stats unavailable'}</div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        return periodsHtml + teamStatsHtml + playersHtml || '<div class="boxscore-loading">Box score data not available for this game.</div>';
+      }
+
+      async function toggleBoxScore(gameId, sport, panelEl, btnEl) {
+        const isOpen = panelEl.classList.contains('open');
+        if (isOpen) {
+          panelEl.classList.remove('open');
+          btnEl.textContent = '▼ View Box Score';
+          return;
+        }
+        panelEl.classList.add('open');
+        btnEl.textContent = '▲ Hide Box Score';
+
+        if (boxscoreCache[gameId]) {
+          panelEl.innerHTML = buildBoxScore(boxscoreCache[gameId], sport);
+          return;
+        }
+
+        panelEl.innerHTML = '<div class="boxscore-loading">Loading box score...</div>';
+        try {
+          const res = await fetch(`${VERCEL}/api/boxscore?sport=${sport}&id=${gameId}`);
+          const data = await res.json();
+          boxscoreCache[gameId] = data;
+          panelEl.innerHTML = buildBoxScore(data, sport);
+        } catch {
+          panelEl.innerHTML = '<div class="boxscore-loading">Failed to load box score.</div>';
+        }
+      }
+
       function renderScores(games, sport) {
         const cardsContainer = document.getElementById('cards-container');
         const sportLabel = sport.toUpperCase();
@@ -231,7 +418,10 @@
           cardsContainer.innerHTML = '<div class="loading">No scores found for this sport.</div>';
           return;
         }
-        cardsContainer.innerHTML = games.slice(0, 24).map(game => {
+
+        cardsContainer.innerHTML = '';
+
+        games.slice(0, 24).forEach(game => {
           const home = game.teams?.home?.name ?? game.home_team ?? 'Home';
           const away = game.teams?.away?.name ?? game.away_team ?? 'Away';
           const homeScore = game.scores?.home?.total ?? game.scores?.home ?? game.home_score ?? '-';
@@ -239,23 +429,44 @@
           const status = game.status?.long ?? game.status?.short ?? game.status ?? 'N/A';
           const date = game.date ?? game.commence_time ?? null;
           const displayDate = date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
-          return `
-            <div class="odds-card">
-              <span class="sport-label">${sportLabel}</span>
-              <p class="${getStatusClass(status)}" style="font-size:0.8rem;margin-bottom:0.5rem;">● ${status}</p>
-              <h4>${away} @ ${home}</h4>
-              <p class="score">${awayScore} – ${homeScore}</p>
-              <p>📅 ${displayDate}</p>
-            </div>
+          const gameId = game.id ?? game.game_id ?? null;
+
+          const wrap = document.createElement('div');
+          wrap.className = 'game-card-wrap';
+
+          const card = document.createElement('div');
+          card.className = 'odds-card';
+          card.innerHTML = `
+            <span class="sport-label">${sportLabel}</span>
+            <p class="${getStatusClass(status)}" style="font-size:0.8rem;margin-bottom:0.5rem;">● ${status}</p>
+            <h4>${away} @ ${home}</h4>
+            <p class="score">${awayScore} – ${homeScore}</p>
+            <p>📅 ${displayDate}</p>
+            ${gameId ? `<button class="view-boxscore-btn">▼ View Box Score</button>` : ''}
           `;
-        }).join('');
+
+          const panel = document.createElement('div');
+          panel.className = 'boxscore-panel';
+
+          if (gameId) {
+            const btn = card.querySelector('.view-boxscore-btn');
+            btn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              toggleBoxScore(gameId, sport, panel, btn);
+            });
+          }
+
+          wrap.appendChild(card);
+          wrap.appendChild(panel);
+          cardsContainer.appendChild(wrap);
+        });
       }
 
       async function fetchScores(sport) {
         if (scoresCache[sport]) { renderScores(scoresCache[sport], sport); return; }
         document.getElementById('cards-container').innerHTML = '<div class="loading">Loading scores...</div>';
         try {
-          const res = await fetch(`https://better-bookie-five.vercel.app/api/scores?sport=${sport}`);
+          const res = await fetch(`${VERCEL}/api/scores?sport=${sport}`);
           const data = await res.json();
           const games = data.response ?? [];
           scoresCache[sport] = games;
@@ -274,6 +485,7 @@
         });
       });
 
+      // RECORDS
       const recordsCache = {};
       let currentRecordSport = 'nfl';
       const currentYear = new Date().getFullYear();
@@ -285,7 +497,7 @@
       async function getLogoMap(sport) {
         if (logoCache[sport]) return logoCache[sport];
         try {
-          const res = await fetch(`https://better-bookie-five.vercel.app/api/logos?sport=${sport}`);
+          const res = await fetch(`${VERCEL}/api/logos?sport=${sport}`);
           const teams = await res.json();
           const map = {};
           teams.forEach(t => map[t.name] = t.logo);
@@ -334,7 +546,7 @@
         const key = `${sport}-${season}`;
         if (recordsCache[key]) return recordsCache[key];
         try {
-          const res = await fetch(`https://better-bookie-five.vercel.app/api/standings?sport=${sport}&season=${season}`);
+          const res = await fetch(`${VERCEL}/api/standings?sport=${sport}&season=${season}`);
           const data = await res.json();
           recordsCache[key] = data.response ?? [];
           return recordsCache[key];
@@ -345,11 +557,9 @@
         const container = document.getElementById('records-container');
         container.innerHTML = '<div class="loading">Loading records — this may take a moment...</div>';
         const logoMap = await getLogoMap(sport);
-
         const recentData = await Promise.all(
           recentSeasons.map(season => fetchStandingsForSeason(sport, season).then(d => ({ season, data: d })))
         );
-
         const teamSeasons = {};
         recentData.forEach(({ season, data }) => {
           data.forEach(group => {
@@ -361,36 +571,24 @@
             });
           });
         });
-
         if (Object.keys(teamSeasons).length === 0) {
-          container.innerHTML = '<div class="loading">No records data available for this sport yet. Check back tomorrow when the API limit resets!</div>';
+          container.innerHTML = '<div class="loading">No records data available. Check back tomorrow when the API limit resets!</div>';
           return;
         }
-
         const sortedTeams = Object.keys(teamSeasons).sort();
-
         let html = `
           <div class="records-table-wrap">
             <h3>⭐ Last 5 Seasons (${recentSeasons[recentSeasons.length - 1]}–${recentSeasons[0]})</h3>
             <table>
-              <thead>
-                <tr>
-                  <th>Team</th>
-                  <th>Season</th>
-                  <th>Record</th>
-                  <th>Win %</th>
-                </tr>
-              </thead>
+              <thead><tr><th>Team</th><th>Season</th><th>Record</th><th>Win %</th></tr></thead>
               <tbody>
         `;
-
         sortedTeams.forEach(team => {
           recentSeasons.forEach(season => {
             const standings = teamSeasons[team]?.[season];
             if (standings) html += renderRecordRow(team, season, standings, logoMap, true);
           });
         });
-
         html += `
               </tbody>
             </table>
@@ -400,9 +598,7 @@
             <div class="loading" id="history-loading">Loading full history...</div>
           </div>
         `;
-
         container.innerHTML = html;
-
         document.getElementById('show-history-btn').addEventListener('click', async () => {
           const btn = document.getElementById('show-history-btn');
           const section = document.getElementById('history-section');
@@ -416,11 +612,9 @@
           btn.textContent = '📚 Hide Full History';
           if (section.dataset.loaded) return;
           section.dataset.loaded = 'true';
-
           const olderData = await Promise.all(
             olderSeasons.map(season => fetchStandingsForSeason(sport, season).then(d => ({ season, data: d })))
           );
-
           const olderTeamSeasons = {};
           olderData.forEach(({ season, data }) => {
             data.forEach(group => {
@@ -432,15 +626,12 @@
               });
             });
           });
-
           const olderSortedTeams = Object.keys(olderTeamSeasons).sort();
           let historyHtml = `
             <div class="records-table-wrap">
               <h3>📖 Full History (${currentYear - 6} and earlier)</h3>
               <table>
-                <thead>
-                  <tr><th>Team</th><th>Season</th><th>Record</th><th>Win %</th></tr>
-                </thead>
+                <thead><tr><th>Team</th><th>Season</th><th>Record</th><th>Win %</th></tr></thead>
                 <tbody>
           `;
           olderSortedTeams.forEach(team => {
