@@ -6,6 +6,38 @@
     <title>Settings – BetterBookie</title>
     <link rel="stylesheet" href="styles.css" />
     <style>
+      .nav-dropdown { position: relative; display: inline-block; }
+      .nav-dropdown-btn {
+        background: transparent;
+        border: none;
+        color: inherit;
+        cursor: pointer;
+        font-size: 1rem;
+        padding: 0;
+        font-family: inherit;
+      }
+      .nav-dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: #1a1a2e;
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 6px;
+        min-width: 180px;
+        z-index: 100;
+        padding: 0.5rem 0;
+      }
+      .nav-dropdown.open .nav-dropdown-menu { display: block; }
+      .nav-dropdown-menu a {
+        display: block;
+        padding: 0.6rem 1rem;
+        color: inherit;
+        text-decoration: none;
+        font-size: 0.9rem;
+        opacity: 0.8;
+      }
+      .nav-dropdown-menu a:hover { opacity: 1; background: rgba(255,255,255,0.05); }
       .dashboard-wrap { padding: 2rem; max-width: 900px; margin: 0 auto; }
       .dashboard-wrap h3 { margin-bottom: 0.5rem; }
       .user-info { opacity: 0.6; font-size: 0.9rem; margin-bottom: 1rem; }
@@ -35,11 +67,7 @@
         color: #6bcb77;
         font-size: 0.8rem;
       }
-      .selected-teams-grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-      }
+      .selected-teams-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; }
       .selected-team-chip {
         display: flex;
         align-items: center;
@@ -129,7 +157,14 @@
           <a href="odds.html">Live Odds</a>
           <a href="injuries.html">Injuries</a>
           <a href="dashboard.html">Dashboard</a>
-          <a href="settings.html">Settings</a>
+          <div class="nav-dropdown" id="nav-settings-dropdown">
+            <button class="nav-dropdown-btn" onclick="document.getElementById('nav-settings-dropdown').classList.toggle('open')">Settings ▾</button>
+            <div class="nav-dropdown-menu">
+              <a href="settings.html#sports">Sports Preferences</a>
+              <a href="settings.html#teams">Team Preferences</a>
+              <a href="#" id="nav-signout">Logout</a>
+            </div>
+          </div>
           <a href="login.html" id="nav-login">Login</a>
         </div>
       </nav>
@@ -144,7 +179,6 @@
         <h3 id="welcome-msg">Settings</h3>
         <p class="user-info" id="user-email"></p>
 
-        <!-- Selected Teams Panel -->
         <div class="selected-teams-section">
           <h4>✅ Your Selected Teams</h4>
           <div class="selected-teams-grid" id="selected-teams-grid">
@@ -176,7 +210,7 @@
           <div class="checkbox-grid" id="search-grid"></div>
         </div>
 
-        <div class="pref-section">
+        <div class="pref-section" id="sports">
           <h4>1️⃣ Favorite Sports</h4>
           <div class="checkbox-grid" id="sports-grid">
             <label><input type="checkbox" value="nfl" /><span class="sport-emoji">🏈</span> NFL</label>
@@ -190,7 +224,7 @@
           </div>
         </div>
 
-        <div id="favorite-sport-sections"></div>
+        <div id="favorite-sport-sections" id="teams"></div>
 
         <div class="other-sports-wrap" id="other-sports-wrap" style="display:none;">
           <button class="other-sports-toggle" id="other-sports-toggle">
@@ -229,6 +263,19 @@
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
       const db = getFirestore(app);
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        const dropdown = document.getElementById('nav-settings-dropdown');
+        if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
+      });
+
+      // Nav signout
+      document.getElementById('nav-signout').addEventListener('click', async (e) => {
+        e.preventDefault();
+        await signOut(auth);
+        window.location.href = 'login.html';
+      });
 
       const sportMeta = {
         nfl:          { label: 'NFL Teams', emoji: '🏈', college: false },
@@ -371,23 +418,17 @@
       let savedPrefs = { sports: [], teams: [] };
       const loadedTeams = {};
 
-      // Update the selected teams panel
       function updateSelectedTeamsPanel() {
         const grid = document.getElementById('selected-teams-grid');
         const checked = [...document.querySelectorAll('.pref-section input[type="checkbox"]:checked, .extra-teams input:checked')]
-          .map(cb => cb.value)
-          .filter(v => v); // filter out sport checkboxes
-
-        // Also include recommended cards
+          .map(cb => cb.value).filter(v => v);
         document.querySelectorAll('.recommended-card.selected').forEach(card => {
           if (!checked.includes(card.dataset.team)) checked.push(card.dataset.team);
         });
-
         if (checked.length === 0) {
           grid.innerHTML = '<p class="no-selected">No teams selected yet. Pick your favorites below!</p>';
           return;
         }
-
         grid.innerHTML = checked.map(name => {
           const team = allTeams.find(t => t.name === name);
           const logo = team?.logo ?? '';
@@ -399,21 +440,16 @@
             </div>
           `;
         }).join('');
-
-        // Click chip to uncheck
         grid.querySelectorAll('.selected-team-chip').forEach(chip => {
           chip.addEventListener('click', () => {
             const teamName = chip.dataset.team;
-            // Uncheck in main grids
             document.querySelectorAll(`input[value="${teamName}"]`).forEach(cb => cb.checked = false);
-            // Uncheck recommended cards
             document.querySelectorAll(`.recommended-card[data-team="${teamName}"]`).forEach(card => card.classList.remove('selected'));
             updateSelectedTeamsPanel();
           });
         });
       }
 
-      // Listen for any checkbox change to update panel
       document.addEventListener('change', (e) => {
         if (e.target.type === 'checkbox' && !e.target.closest('#sports-grid')) {
           updateSelectedTeamsPanel();
@@ -653,7 +689,6 @@
         const sports = [...document.querySelectorAll('#sports-grid input:checked')].map(cb => cb.value);
         const teamSet = new Set([...document.querySelectorAll('.pref-section input[type="checkbox"]:checked, .extra-teams input:checked')].map(cb => cb.value));
         document.querySelectorAll('.recommended-card.selected').forEach(card => teamSet.add(card.dataset.team));
-        // Remove sport values from team set
         sports.forEach(s => teamSet.delete(s));
         await setDoc(doc(db, 'users', currentUser.uid), { sports, teams: [...teamSet] });
         const msg = document.getElementById('success-msg');
