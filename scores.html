@@ -267,6 +267,16 @@
       .pct-bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.1); flex: 1; max-width: 80px; }
       .pct-bar-fill { height: 100%; border-radius: 3px; background: #6bcb77; }
       .season-label { display: inline-block; font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 20px; background: rgba(255,217,61,0.15); color: #ffd93d; margin-left: 0.4rem; vertical-align: middle; }
+      .favorites-bar { display: none; align-items: center; gap: 0.5rem; flex-wrap: wrap; padding: 0.75rem 1rem; margin: 0.75rem 1.5rem 0; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; }
+      .favorites-bar.show { display: flex; }
+      .favorites-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.5; margin-right: 0.25rem; }
+      .fav-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; flex: 1; min-width: 200px; }
+      .fav-team-chip { display: inline-flex; align-items: center; gap: 0.3rem; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 0.25rem 0.6rem; font-size: 0.8rem; }
+      .fav-team-chip img { width: 16px; height: 16px; object-fit: contain; }
+      .fav-empty-note { font-size: 0.8rem; opacity: 0.55; }
+      .fav-empty-note a { color: inherit; }
+      .fav-toggle-btn { padding: 0.35rem 0.85rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.25); background: transparent; color: inherit; font-size: 0.8rem; cursor: pointer; white-space: nowrap; }
+      .fav-toggle-btn.active { background: #fff; color: #000; border-color: #fff; }
       .nav-dropdown { position: relative; display: inline-block; }
       .nav-dropdown-btn { background: transparent; border: none; color: inherit; cursor: pointer; font-size: 1rem; padding: 0; font-family: inherit; }
       .nav-dropdown-menu { display: none; position: absolute; top: 100%; right: 0; background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; min-width: 200px; z-index: 100; padding: 0.5rem 0; }
@@ -327,6 +337,12 @@
           <button data-sport="ncaabb">CBB</button>
         </div>
 
+        <div class="favorites-bar" id="scores-fav-bar">
+          <span class="favorites-label">My Teams</span>
+          <div class="fav-chips" id="scores-fav-chips"></div>
+          <button class="fav-toggle-btn" id="scores-fav-toggle">⭐ Show only my teams</button>
+        </div>
+
         <div class="season-nav">
           <label style="opacity:0.6;font-size:0.85rem;">Season:</label>
           <select id="season-select"></select>
@@ -366,6 +382,13 @@
           <button data-sport="ncaafb">CFB</button>
           <button data-sport="ncaabb">CBB</button>
         </div>
+
+        <div class="favorites-bar" id="records-fav-bar">
+          <span class="favorites-label">My Teams</span>
+          <div class="fav-chips" id="records-fav-chips"></div>
+          <button class="fav-toggle-btn" id="records-fav-toggle">⭐ Show only my teams</button>
+        </div>
+
         <div class="records-wrap" id="records-container">
           <div class="loading">Loading records...</div>
         </div>
@@ -398,6 +421,66 @@
       let currentTeamFilter = '';
       const scoresCache = {};
       const boxscoreCache = {};
+
+      // User preferences (populated when Firestore data arrives via 'userprefs' event)
+      let favTeamsSet = new Set();
+      let favSports = [];
+      let scoresFavOnly = false;
+      let recordsFavOnly = false;
+
+      function updateScoresFavBar(events) {
+        const bar = document.getElementById('scores-fav-bar');
+        const chipsEl = document.getElementById('scores-fav-chips');
+        const toggle = document.getElementById('scores-fav-toggle');
+        if (favTeamsSet.size === 0) { bar.classList.remove('show'); return; }
+        bar.classList.add('show');
+
+        const logoByName = {};
+        (events ?? []).forEach(event => {
+          (event.competitions?.[0]?.competitors ?? []).forEach(c => {
+            const name = c.team?.displayName ?? c.team?.name;
+            if (name && favTeamsSet.has(name)) logoByName[name] = c.team?.logo ?? '';
+          });
+        });
+        const inSport = Object.keys(logoByName);
+
+        if (inSport.length === 0) {
+          chipsEl.innerHTML = `<span class="fav-empty-note">None of your favorite teams appear in this view. <a href="settings.html">Update preferences</a></span>`;
+        } else {
+          chipsEl.innerHTML = inSport.map(name => `
+            <div class="fav-team-chip">
+              ${logoByName[name] ? `<img src="${logoByName[name]}" alt="" onerror="this.style.display='none'">` : ''}
+              ${name}
+            </div>
+          `).join('');
+        }
+        toggle.classList.toggle('active', scoresFavOnly);
+        toggle.textContent = scoresFavOnly ? '✓ Showing my teams only' : '⭐ Show only my teams';
+      }
+
+      function updateRecordsFavBar(teamSeasons) {
+        const bar = document.getElementById('records-fav-bar');
+        const chipsEl = document.getElementById('records-fav-chips');
+        const toggle = document.getElementById('records-fav-toggle');
+        if (favTeamsSet.size === 0) { bar.classList.remove('show'); return; }
+        bar.classList.add('show');
+        const inSport = [...favTeamsSet].filter(name => teamSeasons && teamSeasons[name]);
+        if (inSport.length === 0) {
+          chipsEl.innerHTML = `<span class="fav-empty-note">None of your favorite teams appear in this league. <a href="settings.html">Update preferences</a></span>`;
+        } else {
+          chipsEl.innerHTML = inSport.map(name => {
+            const logo = teamSeasons[name]?.logo ?? '';
+            return `
+              <div class="fav-team-chip">
+                ${logo ? `<img src="${logo}" alt="" onerror="this.style.display='none'">` : ''}
+                ${name}
+              </div>
+            `;
+          }).join('');
+        }
+        toggle.classList.toggle('active', recordsFavOnly);
+        toggle.textContent = recordsFavOnly ? '✓ Showing my teams only' : '⭐ Show only my teams';
+      }
 
       function populateSeasons() {
         const select = document.getElementById('season-select');
@@ -674,12 +757,23 @@
             scoresCache[cacheKey] = events;
           }
           await populateTeamFilter(events);
-          const filtered = currentTeamFilter
-            ? events.filter(event => {
-                const competitors = event.competitions?.[0]?.competitors ?? [];
-                return competitors.some(c => (c.team?.displayName ?? c.team?.name) === currentTeamFilter);
-              })
-            : events;
+          updateScoresFavBar(events);
+          let filtered = events;
+          if (currentTeamFilter) {
+            filtered = filtered.filter(event => {
+              const competitors = event.competitions?.[0]?.competitors ?? [];
+              return competitors.some(c => (c.team?.displayName ?? c.team?.name) === currentTeamFilter);
+            });
+          } else if (scoresFavOnly && favTeamsSet.size > 0) {
+            filtered = filtered.filter(event => {
+              const competitors = event.competitions?.[0]?.competitors ?? [];
+              return competitors.some(c => favTeamsSet.has(c.team?.displayName ?? c.team?.name));
+            });
+            if (filtered.length === 0) {
+              document.getElementById('cards-container').innerHTML = '<div class="loading">No games for your favorite teams in this view. Toggle off ⭐ above to see all games.</div>';
+              return;
+            }
+          }
           renderScores(filtered, currentSport);
         } catch (err) {
           document.getElementById('cards-container').innerHTML = '<div class="loading">Failed to load scores.</div>';
@@ -755,6 +849,19 @@
         currentTeamFilter = '';
         document.getElementById('team-filter-select').value = '';
         fetchScores();
+      });
+
+      document.getElementById('scores-fav-toggle').addEventListener('click', () => {
+        scoresFavOnly = !scoresFavOnly;
+        // Picking favorites mode clears the single-team dropdown so they don't intersect.
+        currentTeamFilter = '';
+        document.getElementById('team-filter-select').value = '';
+        fetchScores();
+      });
+
+      document.getElementById('records-fav-toggle').addEventListener('click', () => {
+        recordsFavOnly = !recordsFavOnly;
+        loadRecords(currentRecordSport);
       });
 
       // RECORDS
@@ -833,7 +940,17 @@
           return;
         }
 
-        const sortedTeams = Object.keys(teamSeasons).sort();
+        updateRecordsFavBar(teamSeasons);
+
+        let sortedTeams = Object.keys(teamSeasons).sort();
+        if (recordsFavOnly && favTeamsSet.size > 0) {
+          const filteredTeams = sortedTeams.filter(t => favTeamsSet.has(t));
+          if (filteredTeams.length === 0) {
+            container.innerHTML = '<div class="loading">None of your favorite teams play in this league. Toggle off ⭐ above to see all teams.</div>';
+            return;
+          }
+          sortedTeams = filteredTeams;
+        }
 
         const renderRow = (team, season, isRecent) => {
           const s = teamSeasons[team]?.seasons?.[season];
@@ -909,7 +1026,10 @@
             });
           });
 
-          const olderSortedTeams = Object.keys(olderTeamSeasons).sort();
+          let olderSortedTeams = Object.keys(olderTeamSeasons).sort();
+          if (recordsFavOnly && favTeamsSet.size > 0) {
+            olderSortedTeams = olderSortedTeams.filter(t => favTeamsSet.has(t));
+          }
           section.innerHTML = `
             <div class="records-table-wrap">
               <h3>📖 Full History (${currentYear - 6} and earlier)</h3>
@@ -967,11 +1087,45 @@
       populateSeasons();
       updateWeekNav();
       fetchScores();
+
+      // When user preferences arrive from Firestore, switch defaults to favorites.
+      window.addEventListener('userprefs', (e) => {
+        const prefs = e.detail ?? {};
+        favTeamsSet = new Set(prefs.teams ?? []);
+        favSports = prefs.sports ?? [];
+
+        // Default to first favorited sport that this page supports.
+        const supported = Object.keys(sportConfig);
+        const preferredSport = favSports.find(s => supported.includes(s));
+
+        // Default favorites-only ON when the user has favorites.
+        scoresFavOnly = favTeamsSet.size > 0;
+        recordsFavOnly = favTeamsSet.size > 0;
+
+        if (preferredSport && preferredSport !== currentSport) {
+          currentSport = preferredSport;
+          currentRecordSport = preferredSport;
+          currentWeek = 1;
+          currentTeamFilter = '';
+          document.querySelectorAll('#scores-sport-nav button').forEach(b => {
+            b.classList.toggle('active', b.dataset.sport === preferredSport);
+          });
+          document.querySelectorAll('#records-sport-nav button').forEach(b => {
+            b.classList.toggle('active', b.dataset.sport === preferredSport);
+          });
+          updateWeekNav();
+          fetchScores();
+        } else {
+          // Same sport — just re-render with the new filter state.
+          fetchScores();
+        }
+      });
     </script>
 
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
       import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+      import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
       const app = initializeApp({
         apiKey: "AIzaSyC2sgfkqCVFU1RfiWsArIWjpvpebKVxT64",
@@ -982,10 +1136,18 @@
         appId: "1:995577929895:web:303a93aa15628d6c503b82"
       });
       const auth = getAuth(app);
+      const db = getFirestore(app);
 
-      onAuthStateChanged(auth, user => {
+      onAuthStateChanged(auth, async user => {
         const loginLink = document.getElementById('nav-login');
         if (loginLink) loginLink.style.display = user ? 'none' : 'inline';
+        if (!user) return;
+        try {
+          const snap = await getDoc(doc(db, 'users', user.uid));
+          if (snap.exists()) {
+            window.dispatchEvent(new CustomEvent('userprefs', { detail: snap.data() }));
+          }
+        } catch {}
       });
 
       document.addEventListener('click', (e) => {
