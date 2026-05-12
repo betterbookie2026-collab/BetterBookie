@@ -64,5 +64,29 @@
       <p>&copy; 2026 BetterBookie. Built by a beginner.</p>
     </footer>
     <script src="script.js"></script>
+    ...your page content...
+    </footer>
+
+    <script src="script.js"></script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+      import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+      const app = initializeApp({
+        apiKey: "AIzaSyC2sgfkqCVFU1RfiWsArIWjpvpebKVxT64",
+        authDomain: "betterbookie.firebaseapp.com",
+        projectId: "betterbookie",
+        storageBucket: "betterbookie.firebasestorage.app",
+        messagingSenderId: "995577929895",
+        appId: "1:995577929895:web:303a93aa15628d6c503b82"
+      });
+      const auth = getAuth(app);
+      onAuthStateChanged(auth, user => {
+        const loginLink = document.getElementById('nav-login');
+        if (loginLink) loginLink.style.display = user ? 'none' : 'inline';
+      });
+    </script>
+
+  </body>
+</html>
   </body>
 </html>
