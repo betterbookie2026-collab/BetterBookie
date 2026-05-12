@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -7,11 +6,7 @@
     <title>Settings – BetterBookie</title>
     <link rel="stylesheet" href="styles.css" />
     <style>
-      .dashboard-wrap {
-        padding: 2rem;
-        max-width: 900px;
-        margin: 0 auto;
-      }
+      .dashboard-wrap { padding: 2rem; max-width: 900px; margin: 0 auto; }
       .dashboard-wrap h3 { margin-bottom: 0.5rem; }
       .user-info { opacity: 0.6; font-size: 0.9rem; margin-bottom: 1rem; }
       .intro-snippet {
@@ -26,6 +21,41 @@
       }
       .intro-snippet ol { margin: 0.5rem 0 0 1.25rem; padding: 0; }
       .intro-snippet li { margin-bottom: 0.25rem; }
+      .selected-teams-section {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(107,203,119,0.3);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+      .selected-teams-section h4 {
+        margin: 0 0 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #6bcb77;
+        font-size: 0.8rem;
+      }
+      .selected-teams-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .selected-team-chip {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: rgba(107,203,119,0.1);
+        border: 1px solid rgba(107,203,119,0.3);
+        border-radius: 20px;
+        padding: 0.3rem 0.75rem 0.3rem 0.4rem;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .selected-team-chip:hover { background: rgba(255,100,100,0.15); border-color: rgba(255,100,100,0.4); }
+      .selected-team-chip img { width: 20px; height: 20px; object-fit: contain; }
+      .selected-team-chip .remove { opacity: 0.5; font-size: 0.75rem; margin-left: 0.2rem; }
+      .no-selected { opacity: 0.5; font-size: 0.9rem; }
       .pref-section {
         background: rgba(255,255,255,0.05);
         border: 1px solid rgba(255,255,255,0.1);
@@ -33,13 +63,7 @@
         padding: 1.5rem;
         margin-bottom: 1.5rem;
       }
-      .pref-section h4 {
-        margin: 0 0 1rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        opacity: 0.7;
-        font-size: 0.8rem;
-      }
+      .pref-section h4 { margin: 0 0 1rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.7; font-size: 0.8rem; }
       .recommended-section {
         background: rgba(255,255,255,0.05);
         border: 1px solid rgba(255,200,0,0.3);
@@ -47,32 +71,9 @@
         padding: 1.5rem;
         margin-bottom: 1.5rem;
       }
-      .recommended-section h4 {
-        margin: 0 0 1rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        opacity: 0.7;
-        font-size: 0.8rem;
-        color: #ffd93d;
-      }
-      .recommended-cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 0.75rem;
-      }
-      .recommended-card {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 8px;
-        padding: 1rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
-        cursor: pointer;
-        transition: background 0.15s, border-color 0.15s;
-        position: relative;
-      }
+      .recommended-section h4 { margin: 0 0 1rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.7; font-size: 0.8rem; color: #ffd93d; }
+      .recommended-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.75rem; }
+      .recommended-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; cursor: pointer; transition: background 0.15s, border-color 0.15s; position: relative; }
       .recommended-card:hover { background: rgba(255,255,255,0.08); }
       .recommended-card.selected { border-color: #6bcb77; background: rgba(107,203,119,0.1); }
       .recommended-card img { width: 48px; height: 48px; object-fit: contain; }
@@ -82,41 +83,12 @@
       .recommended-card.selected .check { display: block; }
       .location-note { font-size: 0.8rem; opacity: 0.5; margin-bottom: 1rem; }
       .search-wrap { margin-bottom: 1.5rem; }
-      .search-wrap input {
-        width: 100%;
-        padding: 0.75rem 1rem;
-        border-radius: 4px;
-        border: 2px solid rgba(255,255,255,0.2);
-        background: rgba(255,255,255,0.05);
-        color: inherit;
-        font-size: 0.95rem;
-        box-sizing: border-box;
-      }
+      .search-wrap input { width: 100%; padding: 0.75rem 1rem; border-radius: 4px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: inherit; font-size: 0.95rem; box-sizing: border-box; }
       .search-wrap input:focus { outline: none; border-color: rgba(255,255,255,0.5); }
-      .search-results {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 8px;
-        padding: 1rem 1.5rem;
-        margin-bottom: 1.5rem;
-        display: none;
-      }
+      .search-results { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; display: none; }
       .search-results h4 { margin: 0 0 1rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.7; font-size: 0.8rem; }
-      .checkbox-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 0.5rem;
-      }
-      .checkbox-grid label {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.9rem;
-        cursor: pointer;
-        padding: 0.4rem 0.5rem;
-        border-radius: 4px;
-        transition: background 0.15s;
-      }
+      .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.5rem; }
+      .checkbox-grid label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; cursor: pointer; padding: 0.4rem 0.5rem; border-radius: 4px; transition: background 0.15s; }
       .checkbox-grid label:hover { background: rgba(255,255,255,0.08); }
       .checkbox-grid input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
       .team-logo { width: 24px; height: 24px; object-fit: contain; flex-shrink: 0; }
@@ -158,6 +130,7 @@
           <a href="injuries.html">Injuries</a>
           <a href="dashboard.html">Dashboard</a>
           <a href="settings.html">Settings</a>
+          <a href="login.html">Login</a>
         </div>
       </nav>
       <div class="hero-content">
@@ -168,8 +141,16 @@
 
     <section class="features">
       <div class="dashboard-wrap">
-        <h3 id="welcome-msg">Welcome!</h3>
+        <h3 id="welcome-msg">Settings</h3>
         <p class="user-info" id="user-email"></p>
+
+        <!-- Selected Teams Panel -->
+        <div class="selected-teams-section">
+          <h4>✅ Your Selected Teams</h4>
+          <div class="selected-teams-grid" id="selected-teams-grid">
+            <p class="no-selected">No teams selected yet. Pick your favorites below!</p>
+          </div>
+        </div>
 
         <div class="intro-snippet">
           🏆 <strong>Set up your personalized feed in 3 easy steps:</strong>
@@ -261,13 +242,13 @@
       };
 
       const locationTeams = {
-        'louisiana': ['New Orleans Saints', 'New Orleans Pelicans', 'LSU Tigers', 'Tulane Green Wave'],
+        'louisiana': ['New Orleans Saints', 'New Orleans Pelicans', 'LSU Tigers'],
         'new orleans': ['New Orleans Saints', 'New Orleans Pelicans', 'LSU Tigers'],
         'baton rouge': ['LSU Tigers', 'New Orleans Saints', 'New Orleans Pelicans'],
-        'new york': ['New York Giants', 'New York Jets', 'New York Knicks', 'Brooklyn Nets', 'New York Yankees', 'New York Mets', 'New York Rangers', 'New York Islanders'],
+        'new york': ['New York Giants', 'New York Jets', 'New York Knicks', 'Brooklyn Nets', 'New York Yankees', 'New York Mets', 'New York Rangers'],
         'los angeles': ['Los Angeles Lakers', 'Los Angeles Clippers', 'Los Angeles Rams', 'Los Angeles Chargers', 'Los Angeles Dodgers', 'Los Angeles Kings', 'USC Trojans', 'UCLA Bruins'],
         'san francisco': ['San Francisco 49ers', 'Golden State Warriors', 'San Francisco Giants', 'San Jose Sharks'],
-        'dallas': ['Dallas Cowboys', 'Dallas Mavericks', 'Dallas Stars', 'Texas Rangers', 'TCU Horned Frogs'],
+        'dallas': ['Dallas Cowboys', 'Dallas Mavericks', 'Dallas Stars', 'Texas Rangers'],
         'houston': ['Houston Texans', 'Houston Rockets', 'Houston Astros', 'Houston Cougars'],
         'austin': ['Texas Longhorns', 'Dallas Cowboys', 'Houston Texans'],
         'san antonio': ['San Antonio Spurs', 'Texas Longhorns'],
@@ -278,7 +259,7 @@
         'jacksonville': ['Jacksonville Jaguars', 'Florida Gators'],
         'florida': ['Miami Dolphins', 'Tampa Bay Buccaneers', 'Jacksonville Jaguars', 'Miami Heat', 'Florida Gators'],
         'chicago': ['Chicago Bears', 'Chicago Bulls', 'Chicago Cubs', 'Chicago White Sox', 'Chicago Blackhawks'],
-        'philadelphia': ['Philadelphia Eagles', 'Philadelphia 76ers', 'Philadelphia Phillies', 'Philadelphia Flyers', 'Penn State Nittany Lions'],
+        'philadelphia': ['Philadelphia Eagles', 'Philadelphia 76ers', 'Philadelphia Phillies', 'Philadelphia Flyers'],
         'pittsburgh': ['Pittsburgh Steelers', 'Pittsburgh Pirates', 'Pittsburgh Penguins'],
         'cleveland': ['Cleveland Browns', 'Cleveland Cavaliers', 'Cleveland Guardians', 'Ohio State Buckeyes'],
         'cincinnati': ['Cincinnati Bengals', 'Cincinnati Reds', 'Ohio State Buckeyes'],
@@ -301,16 +282,14 @@
         'baltimore': ['Baltimore Ravens', 'Baltimore Orioles', 'Maryland Terrapins'],
         'las vegas': ['Las Vegas Raiders', 'Vegas Golden Knights'],
         'kansas city': ['Kansas City Chiefs', 'Kansas City Royals', 'Kansas Jayhawks'],
-        'st. louis': ['St. Louis Blues', 'St. Louis Cardinals'],
-        'indianapolis': ['Indianapolis Colts', 'Indiana Pacers', 'Indiana Hoosiers', 'Purdue Boilermakers'],
+        'indianapolis': ['Indianapolis Colts', 'Indiana Pacers', 'Indiana Hoosiers'],
         'milwaukee': ['Milwaukee Bucks', 'Milwaukee Brewers', 'Green Bay Packers', 'Wisconsin Badgers'],
         'green bay': ['Green Bay Packers', 'Wisconsin Badgers'],
         'portland': ['Portland Trail Blazers', 'Oregon Ducks', 'Oregon State Beavers'],
         'salt lake city': ['Utah Jazz', 'Utah Utes'],
         'oklahoma city': ['Oklahoma City Thunder', 'Oklahoma Sooners'],
-        'south carolina': ['Carolina Panthers', 'South Carolina Gamecocks', 'Clemson Tigers'],
         'alabama': ['Alabama Crimson Tide', 'Auburn Tigers'],
-        'arkansas': ['Arkansas Razorbacks', 'Kansas City Chiefs'],
+        'arkansas': ['Arkansas Razorbacks'],
         'mississippi': ['Ole Miss Rebels', 'Mississippi State Bulldogs', 'New Orleans Saints'],
         'kentucky': ['Kentucky Wildcats', 'Louisville Cardinals'],
         'louisville': ['Louisville Cardinals', 'Kentucky Wildcats'],
@@ -318,49 +297,48 @@
 
       const nicknames = {
         'chiefs': 'Kansas City Chiefs', 'pats': 'New England Patriots',
-        'patriots': 'New England Patriots', 'cowboys': 'Dallas Cowboys',
-        'eagles': 'Philadelphia Eagles', 'niners': 'San Francisco 49ers',
-        'ravens': 'Baltimore Ravens', 'steelers': 'Pittsburgh Steelers',
-        'browns': 'Cleveland Browns', 'bengals': 'Cincinnati Bengals',
-        'broncos': 'Denver Broncos', 'raiders': 'Las Vegas Raiders',
-        'chargers': 'Los Angeles Chargers', 'bills': 'Buffalo Bills',
-        'dolphins': 'Miami Dolphins', 'jets': 'New York Jets',
-        'giants': 'New York Giants', 'commanders': 'Washington Commanders',
-        'bears': 'Chicago Bears', 'packers': 'Green Bay Packers',
-        'vikings': 'Minnesota Vikings', 'lions': 'Detroit Lions',
-        'falcons': 'Atlanta Falcons', 'saints': 'New Orleans Saints',
-        'bucs': 'Tampa Bay Buccaneers', 'rams': 'Los Angeles Rams',
-        'texans': 'Houston Texans', 'colts': 'Indianapolis Colts',
-        'jags': 'Jacksonville Jaguars', 'titans': 'Tennessee Titans',
-        'lakers': 'Los Angeles Lakers', 'celtics': 'Boston Celtics',
-        'warriors': 'Golden State Warriors', 'dubs': 'Golden State Warriors',
-        'nets': 'Brooklyn Nets', 'knicks': 'New York Knicks',
-        'bulls': 'Chicago Bulls', 'heat': 'Miami Heat',
-        'bucks': 'Milwaukee Bucks', 'sixers': 'Philadelphia 76ers',
-        'raptors': 'Toronto Raptors', 'cavs': 'Cleveland Cavaliers',
-        'mavs': 'Dallas Mavericks', 'nuggets': 'Denver Nuggets',
-        'pistons': 'Detroit Pistons', 'rockets': 'Houston Rockets',
-        'pacers': 'Indiana Pacers', 'clippers': 'Los Angeles Clippers',
-        'grizz': 'Memphis Grizzlies', 'wolves': 'Minnesota Timberwolves',
-        'pelicans': 'New Orleans Pelicans', 'okc': 'Oklahoma City Thunder',
-        'thunder': 'Oklahoma City Thunder', 'magic': 'Orlando Magic',
-        'suns': 'Phoenix Suns', 'blazers': 'Portland Trail Blazers',
-        'kings': 'Sacramento Kings', 'spurs': 'San Antonio Spurs',
-        'jazz': 'Utah Jazz', 'wizards': 'Washington Wizards',
-        'yanks': 'New York Yankees', 'yankees': 'New York Yankees',
-        'sox': 'Boston Red Sox', 'dodgers': 'Los Angeles Dodgers',
-        'cubs': 'Chicago Cubs', 'astros': 'Houston Astros',
-        'braves': 'Atlanta Braves', 'mets': 'New York Mets',
-        'phillies': 'Philadelphia Phillies', 'padres': 'San Diego Padres',
-        'brewers': 'Milwaukee Brewers', 'reds': 'Cincinnati Reds',
-        'pirates': 'Pittsburgh Pirates', 'tigers': 'Detroit Tigers',
-        'twins': 'Minnesota Twins', 'guardians': 'Cleveland Guardians',
-        'royals': 'Kansas City Royals', 'angels': 'Los Angeles Angels',
-        'mariners': 'Seattle Mariners', 'rangers': 'Texas Rangers',
-        'rays': 'Tampa Bay Rays', 'orioles': 'Baltimore Orioles',
-        'jays': 'Toronto Blue Jays', 'nats': 'Washington Nationals',
-        'rockies': 'Colorado Rockies', 'marlins': 'Miami Marlins',
-        'dbacks': 'Arizona Diamondbacks',
+        'cowboys': 'Dallas Cowboys', 'eagles': 'Philadelphia Eagles',
+        'niners': 'San Francisco 49ers', 'ravens': 'Baltimore Ravens',
+        'steelers': 'Pittsburgh Steelers', 'browns': 'Cleveland Browns',
+        'bengals': 'Cincinnati Bengals', 'broncos': 'Denver Broncos',
+        'raiders': 'Las Vegas Raiders', 'chargers': 'Los Angeles Chargers',
+        'bills': 'Buffalo Bills', 'dolphins': 'Miami Dolphins',
+        'jets': 'New York Jets', 'giants': 'New York Giants',
+        'commanders': 'Washington Commanders', 'bears': 'Chicago Bears',
+        'packers': 'Green Bay Packers', 'vikings': 'Minnesota Vikings',
+        'lions': 'Detroit Lions', 'falcons': 'Atlanta Falcons',
+        'saints': 'New Orleans Saints', 'bucs': 'Tampa Bay Buccaneers',
+        'rams': 'Los Angeles Rams', 'texans': 'Houston Texans',
+        'colts': 'Indianapolis Colts', 'jags': 'Jacksonville Jaguars',
+        'titans': 'Tennessee Titans', 'lakers': 'Los Angeles Lakers',
+        'celtics': 'Boston Celtics', 'warriors': 'Golden State Warriors',
+        'dubs': 'Golden State Warriors', 'nets': 'Brooklyn Nets',
+        'knicks': 'New York Knicks', 'bulls': 'Chicago Bulls',
+        'heat': 'Miami Heat', 'bucks': 'Milwaukee Bucks',
+        'sixers': 'Philadelphia 76ers', 'raptors': 'Toronto Raptors',
+        'cavs': 'Cleveland Cavaliers', 'mavs': 'Dallas Mavericks',
+        'nuggets': 'Denver Nuggets', 'pistons': 'Detroit Pistons',
+        'rockets': 'Houston Rockets', 'pacers': 'Indiana Pacers',
+        'clippers': 'Los Angeles Clippers', 'grizz': 'Memphis Grizzlies',
+        'wolves': 'Minnesota Timberwolves', 'pelicans': 'New Orleans Pelicans',
+        'okc': 'Oklahoma City Thunder', 'thunder': 'Oklahoma City Thunder',
+        'magic': 'Orlando Magic', 'suns': 'Phoenix Suns',
+        'blazers': 'Portland Trail Blazers', 'kings': 'Sacramento Kings',
+        'spurs': 'San Antonio Spurs', 'jazz': 'Utah Jazz',
+        'wizards': 'Washington Wizards', 'yanks': 'New York Yankees',
+        'yankees': 'New York Yankees', 'sox': 'Boston Red Sox',
+        'dodgers': 'Los Angeles Dodgers', 'cubs': 'Chicago Cubs',
+        'astros': 'Houston Astros', 'braves': 'Atlanta Braves',
+        'mets': 'New York Mets', 'phillies': 'Philadelphia Phillies',
+        'padres': 'San Diego Padres', 'brewers': 'Milwaukee Brewers',
+        'reds': 'Cincinnati Reds', 'pirates': 'Pittsburgh Pirates',
+        'tigers': 'Detroit Tigers', 'twins': 'Minnesota Twins',
+        'guardians': 'Cleveland Guardians', 'royals': 'Kansas City Royals',
+        'angels': 'Los Angeles Angels', 'mariners': 'Seattle Mariners',
+        'rangers': 'Texas Rangers', 'rays': 'Tampa Bay Rays',
+        'orioles': 'Baltimore Orioles', 'jays': 'Toronto Blue Jays',
+        'nats': 'Washington Nationals', 'rockies': 'Colorado Rockies',
+        'marlins': 'Miami Marlins', 'dbacks': 'Arizona Diamondbacks',
         'bruins': 'Boston Bruins', 'sabres': 'Buffalo Sabres',
         'flames': 'Calgary Flames', 'canes': 'Carolina Hurricanes',
         'avs': 'Colorado Avalanche', 'stars': 'Dallas Stars',
@@ -392,6 +370,55 @@
       let allTeams = [];
       let savedPrefs = { sports: [], teams: [] };
       const loadedTeams = {};
+
+      // Update the selected teams panel
+      function updateSelectedTeamsPanel() {
+        const grid = document.getElementById('selected-teams-grid');
+        const checked = [...document.querySelectorAll('.pref-section input[type="checkbox"]:checked, .extra-teams input:checked')]
+          .map(cb => cb.value)
+          .filter(v => v); // filter out sport checkboxes
+
+        // Also include recommended cards
+        document.querySelectorAll('.recommended-card.selected').forEach(card => {
+          if (!checked.includes(card.dataset.team)) checked.push(card.dataset.team);
+        });
+
+        if (checked.length === 0) {
+          grid.innerHTML = '<p class="no-selected">No teams selected yet. Pick your favorites below!</p>';
+          return;
+        }
+
+        grid.innerHTML = checked.map(name => {
+          const team = allTeams.find(t => t.name === name);
+          const logo = team?.logo ?? '';
+          return `
+            <div class="selected-team-chip" data-team="${name}" title="Click to remove">
+              ${logo ? `<img src="${logo}" alt="${name}" onerror="this.style.display='none'">` : ''}
+              ${name}
+              <span class="remove">✕</span>
+            </div>
+          `;
+        }).join('');
+
+        // Click chip to uncheck
+        grid.querySelectorAll('.selected-team-chip').forEach(chip => {
+          chip.addEventListener('click', () => {
+            const teamName = chip.dataset.team;
+            // Uncheck in main grids
+            document.querySelectorAll(`input[value="${teamName}"]`).forEach(cb => cb.checked = false);
+            // Uncheck recommended cards
+            document.querySelectorAll(`.recommended-card[data-team="${teamName}"]`).forEach(card => card.classList.remove('selected'));
+            updateSelectedTeamsPanel();
+          });
+        });
+      }
+
+      // Listen for any checkbox change to update panel
+      document.addEventListener('change', (e) => {
+        if (e.target.type === 'checkbox' && !e.target.closest('#sports-grid')) {
+          updateSelectedTeamsPanel();
+        }
+      });
 
       async function loadRecommendations() {
         if (!navigator.geolocation) return;
@@ -425,8 +452,10 @@
                 card.classList.toggle('selected');
                 const mainCb = document.querySelector(`input[value="${card.dataset.team}"]`);
                 if (mainCb) mainCb.checked = card.classList.contains('selected');
+                updateSelectedTeamsPanel();
               });
             });
+            updateSelectedTeamsPanel();
           } catch (e) { console.log('Location lookup failed', e); }
         }, () => {});
       }
@@ -528,6 +557,7 @@
         } else {
           otherWrap.style.display = 'none';
         }
+        updateSelectedTeamsPanel();
       }
 
       document.getElementById('other-sports-toggle').addEventListener('click', () => {
@@ -568,10 +598,7 @@
               <input type="checkbox" value="${t.name}" data-sport="${t.sport}" ${isChecked ? 'checked' : ''} class="search-cb" />
               <img src="${t.logo}" class="team-logo" alt="${t.name}" onerror="this.style.display='none'" />
               ${isCollege ? `<span style="font-size:0.9rem;">${emoji}</span>` : ''}
-              <span>
-                ${t.name}
-                ${nickname ? `<span class="team-nickname">(${nickname})</span>` : ''}
-              </span>
+              <span>${t.name}${nickname ? `<span class="team-nickname"> (${nickname})</span>` : ''}</span>
               <span class="sport-tag">${t.sport}${t.conference ? ` · ${t.conference}` : ''}</span>
             </label>
           `;
@@ -580,6 +607,7 @@
           cb.addEventListener('change', () => {
             const mainCb = document.querySelector(`input[value="${cb.value}"]:not(.search-cb)`);
             if (mainCb) mainCb.checked = cb.checked;
+            updateSelectedTeamsPanel();
           });
         });
       });
@@ -602,7 +630,7 @@
       onAuthStateChanged(auth, async user => {
         if (!user) { window.location.href = 'login.html'; return; }
         currentUser = user;
-        document.getElementById('welcome-msg').textContent = `Settings for ${user.displayName || user.email}`;
+        document.getElementById('welcome-msg').textContent = `Settings`;
         document.getElementById('user-email').textContent = user.email;
         const docRef = doc(db, 'users', user.uid);
         const docSnap = await getDoc(docRef);
@@ -616,6 +644,7 @@
           }
         }
         await loadAllTeams();
+        updateSelectedTeamsPanel();
       });
 
       document.getElementById('save-btn').addEventListener('click', async () => {
@@ -623,6 +652,8 @@
         const sports = [...document.querySelectorAll('#sports-grid input:checked')].map(cb => cb.value);
         const teamSet = new Set([...document.querySelectorAll('.pref-section input[type="checkbox"]:checked, .extra-teams input:checked')].map(cb => cb.value));
         document.querySelectorAll('.recommended-card.selected').forEach(card => teamSet.add(card.dataset.team));
+        // Remove sport values from team set
+        sports.forEach(s => teamSet.delete(s));
         await setDoc(doc(db, 'users', currentUser.uid), { sports, teams: [...teamSet] });
         const msg = document.getElementById('success-msg');
         msg.style.display = 'block';
