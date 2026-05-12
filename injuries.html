@@ -6,131 +6,41 @@
     <title>Injuries – BetterBookie</title>
     <link rel="stylesheet" href="styles.css" />
     <style>
-      .odds-nav {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-        margin: 2rem 0 1rem;
-        flex-wrap: wrap;
-      }
-      .odds-nav button {
-        padding: 0.5rem 1.25rem;
-        border: 2px solid currentColor;
-        background: transparent;
-        cursor: pointer;
-        font-size: 0.95rem;
-        border-radius: 4px;
-      }
-      .odds-nav button.active {
-        background: #fff;
-        color: #000;
-      }
-      .team-select-wrap {
-        display: flex;
-        justify-content: center;
-        margin: 0 0 1.5rem;
-      }
-      .team-select-wrap select {
-        padding: 0.5rem 1rem;
-        font-size: 0.95rem;
-        border-radius: 4px;
-        border: 2px solid currentColor;
-        background: transparent;
-        color: inherit;
-        cursor: pointer;
-      }
-      .odds-cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 1.5rem;
-        padding: 1.5rem 2rem;
-      }
-      .odds-card {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 8px;
-        padding: 1.25rem;
-      }
-      .odds-card h4 {
-        margin: 0 0 0.5rem;
-        font-size: 1rem;
-      }
-      .odds-card p {
-        margin: 0.25rem 0;
-        font-size: 0.9rem;
-        opacity: 0.8;
-      }
-      .odds-table-wrap {
-        padding: 1rem 2rem 3rem;
-        overflow-x: auto;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.9rem;
-      }
-      th, td {
-        text-align: left;
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-      }
-      th {
-        opacity: 0.6;
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 0.05em;
-      }
-      .loading {
-        text-align: center;
-        padding: 3rem;
-        opacity: 0.6;
-      }
-      .sport-label {
-        display: inline-block;
-        font-size: 0.7rem;
-        padding: 0.2rem 0.5rem;
-        border-radius: 4px;
-        background: rgba(255,255,255,0.15);
-        margin-bottom: 0.5rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-      }
+      .odds-nav { display: flex; gap: 1rem; justify-content: center; margin: 2rem 0 1rem; flex-wrap: wrap; }
+      .odds-nav button { padding: 0.5rem 1.25rem; border: 2px solid currentColor; background: transparent; cursor: pointer; font-size: 0.95rem; border-radius: 4px; }
+      .odds-nav button.active { background: #fff; color: #000; }
+      .team-select-wrap { display: flex; justify-content: center; margin: 0 0 1.5rem; }
+      .team-select-wrap select { padding: 0.5rem 1rem; font-size: 0.95rem; border-radius: 4px; border: 2px solid currentColor; background: transparent; color: inherit; cursor: pointer; }
+      .odds-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; padding: 1.5rem 2rem; }
+      .odds-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1.25rem; }
+      .odds-card h4 { margin: 0 0 0.5rem; font-size: 1rem; }
+      .odds-card p { margin: 0.25rem 0; font-size: 0.9rem; opacity: 0.8; }
+      .odds-table-wrap { padding: 1rem 2rem 3rem; overflow-x: auto; }
+      table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+      th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+      th { opacity: 0.6; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+      .loading { text-align: center; padding: 3rem; opacity: 0.6; }
+      .sport-label { display: inline-block; font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: rgba(255,255,255,0.15); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
       .status-out { color: #ff6b6b; }
       .status-questionable { color: #ffd93d; }
       .status-probable { color: #6bcb77; }
-      .unavailable {
-        text-align: center;
-        padding: 3rem 2rem;
-        opacity: 0.7;
-        grid-column: 1/-1;
-      }
-      .unavailable h4 {
-        font-size: 1.2rem;
-        margin-bottom: 0.5rem;
-      }
+      .unavailable { text-align: center; padding: 3rem 2rem; opacity: 0.7; grid-column: 1/-1; }
+      .unavailable h4 { font-size: 1.2rem; margin-bottom: 0.5rem; }
     </style>
   </head>
   <body>
     <header class="hero">
       <nav class="nav">
         <h1 class="logo"><a href="index.html" style="text-decoration:none;color:inherit;">BetterBookie</a></h1>
-        <button
-          class="menu-toggle"
-          id="menu-toggle"
-          type="button"
-          aria-label="Toggle menu"
-          aria-expanded="false"
-        >
-          ☰
-        </button>
+        <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false">☰</button>
         <div class="nav-links" id="nav-links">
           <a href="index.html#features">Features</a>
           <a href="scores.html">Scores</a>
           <a href="odds.html">Live Odds</a>
           <a href="injuries.html">Injuries</a>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="settings.html">Settings</a>
           <a href="login.html">Login</a>
-          <a href="index.html#signup" class="btn btn-small">Get Started</a>
         </div>
       </nav>
       <div class="hero-content">
@@ -146,15 +56,12 @@
         <button data-sport="mlb">MLB</button>
         <button data-sport="nhl">NHL</button>
       </div>
-
       <div class="team-select-wrap" id="team-select-wrap">
         <select id="team-select"></select>
       </div>
-
       <div id="cards-container" class="odds-cards">
         <div class="loading">Loading injuries...</div>
       </div>
-
       <div class="odds-table-wrap" id="table-wrap">
         <table>
           <thead>
@@ -187,136 +94,74 @@
 
       const teams = {
         nfl: [
-          { id: 1, name: 'Las Vegas Raiders' },
-          { id: 2, name: 'New England Patriots' },
-          { id: 3, name: 'New York Jets' },
-          { id: 4, name: 'Buffalo Bills' },
-          { id: 5, name: 'Miami Dolphins' },
-          { id: 6, name: 'Baltimore Ravens' },
-          { id: 7, name: 'Pittsburgh Steelers' },
-          { id: 8, name: 'Cleveland Browns' },
-          { id: 9, name: 'Cincinnati Bengals' },
-          { id: 10, name: 'Houston Texans' },
-          { id: 11, name: 'Indianapolis Colts' },
-          { id: 12, name: 'Jacksonville Jaguars' },
-          { id: 13, name: 'Tennessee Titans' },
-          { id: 14, name: 'Kansas City Chiefs' },
-          { id: 15, name: 'Los Angeles Chargers' },
-          { id: 16, name: 'Denver Broncos' },
-          { id: 17, name: 'Dallas Cowboys' },
-          { id: 18, name: 'New York Giants' },
-          { id: 19, name: 'Philadelphia Eagles' },
-          { id: 20, name: 'Washington Commanders' },
-          { id: 21, name: 'Chicago Bears' },
-          { id: 22, name: 'Green Bay Packers' },
-          { id: 23, name: 'Minnesota Vikings' },
-          { id: 24, name: 'Detroit Lions' },
-          { id: 25, name: 'Atlanta Falcons' },
-          { id: 26, name: 'Carolina Panthers' },
-          { id: 27, name: 'New Orleans Saints' },
-          { id: 28, name: 'Tampa Bay Buccaneers' },
-          { id: 29, name: 'Los Angeles Rams' },
-          { id: 30, name: 'Seattle Seahawks' },
-          { id: 31, name: 'San Francisco 49ers' },
-          { id: 32, name: 'Arizona Cardinals' },
+          { id: 1, name: 'Las Vegas Raiders' }, { id: 2, name: 'New England Patriots' },
+          { id: 3, name: 'New York Jets' }, { id: 4, name: 'Buffalo Bills' },
+          { id: 5, name: 'Miami Dolphins' }, { id: 6, name: 'Baltimore Ravens' },
+          { id: 7, name: 'Pittsburgh Steelers' }, { id: 8, name: 'Cleveland Browns' },
+          { id: 9, name: 'Cincinnati Bengals' }, { id: 10, name: 'Houston Texans' },
+          { id: 11, name: 'Indianapolis Colts' }, { id: 12, name: 'Jacksonville Jaguars' },
+          { id: 13, name: 'Tennessee Titans' }, { id: 14, name: 'Kansas City Chiefs' },
+          { id: 15, name: 'Los Angeles Chargers' }, { id: 16, name: 'Denver Broncos' },
+          { id: 17, name: 'Dallas Cowboys' }, { id: 18, name: 'New York Giants' },
+          { id: 19, name: 'Philadelphia Eagles' }, { id: 20, name: 'Washington Commanders' },
+          { id: 21, name: 'Chicago Bears' }, { id: 22, name: 'Green Bay Packers' },
+          { id: 23, name: 'Minnesota Vikings' }, { id: 24, name: 'Detroit Lions' },
+          { id: 25, name: 'Atlanta Falcons' }, { id: 26, name: 'Carolina Panthers' },
+          { id: 27, name: 'New Orleans Saints' }, { id: 28, name: 'Tampa Bay Buccaneers' },
+          { id: 29, name: 'Los Angeles Rams' }, { id: 30, name: 'Seattle Seahawks' },
+          { id: 31, name: 'San Francisco 49ers' }, { id: 32, name: 'Arizona Cardinals' },
         ],
         nba: [
-          { id: 1, name: 'Atlanta Hawks' },
-          { id: 2, name: 'Boston Celtics' },
-          { id: 3, name: 'Brooklyn Nets' },
-          { id: 4, name: 'Charlotte Hornets' },
-          { id: 5, name: 'Chicago Bulls' },
-          { id: 6, name: 'Cleveland Cavaliers' },
-          { id: 7, name: 'Dallas Mavericks' },
-          { id: 8, name: 'Denver Nuggets' },
-          { id: 9, name: 'Detroit Pistons' },
-          { id: 10, name: 'Golden State Warriors' },
-          { id: 11, name: 'Houston Rockets' },
-          { id: 12, name: 'Indiana Pacers' },
-          { id: 13, name: 'Los Angeles Clippers' },
-          { id: 14, name: 'Los Angeles Lakers' },
-          { id: 15, name: 'Memphis Grizzlies' },
-          { id: 16, name: 'Miami Heat' },
-          { id: 17, name: 'Milwaukee Bucks' },
-          { id: 18, name: 'Minnesota Timberwolves' },
-          { id: 19, name: 'New Orleans Pelicans' },
-          { id: 20, name: 'New York Knicks' },
-          { id: 21, name: 'Oklahoma City Thunder' },
-          { id: 22, name: 'Orlando Magic' },
-          { id: 23, name: 'Philadelphia 76ers' },
-          { id: 24, name: 'Phoenix Suns' },
-          { id: 25, name: 'Portland Trail Blazers' },
-          { id: 26, name: 'Sacramento Kings' },
-          { id: 27, name: 'San Antonio Spurs' },
-          { id: 28, name: 'Toronto Raptors' },
-          { id: 29, name: 'Utah Jazz' },
-          { id: 30, name: 'Washington Wizards' },
+          { id: 1, name: 'Atlanta Hawks' }, { id: 2, name: 'Boston Celtics' },
+          { id: 3, name: 'Brooklyn Nets' }, { id: 4, name: 'Charlotte Hornets' },
+          { id: 5, name: 'Chicago Bulls' }, { id: 6, name: 'Cleveland Cavaliers' },
+          { id: 7, name: 'Dallas Mavericks' }, { id: 8, name: 'Denver Nuggets' },
+          { id: 9, name: 'Detroit Pistons' }, { id: 10, name: 'Golden State Warriors' },
+          { id: 11, name: 'Houston Rockets' }, { id: 12, name: 'Indiana Pacers' },
+          { id: 13, name: 'Los Angeles Clippers' }, { id: 14, name: 'Los Angeles Lakers' },
+          { id: 15, name: 'Memphis Grizzlies' }, { id: 16, name: 'Miami Heat' },
+          { id: 17, name: 'Milwaukee Bucks' }, { id: 18, name: 'Minnesota Timberwolves' },
+          { id: 19, name: 'New Orleans Pelicans' }, { id: 20, name: 'New York Knicks' },
+          { id: 21, name: 'Oklahoma City Thunder' }, { id: 22, name: 'Orlando Magic' },
+          { id: 23, name: 'Philadelphia 76ers' }, { id: 24, name: 'Phoenix Suns' },
+          { id: 25, name: 'Portland Trail Blazers' }, { id: 26, name: 'Sacramento Kings' },
+          { id: 27, name: 'San Antonio Spurs' }, { id: 28, name: 'Toronto Raptors' },
+          { id: 29, name: 'Utah Jazz' }, { id: 30, name: 'Washington Wizards' },
         ],
         mlb: [
-          { id: 1, name: 'Arizona Diamondbacks' },
-          { id: 2, name: 'Atlanta Braves' },
-          { id: 3, name: 'Baltimore Orioles' },
-          { id: 4, name: 'Boston Red Sox' },
-          { id: 5, name: 'Chicago Cubs' },
-          { id: 6, name: 'Chicago White Sox' },
-          { id: 7, name: 'Cincinnati Reds' },
-          { id: 8, name: 'Cleveland Guardians' },
-          { id: 9, name: 'Colorado Rockies' },
-          { id: 10, name: 'Detroit Tigers' },
-          { id: 11, name: 'Houston Astros' },
-          { id: 12, name: 'Kansas City Royals' },
-          { id: 13, name: 'Los Angeles Angels' },
-          { id: 14, name: 'Los Angeles Dodgers' },
-          { id: 15, name: 'Miami Marlins' },
-          { id: 16, name: 'Milwaukee Brewers' },
-          { id: 17, name: 'Minnesota Twins' },
-          { id: 18, name: 'New York Mets' },
-          { id: 19, name: 'New York Yankees' },
-          { id: 20, name: 'Oakland Athletics' },
-          { id: 21, name: 'Philadelphia Phillies' },
-          { id: 22, name: 'Pittsburgh Pirates' },
-          { id: 23, name: 'San Diego Padres' },
-          { id: 24, name: 'San Francisco Giants' },
-          { id: 25, name: 'Seattle Mariners' },
-          { id: 26, name: 'St. Louis Cardinals' },
-          { id: 27, name: 'Tampa Bay Rays' },
-          { id: 28, name: 'Texas Rangers' },
-          { id: 29, name: 'Toronto Blue Jays' },
-          { id: 30, name: 'Washington Nationals' },
+          { id: 1, name: 'Arizona Diamondbacks' }, { id: 2, name: 'Atlanta Braves' },
+          { id: 3, name: 'Baltimore Orioles' }, { id: 4, name: 'Boston Red Sox' },
+          { id: 5, name: 'Chicago Cubs' }, { id: 6, name: 'Chicago White Sox' },
+          { id: 7, name: 'Cincinnati Reds' }, { id: 8, name: 'Cleveland Guardians' },
+          { id: 9, name: 'Colorado Rockies' }, { id: 10, name: 'Detroit Tigers' },
+          { id: 11, name: 'Houston Astros' }, { id: 12, name: 'Kansas City Royals' },
+          { id: 13, name: 'Los Angeles Angels' }, { id: 14, name: 'Los Angeles Dodgers' },
+          { id: 15, name: 'Miami Marlins' }, { id: 16, name: 'Milwaukee Brewers' },
+          { id: 17, name: 'Minnesota Twins' }, { id: 18, name: 'New York Mets' },
+          { id: 19, name: 'New York Yankees' }, { id: 20, name: 'Oakland Athletics' },
+          { id: 21, name: 'Philadelphia Phillies' }, { id: 22, name: 'Pittsburgh Pirates' },
+          { id: 23, name: 'San Diego Padres' }, { id: 24, name: 'San Francisco Giants' },
+          { id: 25, name: 'Seattle Mariners' }, { id: 26, name: 'St. Louis Cardinals' },
+          { id: 27, name: 'Tampa Bay Rays' }, { id: 28, name: 'Texas Rangers' },
+          { id: 29, name: 'Toronto Blue Jays' }, { id: 30, name: 'Washington Nationals' },
         ],
         nhl: [
-          { id: 1, name: 'Anaheim Ducks' },
-          { id: 2, name: 'Arizona Coyotes' },
-          { id: 3, name: 'Boston Bruins' },
-          { id: 4, name: 'Buffalo Sabres' },
-          { id: 5, name: 'Calgary Flames' },
-          { id: 6, name: 'Carolina Hurricanes' },
-          { id: 7, name: 'Chicago Blackhawks' },
-          { id: 8, name: 'Colorado Avalanche' },
-          { id: 9, name: 'Columbus Blue Jackets' },
-          { id: 10, name: 'Dallas Stars' },
-          { id: 11, name: 'Detroit Red Wings' },
-          { id: 12, name: 'Edmonton Oilers' },
-          { id: 13, name: 'Florida Panthers' },
-          { id: 14, name: 'Los Angeles Kings' },
-          { id: 15, name: 'Minnesota Wild' },
-          { id: 16, name: 'Montreal Canadiens' },
-          { id: 17, name: 'Nashville Predators' },
-          { id: 18, name: 'New Jersey Devils' },
-          { id: 19, name: 'New York Islanders' },
-          { id: 20, name: 'New York Rangers' },
-          { id: 21, name: 'Ottawa Senators' },
-          { id: 22, name: 'Philadelphia Flyers' },
-          { id: 23, name: 'Pittsburgh Penguins' },
-          { id: 24, name: 'San Jose Sharks' },
-          { id: 25, name: 'Seattle Kraken' },
-          { id: 26, name: 'St. Louis Blues' },
-          { id: 27, name: 'Tampa Bay Lightning' },
-          { id: 28, name: 'Toronto Maple Leafs' },
-          { id: 29, name: 'Utah Hockey Club' },
-          { id: 30, name: 'Vancouver Canucks' },
-          { id: 31, name: 'Vegas Golden Knights' },
-          { id: 32, name: 'Washington Capitals' },
+          { id: 1, name: 'Anaheim Ducks' }, { id: 2, name: 'Arizona Coyotes' },
+          { id: 3, name: 'Boston Bruins' }, { id: 4, name: 'Buffalo Sabres' },
+          { id: 5, name: 'Calgary Flames' }, { id: 6, name: 'Carolina Hurricanes' },
+          { id: 7, name: 'Chicago Blackhawks' }, { id: 8, name: 'Colorado Avalanche' },
+          { id: 9, name: 'Columbus Blue Jackets' }, { id: 10, name: 'Dallas Stars' },
+          { id: 11, name: 'Detroit Red Wings' }, { id: 12, name: 'Edmonton Oilers' },
+          { id: 13, name: 'Florida Panthers' }, { id: 14, name: 'Los Angeles Kings' },
+          { id: 15, name: 'Minnesota Wild' }, { id: 16, name: 'Montreal Canadiens' },
+          { id: 17, name: 'Nashville Predators' }, { id: 18, name: 'New Jersey Devils' },
+          { id: 19, name: 'New York Islanders' }, { id: 20, name: 'New York Rangers' },
+          { id: 21, name: 'Ottawa Senators' }, { id: 22, name: 'Philadelphia Flyers' },
+          { id: 23, name: 'Pittsburgh Penguins' }, { id: 24, name: 'San Jose Sharks' },
+          { id: 25, name: 'Seattle Kraken' }, { id: 26, name: 'St. Louis Blues' },
+          { id: 27, name: 'Tampa Bay Lightning' }, { id: 28, name: 'Toronto Maple Leafs' },
+          { id: 29, name: 'Utah Hockey Club' }, { id: 30, name: 'Vancouver Canucks' },
+          { id: 31, name: 'Vegas Golden Knights' }, { id: 32, name: 'Washington Capitals' },
           { id: 33, name: 'Winnipeg Jets' },
         ],
       };
@@ -336,21 +181,18 @@
 
       function populateTeamDropdown(sport) {
         const select = document.getElementById('team-select');
-        select.innerHTML = teams[sport].map(t =>
-          `<option value="${t.id}">${t.name}</option>`
-        ).join('');
+        select.innerHTML = teams[sport].map(t => `<option value="${t.id}">${t.name}</option>`).join('');
         currentTeam = teams[sport][0].id.toString();
       }
 
       function showUnavailable(sport) {
         const { icon, name } = unavailableSports[sport];
-        const cardsContainer = document.getElementById('cards-container');
         document.getElementById('table-wrap').style.display = 'none';
         document.getElementById('team-select-wrap').style.display = 'none';
-        cardsContainer.innerHTML = `
+        document.getElementById('cards-container').innerHTML = `
           <div class="unavailable">
             <h4>${icon} ${name} Injury Data Coming Soon</h4>
-            <p>${name} injury data is not currently available through our data provider. Check back soon as we continue to expand our coverage!</p>
+            <p>${name} injury data is not currently available through our data provider.</p>
           </div>
         `;
       }
@@ -364,13 +206,11 @@
         const cardsContainer = document.getElementById('cards-container');
         const tableBody = document.getElementById('injuries-table-body');
         const sportLabel = sport.toUpperCase();
-
         if (!Array.isArray(injuries) || injuries.length === 0) {
           cardsContainer.innerHTML = '<div class="loading" style="grid-column:1/-1;">No injury data found for this team.</div>';
           tableBody.innerHTML = '<tr><td colspan="5" class="loading">No injury data found.</td></tr>';
           return;
         }
-
         cardsContainer.innerHTML = injuries.slice(0, 6).map(item => {
           const player = item.player?.name ?? 'Unknown';
           const team = item.team?.name ?? 'Unknown';
@@ -388,7 +228,6 @@
             </div>
           `;
         }).join('');
-
         tableBody.innerHTML = injuries.map(item => {
           const player = item.player?.name ?? 'Unknown';
           const team = item.team?.name ?? 'Unknown';
@@ -408,23 +247,41 @@
       }
 
       async function fetchInjuries(sport, team) {
-        if (unavailableSports[sport]) {
-          showUnavailable(sport);
-          return;
-        }
-
+        if (unavailableSports[sport]) { showUnavailable(sport); return; }
         showAvailable();
-
         const cacheKey = `${sport}-${team}`;
-        if (cache[cacheKey]) {
-          renderInjuries(cache[cacheKey], sport);
-          return;
-        }
-
-        const cardsContainer = document.getElementById('cards-container');
-        const tableBody = document.getElementById('injuries-table-body');
-        cardsContainer.innerHTML = '<div class="loading">Loading injuries...</div>';
-        tableBody.innerHTML = '<tr><td colspan="5" class="loading">Loading injuries...</td></tr>';
-
+        if (cache[cacheKey]) { renderInjuries(cache[cacheKey], sport); return; }
+        document.getElementById('cards-container').innerHTML = '<div class="loading">Loading injuries...</div>';
+        document.getElementById('injuries-table-body').innerHTML = '<tr><td colspan="5" class="loading">Loading injuries...</td></tr>';
         try {
-          const res = await fetch(`https://better
+          const res = await fetch(`https://better-bookie-five.vercel.app/api/injuries?sport=${sport}&team=${team}`);
+          const data = await res.json();
+          const injuries = data.response ?? [];
+          cache[cacheKey] = injuries;
+          renderInjuries(injuries, sport);
+        } catch (err) {
+          document.getElementById('cards-container').innerHTML = '<div class="loading">Failed to load injury data.</div>';
+          document.getElementById('injuries-table-body').innerHTML = '<tr><td colspan="5" class="loading">Failed to load injury data.</td></tr>';
+        }
+      }
+
+      document.querySelectorAll('.odds-nav button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.odds-nav button').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentSport = btn.dataset.sport;
+          populateTeamDropdown(currentSport);
+          fetchInjuries(currentSport, currentTeam);
+        });
+      });
+
+      document.getElementById('team-select').addEventListener('change', (e) => {
+        currentTeam = e.target.value;
+        fetchInjuries(currentSport, currentTeam);
+      });
+
+      populateTeamDropdown(currentSport);
+      fetchInjuries(currentSport, currentTeam);
+    </script>
+  </body>
+</html>
