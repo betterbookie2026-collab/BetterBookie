@@ -106,6 +106,29 @@
         font-size: 0.9rem;
         padding: 0.5rem;
       }
+      .conference-filter {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        grid-column: 1/-1;
+      }
+      .conf-btn {
+        padding: 0.3rem 0.75rem;
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 20px;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        font-size: 0.8rem;
+        transition: background 0.15s;
+      }
+      .conf-btn:hover { background: rgba(255,255,255,0.1); }
+      .conf-btn.active {
+        background: #fff;
+        color: #000;
+        border-color: #fff;
+      }
       .show-more-wrap {
         grid-column: 1/-1;
         margin-top: 1rem;
@@ -375,6 +398,9 @@
       let allTeams = [];
       let savedPrefs = { sports: [], teams: [] };
 
+      // Store teams per sport for conference filtering
+      const sportTeams = {};
+
       function buildTeamHTML(t) {
         return `
           <label>
@@ -385,6 +411,93 @@
         `;
       }
 
+      function renderConferenceFilter(sport, containerId, teams) {
+        const conferences = ['All', ...new Set(teams.map(t => t.conference).filter(Boolean).sort())];
+        const filterId = `${containerId}-conf-filter`;
+
+        // Insert conference filter buttons before the grid
+        const container = document.getElementById(containerId);
+        let filterDiv = document.getElementById(filterId);
+        if (!filterDiv) {
+          filterDiv = document.createElement('div');
+          filterDiv.className = 'conference-filter';
+          filterDiv.id = filterId;
+          filterDiv.style.gridColumn = '1/-1';
+          container.insertBefore(filterDiv, container.firstChild);
+        }
+
+        filterDiv.innerHTML = conferences.map(c => `
+          <button class="conf-btn ${c === 'All' ? 'active' : ''}" data-conf="${c}">${c}</button>
+        `).join('');
+
+        filterDiv.querySelectorAll('.conf-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            filterDiv.querySelectorAll('.conf-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const selected = btn.dataset.conf;
+            const filtered = selected === 'All' ? teams : teams.filter(t => t.conference === selected);
+            renderCollegeTeams(containerId, filtered, teams);
+          });
+        });
+      }
+
+      function renderCollegeTeams(containerId, teamsToShow, allSportTeams) {
+        const container = document.getElementById(containerId);
+        const filterId = `${containerId}-conf-filter`;
+        const filterEl = document.getElementById(filterId);
+
+        // Remove existing team labels and show-more but keep filter
+        Array.from(container.children).forEach(child => {
+          if (child.id !== filterId) child.remove();
+        });
+
+        const top = teamsToShow.slice(0, TOP_N);
+        const rest = teamsToShow.slice(TOP_N);
+
+        top.forEach(t => {
+          const label = document.createElement('label');
+          label.innerHTML = `
+            <input type="checkbox" value="${t.name}" />
+            <img src="${t.logo}" class="team-logo" alt="${t.name}" onerror="this.style.display='none'" />
+            ${t.name}
+          `;
+          container.appendChild(label);
+          // Restore checked state
+          if (savedPrefs.teams?.includes(t.name)) {
+            label.querySelector('input').checked = true;
+          }
+        });
+
+        if (rest.length > 0) {
+          const showMoreWrap = document.createElement('div');
+          showMoreWrap.className = 'show-more-wrap';
+          showMoreWrap.style.gridColumn = '1/-1';
+          showMoreWrap.innerHTML = `
+            <button class="show-more-btn">+ Show ${rest.length} more teams</button>
+            <div class="extra-teams" id="${containerId}-extra">
+              ${rest.map(buildTeamHTML).join('')}
+            </div>
+          `;
+          container.appendChild(showMoreWrap);
+
+          // Restore checked state in extra teams
+          rest.forEach(t => {
+            if (savedPrefs.teams?.includes(t.name)) {
+              const cb = showMoreWrap.querySelector(`input[value="${t.name}"]`);
+              if (cb) cb.checked = true;
+            }
+          });
+
+          showMoreWrap.querySelector('.show-more-btn').addEventListener('click', (e) => {
+            const btn = e.target;
+            const extra = showMoreWrap.querySelector('.extra-teams');
+            const isHidden = extra.style.display === 'none' || extra.style.display === '';
+            extra.style.display = isHidden ? 'grid' : 'none';
+            btn.textContent = isHidden ? `− Hide extra teams` : `+ Show ${rest.length} more teams`;
+          });
+        }
+      }
+
       async function loadTeams(sport, containerId) {
         try {
           const res = await fetch(`https://better-bookie-five.vercel.app/api/logos?sport=${sport}`);
@@ -392,42 +505,20 @@
           const container = document.getElementById(containerId);
           const isCollege = collegeSports.includes(sport);
 
-          if (isCollege && teams.length > TOP_N) {
-            const topTeams = teams.slice(0, TOP_N);
-            const restTeams = teams.slice(TOP_N);
-
-            container.innerHTML = `
-              ${topTeams.map(buildTeamHTML).join('')}
-              <div class="show-more-wrap" style="grid-column: 1/-1;">
-                <button class="show-more-btn" data-target="${containerId}-extra">
-                  + Show ${restTeams.length} more teams
-                </button>
-                <div class="extra-teams" id="${containerId}-extra">
-                  ${restTeams.map(buildTeamHTML).join('')}
-                </div>
-              </div>
-            `;
-
-            container.querySelector('.show-more-btn').addEventListener('click', (e) => {
-              const btn = e.target;
-              const extra = document.getElementById(btn.dataset.target);
-              const isHidden = extra.style.display === 'none' || extra.style.display === '';
-              extra.style.display = isHidden ? 'grid' : 'none';
-              btn.textContent = isHidden
-                ? `− Hide extra teams`
-                : `+ Show ${restTeams.length} more teams`;
-            });
-
-          } else {
-            container.innerHTML = teams.map(buildTeamHTML).join('');
-          }
-
+          sportTeams[sport] = teams;
           teams.forEach(t => allTeams.push({ ...t, sport: sport.toUpperCase() }));
 
-          savedPrefs.teams.forEach(val => {
-            const cb = document.querySelector(`#${containerId} input[value="${val}"]`);
-            if (cb) cb.checked = true;
-          });
+          if (isCollege) {
+            container.innerHTML = '';
+            renderConferenceFilter(sport, containerId, teams);
+            renderCollegeTeams(containerId, teams, teams);
+          } else {
+            container.innerHTML = teams.map(buildTeamHTML).join('');
+            savedPrefs.teams?.forEach(val => {
+              const cb = document.querySelector(`#${containerId} input[value="${val}"]`);
+              if (cb) cb.checked = true;
+            });
+          }
 
         } catch (err) {
           document.getElementById(containerId).innerHTML = '<p class="loading-teams">Failed to load teams.</p>';
@@ -467,7 +558,7 @@
                 ${t.name}
                 ${nickname ? `<span class="team-nickname">(${nickname})</span>` : ''}
               </span>
-              <span class="sport-tag">${t.sport}</span>
+              <span class="sport-tag">${t.sport}${t.conference ? ` · ${t.conference}` : ''}</span>
             </label>
           `;
         }).join('');
