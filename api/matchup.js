@@ -52,84 +52,113 @@ function extractScore(s) {
   return null;
 }
 
+// Walks back in time chunk-by-chunk fetching seasons in parallel within each
+// chunk; stops as soon as a full chunk returns zero games. This lets us claim
+// "100 seasons back" without burning API quota on years that have no data.
+async function fetchSeasonsUntilEmpty(fetchOneSeason, currentYear, maxYearsBack = 100, chunkSize = 5) {
+  const allGames = [];
+  for (let offset = 0; offset < maxYearsBack; offset += chunkSize) {
+    const seasons = Array.from({ length: chunkSize }, (_, j) => currentYear - offset - j)
+      .filter(y => y > currentYear - maxYearsBack);
+    if (!seasons.length) break;
+    const chunks = await Promise.all(seasons.map(fetchOneSeason));
+    const chunkGames = chunks.flat();
+    allGames.push(...chunkGames);
+    if (chunkGames.length === 0) break;
+  }
+  return allGames;
+}
+
 async function loadProMatchup(sport, team1, team2, res) {
   const cfg = PRO_HOSTS[sport];
-  // api-sports' h2h endpoint requires a `season` param; without it the response
-  // is empty for sports not currently in-season. We iterate the last 10 seasons
-  // in parallel and merge so the result is genuinely "lifetime" (within the
-  // window the free tier allows). Cache aggressively.
   const currentYear = new Date().getFullYear();
-  const seasons = Array.from({ length: 11 }, (_, i) => currentYear - i);
-
+  const fetchSeason = (year) => {
+    const url = `${cfg.base}/games?h2h=${team1}-${team2}&league=${cfg.league}&season=${year}`;
+    return fetch(url, { headers: { 'x-apisports-key': process.env.APISPORTS_KEY } })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => d?.response ?? [])
+      .catch(() => []);
+  };
   try {
-    const perSeason = await Promise.all(seasons.map(async year => {
-      const url = `${cfg.base}/games?h2h=${team1}-${team2}&league=${cfg.league}&season=${year}`;
-      try {
-        const r = await fetch(url, { headers: { 'x-apisports-key': process.env.APISPORTS_KEY } });
-        if (!r.ok) return [];
-        const data = await r.json();
-        return data?.response ?? [];
-      } catch { return []; }
-    }));
-    const games = perSeason.flat().map(g => normalize(g, sport));
-    res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=86400');
+    const raw = await fetchSeasonsUntilEmpty(fetchSeason, currentYear, 100, 5);
+    const games = raw.map(g => normalize(g, sport));
+    res.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate=604800');
     res.status(200).json({ games });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 }
 
-// ESPN doesn't expose a head-to-head endpoint for college sports, so we walk each
-// season's team schedule and keep games where the opponent matches team2.
+// ESPN doesn't expose a head-to-head endpoint for college sports, so we walk
+// each season's team schedule. Like the pro path, we walk back in chunks and
+// stop once a chunk returns zero events for team1 — that signals ESPN doesn't
+// have schedule data that far back for this team.
 async function loadCollegeMatchup(sport, team1, team2, res) {
   const cfg = COLLEGE_HOSTS[sport];
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: cfg.yearsBack + 1 }, (_, i) => currentYear - i);
+  const t2Id = String(team2);
+
+  const fetchSeason = async (year) => {
+    const url = `https://site.api.espn.com/apis/site/v2/sports/${cfg.sport}/${cfg.league}/teams/${team1}/schedule?season=${year}`;
+    try {
+      const r = await fetch(url);
+      if (!r.ok) return null; // null distinguishes "no schedule for this year" from "team1 played 0 games vs team2"
+      const data = await r.json();
+      return data?.events ?? [];
+    } catch { return null; }
+  };
 
   try {
-    const perYear = await Promise.all(years.map(async year => {
-      const url = `https://site.api.espn.com/apis/site/v2/sports/${cfg.sport}/${cfg.league}/teams/${team1}/schedule?season=${year}`;
-      try {
-        const r = await fetch(url);
-        if (!r.ok) return [];
-        const data = await r.json();
-        return data?.events ?? [];
-      } catch { return []; }
-    }));
+    const allEvents = [];
+    const chunkSize = 5;
+    const maxYearsBack = 100;
+    let consecutiveEmptyChunks = 0;
+    for (let offset = 0; offset < maxYearsBack; offset += chunkSize) {
+      const seasons = Array.from({ length: chunkSize }, (_, j) => currentYear - offset - j);
+      const chunks = await Promise.all(seasons.map(fetchSeason));
+      // If every season in the chunk returned null (404 / no schedule data),
+      // we've walked past ESPN's coverage for this team — stop.
+      const allNull = chunks.every(c => c === null);
+      if (allNull) break;
+      // Pull non-null events out (a year with empty events[] is still a valid
+      // "team didn't play team2 that year" result, not a coverage boundary).
+      chunks.forEach(c => { if (Array.isArray(c)) allEvents.push(...c); });
+      // Secondary safety: stop after 2 consecutive chunks with zero events.
+      const chunkEventCount = chunks.reduce((s, c) => s + (Array.isArray(c) ? c.length : 0), 0);
+      consecutiveEmptyChunks = chunkEventCount === 0 ? consecutiveEmptyChunks + 1 : 0;
+      if (consecutiveEmptyChunks >= 2) break;
+    }
 
     const games = [];
-    const t2Id = String(team2);
-    for (const events of perYear) {
-      for (const ev of events) {
-        const comp = ev.competitions?.[0];
-        const competitors = comp?.competitors ?? [];
-        const opponent = competitors.find(c => String(c.id) === t2Id);
-        if (!opponent) continue;
-        const completed = comp?.status?.type?.completed === true;
-        const home = competitors.find(c => c.homeAway === 'home') ?? competitors[0];
-        const away = competitors.find(c => c.homeAway === 'away') ?? competitors[1];
-        games.push({
-          id: ev.id ?? null,
-          date: ev.date ?? null,
-          season: ev.season?.year ?? null,
-          status: comp?.status?.type?.name ?? null,
-          completed,
-          home: {
-            id: home?.id ?? null,
-            name: home?.team?.displayName ?? home?.team?.name ?? null,
-            score: extractScore(home?.score),
-          },
-          away: {
-            id: away?.id ?? null,
-            name: away?.team?.displayName ?? away?.team?.name ?? null,
-            score: extractScore(away?.score),
-          },
-        });
-      }
+    for (const ev of allEvents) {
+      const comp = ev.competitions?.[0];
+      const competitors = comp?.competitors ?? [];
+      const opponent = competitors.find(c => String(c.id) === t2Id);
+      if (!opponent) continue;
+      const completed = comp?.status?.type?.completed === true;
+      const home = competitors.find(c => c.homeAway === 'home') ?? competitors[0];
+      const away = competitors.find(c => c.homeAway === 'away') ?? competitors[1];
+      games.push({
+        id: ev.id ?? null,
+        date: ev.date ?? null,
+        season: ev.season?.year ?? null,
+        status: comp?.status?.type?.name ?? null,
+        completed,
+        home: {
+          id: home?.id ?? null,
+          name: home?.team?.displayName ?? home?.team?.name ?? null,
+          score: extractScore(home?.score),
+        },
+        away: {
+          id: away?.id ?? null,
+          name: away?.team?.displayName ?? away?.team?.name ?? null,
+          score: extractScore(away?.score),
+        },
+      });
     }
 
     res.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate=604800');
-    res.status(200).json({ games, coverageYears: cfg.yearsBack + 1 });
+    res.status(200).json({ games });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

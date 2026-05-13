@@ -447,11 +447,16 @@
           ? `<button class="show-more-btn" id="show-all-meetings">Show all ${sorted.length} meetings</button>`
           : '';
 
-        const coverageNote = COLLEGE_SPORTS.has(currentSport)
-          ? `<p style="text-align:center;opacity:0.5;font-size:0.78rem;margin:-0.75rem 0 1rem;">Coverage: last 15 completed seasons</p>`
+        // Derive the actual season span from the games we got back, since the
+        // handler walks back until ESPN/api-sports stops returning data.
+        const seasonsSeen = games.map(g => g.season).filter(s => typeof s === 'number');
+        const oldestSeason = seasonsSeen.length ? Math.min(...seasonsSeen) : null;
+        const newestSeason = seasonsSeen.length ? Math.max(...seasonsSeen) : null;
+        const coverageNote = oldestSeason != null
+          ? `<p style="text-align:center;opacity:0.5;font-size:0.78rem;margin:-0.75rem 0 1rem;">Coverage: ${oldestSeason}–${newestSeason} (${newestSeason - oldestSeason + 1} seasons)</p>`
           : '';
         root.innerHTML = `
-          <div class="record-headline">${leaderHTML} ${COLLEGE_SPORTS.has(currentSport) ? 'in recent seasons' : 'all-time'}</div>
+          <div class="record-headline">${leaderHTML} all-time</div>
           ${coverageNote}
           <div class="stat-grid">${statCards.join('')}</div>
           <div class="section-title">Last ${Math.min(10, sorted.length)} meetings</div>
