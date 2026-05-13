@@ -36,6 +36,22 @@
       .odds-card h4 { margin: 0 0 0.75rem; font-size: 1rem; }
       .odds-card p { margin: 0.25rem 0; font-size: 0.9rem; opacity: 0.8; }
       .team-row { display: flex; align-items: center; gap: 0.5rem; margin: 0.4rem 0; font-size: 0.9rem; }
+      .expand-btn { display: inline-block; margin: 0.4rem 0.3rem 0 0; padding: 0.3rem 0.7rem; border: 1px solid rgba(255,255,255,0.2); background: transparent; cursor: pointer; font-size: 0.78rem; border-radius: 4px; color: inherit; opacity: 0.8; font-family: inherit; }
+      .expand-btn:hover { opacity: 1; background: rgba(255,255,255,0.05); }
+      .expand-panel { display: none; margin-top: 0.6rem; padding: 0.6rem 0.8rem; background: rgba(255,255,255,0.03); border-radius: 6px; border: 1px solid rgba(255,255,255,0.06); font-size: 0.82rem; }
+      .expand-panel.open { display: block; }
+      .compare-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+      .compare-table th, .compare-table td { text-align: left; padding: 0.3rem 0.45rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+      .compare-table td.num { font-variant-numeric: tabular-nums; }
+      .compare-table td.best { color: #ffd93d; font-weight: 600; }
+      .compare-table th { font-weight: 600; opacity: 0.55; text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.05em; border-bottom: 1px solid rgba(255,255,255,0.12); }
+      .props-section { margin: 0.5rem 0 0.75rem; }
+      .props-section h5 { margin: 0 0 0.3rem; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.65; }
+      .props-row { display: grid; grid-template-columns: 1fr auto auto auto; gap: 0.5rem; align-items: center; padding: 0.2rem 0; font-size: 0.78rem; }
+      .props-row .player { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .props-row .pt { opacity: 0.55; font-size: 0.72rem; }
+      .props-row .ou { font-variant-numeric: tabular-nums; font-weight: 600; }
+      .props-empty { opacity: 0.55; font-size: 0.78rem; padding: 0.4rem 0; }
       .team-logo { width: 24px; height: 24px; object-fit: contain; flex-shrink: 0; }
       .odds-table-wrap { padding: 1rem 2rem 3rem; overflow-x: auto; }
       table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
@@ -265,6 +281,109 @@
         });
       }
 
+      // Lazy-loads player props for a single game on first expand. Picks the
+      // best Over/Under price across every book and groups by market.
+      const propsCache = {};
+      async function loadPlayerProps(panel, eventId, sport) {
+        panel.innerHTML = '<div class="props-empty">⏳ Loading player props…</div>';
+        const cacheKey = `${sport}|${eventId}`;
+        let data = propsCache[cacheKey];
+        if (!data) {
+          try {
+            const r = await fetch(`${VERCEL_WX ?? 'https://better-bookie-five.vercel.app'}/api/player-props?sport=${encodeURIComponent(sport)}&eventId=${encodeURIComponent(eventId)}`);
+            data = await r.json();
+            propsCache[cacheKey] = data;
+          } catch {
+            panel.innerHTML = '<div class="props-empty">Failed to load player props.</div>';
+            return;
+          }
+        }
+        if (data?.error) {
+          panel.innerHTML = `<div class="props-empty">No player props available for this game yet.</div>`;
+          return;
+        }
+
+        // Flatten: { marketKey: { marketName, players: { name: { over: {price, book, point}, under: {...} } } } }
+        const byMarket = {};
+        for (const bm of (data.bookmakers ?? [])) {
+          for (const market of (bm.markets ?? [])) {
+            if (!byMarket[market.key]) byMarket[market.key] = { name: market.key, players: {} };
+            for (const out of (market.outcomes ?? [])) {
+              const playerName = out.description ?? out.name;
+              if (!playerName) continue;
+              const side = (out.name ?? '').toLowerCase().includes('over') ? 'over'
+                         : (out.name ?? '').toLowerCase().includes('under') ? 'under'
+                         : 'yes';
+              const players = byMarket[market.key].players;
+              if (!players[playerName]) players[playerName] = {};
+              const slot = players[playerName][side];
+              const mult = toMultiplier(out.price);
+              if (!slot || mult > slot._mult) {
+                players[playerName][side] = { price: out.price, book: bm.title, point: out.point, _mult: mult };
+              }
+            }
+          }
+        }
+        const marketLabels = {
+          player_pass_yds: 'Passing Yards', player_pass_tds: 'Passing TDs',
+          player_rush_yds: 'Rushing Yards', player_receptions: 'Receptions',
+          player_reception_yds: 'Receiving Yards', player_anytime_td: 'Anytime TD',
+          player_points: 'Points', player_rebounds: 'Rebounds', player_assists: 'Assists',
+          player_threes: '3-Pointers Made', player_blocks: 'Blocks', player_steals: 'Steals',
+          batter_hits: 'Hits', batter_total_bases: 'Total Bases', batter_home_runs: 'Home Runs',
+          pitcher_strikeouts: 'Strikeouts', batter_rbis: 'RBIs',
+          player_goals: 'Goals', player_shots_on_goal: 'Shots on Goal',
+        };
+
+        const sections = Object.entries(byMarket).map(([key, m]) => {
+          const players = Object.entries(m.players).slice(0, 8); // top 8 per market
+          if (!players.length) return '';
+          const label = marketLabels[key] ?? key;
+          return `
+            <div class="props-section">
+              <h5>${label}</h5>
+              ${players.map(([name, p]) => {
+                const over = p.over;
+                const under = p.under;
+                const yes = p.yes;
+                if (yes) {
+                  return `<div class="props-row"><span class="player">${name}</span><span class="pt"></span><span class="ou">${fmtPrice(yes.price)}</span><span class="pt">★ ${yes.book}</span></div>`;
+                }
+                const point = over?.point ?? under?.point;
+                return `
+                  <div class="props-row">
+                    <span class="player">${name}</span>
+                    <span class="pt">${point != null ? 'O/U ' + point : ''}</span>
+                    <span class="ou">${over ? 'O ' + fmtPrice(over.price) : '—'} / ${under ? 'U ' + fmtPrice(under.price) : '—'}</span>
+                    <span class="pt">${over?.book ? '★ ' + over.book : ''}</span>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          `;
+        }).filter(Boolean).join('');
+
+        panel.innerHTML = sections || '<div class="props-empty">No player props available for this game yet.</div>';
+      }
+
+      // Click handler for the ▾ Compare all books / ▾ Player props buttons.
+      function wireExpanders(root) {
+        root.querySelectorAll('.expand-btn').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const card = btn.closest('.odds-card');
+            const which = btn.dataset.toggle;
+            const panel = card.querySelector(`.expand-panel[data-panel="${which}"]`);
+            if (!panel) return;
+            const isOpen = panel.classList.toggle('open');
+            btn.textContent = (isOpen ? '▴ ' : '▾ ') + btn.textContent.replace(/^[▾▴]\s*/, '');
+            if (isOpen && which === 'props' && panel.dataset.loaded === 'false') {
+              panel.dataset.loaded = 'true';
+              await loadPlayerProps(panel, card.dataset.eventId, card.dataset.sportKey);
+            }
+          });
+        });
+      }
+
       let currentSport = 'americanfootball_nfl';
 
       async function fetchOdds(sport) {
@@ -309,6 +428,32 @@
           };
           const fmtPrice = p => (p > 0 ? `+${p}` : `${p}`);
 
+          // Build the cross-book comparison table inline (no extra API call —
+          // /api/odds already returns every bookmaker we'll show here).
+          const compareTable = (game, home, away) => {
+            const rows = (game.bookmakers ?? []).map(bm => {
+              const m = bm.markets?.find(m => m.key === 'h2h');
+              const h = m?.outcomes?.find(o => o.name === home)?.price;
+              const a = m?.outcomes?.find(o => o.name === away)?.price;
+              return { book: bm.title, home: h, away: a };
+            }).filter(r => r.home != null && r.away != null);
+            if (!rows.length) return '<div class="props-empty">No books to compare.</div>';
+            const bestHomeMult = Math.max(...rows.map(r => toMultiplier(r.home)));
+            const bestAwayMult = Math.max(...rows.map(r => toMultiplier(r.away)));
+            return `
+              <table class="compare-table">
+                <thead><tr><th>Book</th><th>${home}</th><th>${away}</th></tr></thead>
+                <tbody>${rows.map(r => `
+                  <tr>
+                    <td>${r.book}</td>
+                    <td class="num${toMultiplier(r.home) === bestHomeMult ? ' best' : ''}">${fmtPrice(r.home)}</td>
+                    <td class="num${toMultiplier(r.away) === bestAwayMult ? ' best' : ''}">${fmtPrice(r.away)}</td>
+                  </tr>
+                `).join('')}</tbody>
+              </table>
+            `;
+          };
+
           cardsContainer.innerHTML = data.slice(0, 6).map(game => {
             const home = game.home_team;
             const away = game.away_team;
@@ -329,7 +474,7 @@
               `;
             };
             return `
-              <div class="odds-card">
+              <div class="odds-card" data-event-id="${game.id}" data-sport-key="${sport}">
                 <span class="sport-label">${sportLabel}</span>
                 <h4>${logoImg(home)} ${home} vs ${logoImg(away)} ${away}</h4>
                 <p>📅 ${date}</p>
@@ -337,10 +482,17 @@
                 ${sideRow(away, awayBest)}
                 <p class="weather-line" data-home="${home}" data-at="${game.commence_time}" style="opacity:0.55;font-size:0.78rem;margin:0.4rem 0 0.2rem;"></p>
                 <p style="opacity:0.5;font-size:0.8rem;margin-top:0.5rem;">★ best price across ${numBooks} book${numBooks === 1 ? '' : 's'}</p>
+                <div>
+                  <button class="expand-btn" data-toggle="compare">▾ Compare all books</button>
+                  <button class="expand-btn" data-toggle="props">▾ Player props</button>
+                </div>
+                <div class="expand-panel" data-panel="compare">${compareTable(game, home, away)}</div>
+                <div class="expand-panel" data-panel="props" data-loaded="false"></div>
               </div>
             `;
           }).join('');
           populateWeatherLines(cardsContainer);
+          wireExpanders(cardsContainer);
           tableBody.innerHTML = data.map(game => {
             const home = game.home_team;
             const away = game.away_team;
