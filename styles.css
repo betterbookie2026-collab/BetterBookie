@@ -8,6 +8,24 @@ html {
   box-sizing: border-box;
 }
 
+/* Standard dropdown styling — matches the injury report team picker.
+   Site-wide default; pages can extend with per-element overrides
+   (e.g. min-width) but should not redefine the base look. */
+select {
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  border-radius: 4px;
+  border: 2px solid currentColor;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-family: inherit;
+}
+select option {
+  background: #1a1a2e;
+  color: #fff;
+}
+
 body {
   font-family: Arial, sans-serif;
   color: #1f2937;
