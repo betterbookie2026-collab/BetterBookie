@@ -41,6 +41,14 @@
       .no-favorites { text-align: center; padding: 3rem; opacity: 0.6; }
       .no-favorites a { color: inherit; text-decoration: underline; }
       .section-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.5; margin: 2rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+      .feed-card.fav { box-shadow: inset 0 0 0 1px rgba(255, 215, 0, 0.35); }
+      .feed-card.fav .fav-star { position: absolute; top: 0.5rem; right: 0.6rem; font-size: 0.8rem; opacity: 0.85; }
+      .feed-card { position: relative; }
+      .other-divider { grid-column: 1 / -1; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.45; margin: 0.5rem 0 0; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.08); }
+      .fav-row td:first-child::before { content: '⭐ '; font-size: 0.75rem; opacity: 0.8; }
+      .load-more-btn { display: inline-block; margin: 0.5rem 0 1.5rem; padding: 0.5rem 1rem; background: transparent; border: 1px solid rgba(255,255,255,0.25); border-radius: 6px; color: inherit; cursor: pointer; font-size: 0.85rem; opacity: 0.8; }
+      .load-more-btn:hover { opacity: 1; background: rgba(255,255,255,0.05); }
+      .load-more-btn:disabled { opacity: 0.4; cursor: default; }
       .signout-btn { padding: 0.4rem 1rem; background: transparent; border: 1px solid rgba(255,255,255,0.3); border-radius: 4px; color: inherit; cursor: pointer; font-size: 0.8rem; }
       .nav-dropdown { position: relative; display: inline-block; }
       .nav-dropdown-btn { background: transparent; border: none; color: inherit; cursor: pointer; font-size: 1rem; padding: 0; font-family: inherit; }
@@ -60,8 +68,13 @@
         <div class="nav-links" id="nav-links">
           <a href="index.html#features">Features</a>
           <a href="scores.html">Scores</a>
+          <a href="schedule.html">Schedule</a>
           <a href="odds.html">Live Odds</a>
           <a href="injuries.html">Injuries</a>
+          <a href="matchups.html">Matchups</a>
+          <a href="standings.html">Standings</a>
+          <a href="leaders.html">Leaders</a>
+          <a href="news.html">News</a>
           <a href="dashboard.html">Dashboard</a>
           <div class="nav-dropdown" id="nav-settings-dropdown">
             <button class="nav-dropdown-btn" onclick="document.getElementById('nav-settings-dropdown').classList.toggle('open')">Settings ▾</button>
@@ -160,6 +173,7 @@
     </footer>
 
     <script src="script.js"></script>
+    <script src="stadium-coords.js"></script>
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
       import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -206,6 +220,48 @@
 
       function logoImg(url, name, size = 20) {
         return url ? `<img src="${url}" class="team-logo-sm" style="width:${size}px;height:${size}px;" alt="${name}" onerror="this.style.display='none'">` : '';
+      }
+
+      const weatherCache = {};
+      function fetchWeather(kind, coords, isoOrYmd) {
+        const key = `${kind}|${coords.lat},${coords.lon}|${isoOrYmd}`;
+        if (weatherCache[key]) return weatherCache[key];
+        const url = kind === 'hist'
+          ? `${VERCEL}/api/weather-history?lat=${coords.lat}&lon=${coords.lon}&date=${isoOrYmd}`
+          : `${VERCEL}/api/weather?lat=${coords.lat}&lon=${coords.lon}` + (isoOrYmd ? `&at=${encodeURIComponent(isoOrYmd)}` : '');
+        const p = fetch(url).then(r => r.ok ? r.json() : null).catch(() => null);
+        weatherCache[key] = p;
+        return p;
+      }
+      function populateWeatherLines(root) {
+        root.querySelectorAll('.weather-line').forEach(el => {
+          const homeName = el.dataset.home;
+          const atIso = el.dataset.at;
+          const isFinal = el.dataset.final === 'true';
+          const coords = window.STADIUM_COORDS?.[homeName];
+          if (!coords) return;
+          if (coords.roof === 'dome') { el.textContent = '🏟️ Indoor venue'; return; }
+          const roofNote = coords.roof === 'retractable' ? ' · retractable roof' : '';
+          el.textContent = '⏳ Loading weather…';
+          if (isFinal && atIso) {
+            const ymd = new Date(atIso).toISOString().slice(0, 10);
+            fetchWeather('hist', coords, ymd).then(data => {
+              if (!data || data.error) { el.textContent = ''; return; }
+              const parts = [];
+              if (data.tmax != null) parts.push(`H ${Math.round(data.tmax)}°F`);
+              if (data.tmin != null) parts.push(`L ${Math.round(data.tmin)}°F`);
+              if (data.prcp != null && data.prcp > 0) parts.push(`${data.prcp}" rain`);
+              if (data.snow != null && data.snow > 0) parts.push(`${data.snow}" snow`);
+              el.textContent = parts.length ? `📊 ${parts.join(' · ')}${roofNote}` : '';
+            });
+          } else {
+            fetchWeather('fc', coords, atIso).then(data => {
+              const p = data?.period;
+              if (!p) { el.textContent = ''; return; }
+              el.textContent = `🌤️ ${p.temperature}°${p.temperatureUnit} · ${p.shortForecast} · ${p.windSpeed} ${p.windDirection}${roofNote}`;
+            });
+          }
+        });
       }
 
       function getStatusClass(status) {
@@ -255,15 +311,16 @@
             if (Array.isArray(data)) allGames.push(...data);
           } catch {}
         }));
-        const favGames = allGames.filter(g => favTeams.includes(g.home_team) || favTeams.includes(g.away_team));
+        const isFav = g => favTeams.includes(g.home_team) || favTeams.includes(g.away_team);
+        const favGames = allGames.filter(isFav);
+        const otherGames = allGames.filter(g => !isFav(g));
         document.getElementById('odds-loading').style.display = 'none';
-        if (favGames.length === 0) {
-          document.getElementById('odds-cards').innerHTML = `<div class="no-favorites" style="grid-column:1/-1;">No odds found for your favorite teams right now. <a href="settings.html">Update your teams</a></div>`;
+        if (favGames.length === 0 && otherGames.length === 0) {
+          document.getElementById('odds-cards').innerHTML = `<div class="no-favorites" style="grid-column:1/-1;">No odds available right now. <a href="settings.html">Update your teams</a></div>`;
           document.getElementById('odds-cards').style.display = 'grid';
           return;
         }
-        document.getElementById('odds-cards').style.display = 'grid';
-        document.getElementById('odds-cards').innerHTML = favGames.slice(0, 6).map(game => {
+        const oddsCard = (game, fav) => {
           const home = game.home_team;
           const away = game.away_team;
           const bookmaker = game.bookmakers?.[0];
@@ -273,19 +330,26 @@
           const date = new Date(game.commence_time).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
           const sportLabel = game.sport_key?.includes('nfl') ? 'NFL' : game.sport_key?.includes('nba') ? 'NBA' : 'MLB';
           return `
-            <div class="feed-card">
+            <div class="feed-card${fav ? ' fav' : ''}">
+              ${fav ? '<span class="fav-star">⭐</span>' : ''}
               <span class="sport-label">${sportLabel}</span>
               <h4>${logoImg(allLogoMap[home], home)}${home} vs ${logoImg(allLogoMap[away], away)}${away}</h4>
               <p>📅 ${date}</p>
               <p>${logoImg(allLogoMap[home], home)}${home}: <strong>${homeOdds > 0 ? '+' : ''}${homeOdds}</strong></p>
               <p>${logoImg(allLogoMap[away], away)}${away}: <strong>${awayOdds > 0 ? '+' : ''}${awayOdds}</strong></p>
+              <p class="weather-line" data-home="${home}" data-at="${game.commence_time}" style="opacity:0.55;font-size:0.78rem;margin:0.4rem 0 0.2rem;"></p>
               <p style="opacity:0.4;font-size:0.8rem;">via ${bookmaker?.title ?? 'N/A'}</p>
             </div>
           `;
-        }).join('');
-        document.getElementById('odds-table-title').style.display = 'block';
-        document.getElementById('odds-table-wrap').style.display = 'block';
-        document.getElementById('odds-table-body').innerHTML = favGames.map(game => {
+        };
+        const otherSlice = otherGames.slice(0, 6);
+        document.getElementById('odds-cards').style.display = 'grid';
+        document.getElementById('odds-cards').innerHTML =
+          favGames.slice(0, 6).map(g => oddsCard(g, true)).join('') +
+          (otherSlice.length ? '<div class="other-divider">Other Games</div>' : '') +
+          otherSlice.map(g => oddsCard(g, false)).join('');
+        populateWeatherLines(document.getElementById('odds-cards'));
+        const oddsRow = (game, fav) => {
           const home = game.home_team;
           const away = game.away_team;
           const bookmaker = game.bookmakers?.[0];
@@ -294,7 +358,7 @@
           const awayOdds = market?.outcomes?.find(o => o.name === away)?.price ?? 'N/A';
           const date = new Date(game.commence_time).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
           return `
-            <tr>
+            <tr${fav ? ' class="fav-row"' : ''}>
               <td><div class="td-team">${logoImg(allLogoMap[home], home)}${home}</div></td>
               <td><div class="td-team">${logoImg(allLogoMap[away], away)}${away}</div></td>
               <td>${homeOdds > 0 ? '+' : ''}${homeOdds}</td>
@@ -302,7 +366,12 @@
               <td>${date}</td>
             </tr>
           `;
-        }).join('');
+        };
+        document.getElementById('odds-table-title').style.display = 'block';
+        document.getElementById('odds-table-wrap').style.display = 'block';
+        document.getElementById('odds-table-body').innerHTML =
+          favGames.map(g => oddsRow(g, true)).join('') +
+          otherGames.map(g => oddsRow(g, false)).join('');
       }
 
       async function loadInjuries(favTeams, allLogoMap) {
@@ -321,30 +390,28 @@
           'San Francisco 49ers': 31, 'Arizona Cardinals': 32,
         };
         const favNFLTeams = favTeams.filter(t => nflTeamIds[t]);
-        let allInjuries = [];
-        await Promise.all(favNFLTeams.map(async team => {
-          const id = nflTeamIds[team];
-          try {
-            const res = await fetch(`${VERCEL}/api/injuries?sport=nfl&team=${id}`);
-            const data = await res.json();
-            if (data.response) allInjuries.push(...data.response);
-          } catch {}
-        }));
-        document.getElementById('injuries-loading').style.display = 'none';
-        if (allInjuries.length === 0) {
-          document.getElementById('injuries-cards').innerHTML = `<div class="no-favorites" style="grid-column:1/-1;">No injury data found for your favorite NFL teams right now. <a href="settings.html">Update your teams</a></div>`;
-          document.getElementById('injuries-cards').style.display = 'grid';
-          return;
-        }
-        document.getElementById('injuries-cards').style.display = 'grid';
-        document.getElementById('injuries-cards').innerHTML = allInjuries.slice(0, 6).map(item => {
+        const otherNFLTeams = Object.keys(nflTeamIds).filter(t => !favTeams.includes(t));
+        const fetchInjuriesForTeams = async (teams) => {
+          const results = [];
+          await Promise.all(teams.map(async team => {
+            const id = nflTeamIds[team];
+            try {
+              const res = await fetch(`${VERCEL}/api/injuries?sport=nfl&team=${id}`);
+              const data = await res.json();
+              if (data.response) results.push(...data.response);
+            } catch {}
+          }));
+          return results;
+        };
+        const injuryCard = (item, fav) => {
           const player = item.player?.name ?? 'Unknown';
           const team = item.team?.name ?? 'Unknown';
           const status = item.status ?? 'N/A';
           const description = item.description ?? 'N/A';
           const date = item.date ? new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
           return `
-            <div class="feed-card">
+            <div class="feed-card${fav ? ' fav' : ''}">
+              ${fav ? '<span class="fav-star">⭐</span>' : ''}
               <span class="sport-label">NFL</span>
               <h4>${logoImg(allLogoMap[team], team)}${player}</h4>
               <p>🏟️ ${team}</p>
@@ -353,51 +420,109 @@
               <p>Status: <strong class="${getStatusClass(status)}">${status}</strong></p>
             </div>
           `;
-        }).join('');
-        document.getElementById('injuries-table-title').style.display = 'block';
-        document.getElementById('injuries-table-wrap').style.display = 'block';
-        document.getElementById('injuries-table-body').innerHTML = allInjuries.map(item => {
+        };
+        const injuryRow = (item, fav) => {
           const player = item.player?.name ?? 'Unknown';
           const team = item.team?.name ?? 'Unknown';
           const status = item.status ?? 'N/A';
           const description = item.description ?? 'N/A';
           return `
-            <tr>
+            <tr${fav ? ' class="fav-row"' : ''}>
               <td>${player}</td>
               <td><div class="td-team">${logoImg(allLogoMap[team], team)}${team}</div></td>
               <td>${description}</td>
               <td class="${getStatusClass(status)}">${status}</td>
             </tr>
           `;
-        }).join('');
+        };
+
+        const favInjuries = await fetchInjuriesForTeams(favNFLTeams);
+        document.getElementById('injuries-loading').style.display = 'none';
+        const cardsEl = document.getElementById('injuries-cards');
+        const tableBodyEl = document.getElementById('injuries-table-body');
+        cardsEl.style.display = 'grid';
+        document.getElementById('injuries-table-title').style.display = 'block';
+        document.getElementById('injuries-table-wrap').style.display = 'block';
+
+        cardsEl.innerHTML = favInjuries.length
+          ? favInjuries.slice(0, 6).map(i => injuryCard(i, true)).join('')
+          : `<div class="no-favorites" style="grid-column:1/-1;">No injury data for your favorite NFL teams right now.</div>`;
+        tableBodyEl.innerHTML = favInjuries.map(i => injuryRow(i, true)).join('');
+
+        // "Load more" button to fetch injuries from non-favorite NFL teams on demand.
+        if (otherNFLTeams.length > 0) {
+          const btn = document.createElement('button');
+          btn.className = 'load-more-btn';
+          btn.textContent = `Show injuries from other NFL teams (${otherNFLTeams.length} teams)`;
+          btn.addEventListener('click', async () => {
+            btn.disabled = true;
+            btn.textContent = 'Loading…';
+            const otherInjuries = await fetchInjuriesForTeams(otherNFLTeams);
+            if (otherInjuries.length === 0) {
+              btn.textContent = 'No additional injuries found';
+              return;
+            }
+            cardsEl.insertAdjacentHTML('beforeend',
+              '<div class="other-divider">Other Teams</div>' +
+              otherInjuries.slice(0, 12).map(i => injuryCard(i, false)).join('')
+            );
+            tableBodyEl.insertAdjacentHTML('beforeend',
+              otherInjuries.map(i => injuryRow(i, false)).join('')
+            );
+            btn.remove();
+          });
+          cardsEl.insertAdjacentElement('afterend', btn);
+        }
       }
 
       async function loadScores(favTeams, allLogoMap) {
         renderMyTeamsBar('scores-teams-bar', 'scores-teams-chips', favTeams, allLogoMap);
         const sports = ['nfl', 'nba', 'mlb', 'nhl'];
+        const adaptEspnEvent = (event, sport) => {
+          const comp = event.competitions?.[0];
+          const competitors = comp?.competitors ?? [];
+          const homeC = competitors.find(c => c.homeAway === 'home');
+          const awayC = competitors.find(c => c.homeAway === 'away');
+          const t = comp?.status?.type;
+          const label = t?.name === 'STATUS_FINAL' ? 'Final'
+                      : t?.name === 'STATUS_IN_PROGRESS' ? (t?.detail || 'In Progress')
+                      : (t?.shortDetail || t?.detail || 'Scheduled');
+          return {
+            teams: {
+              home: { name: homeC?.team?.displayName ?? homeC?.team?.name ?? 'Home' },
+              away: { name: awayC?.team?.displayName ?? awayC?.team?.name ?? 'Away' },
+            },
+            scores: {
+              home: { total: homeC?.score ?? '-' },
+              away: { total: awayC?.score ?? '-' },
+            },
+            status: { long: label, short: t?.shortDetail ?? '' },
+            date: event.date,
+            _sport: sport.toUpperCase(),
+          };
+        };
         let allGames = [];
         await Promise.all(sports.map(async sport => {
           try {
-            const res = await fetch(`${VERCEL}/api/scores?sport=${sport}`);
+            const res = await fetch(`${VERCEL}/api/espn-scores?sport=${sport}`);
             const data = await res.json();
-            if (data.response) {
-              data.response.forEach(g => { g._sport = sport.toUpperCase(); allGames.push(g); });
-            }
+            (data?.events ?? []).forEach(ev => allGames.push(adaptEspnEvent(ev, sport)));
           } catch {}
         }));
-        const favGames = allGames.filter(g => {
+        const isFav = g => {
           const home = g.teams?.home?.name ?? '';
           const away = g.teams?.away?.name ?? '';
           return favTeams.includes(home) || favTeams.includes(away);
-        });
+        };
+        const favGames = allGames.filter(isFav);
+        const otherGames = allGames.filter(g => !isFav(g));
         document.getElementById('scores-loading').style.display = 'none';
-        if (favGames.length === 0) {
-          document.getElementById('scores-cards').innerHTML = `<div class="no-favorites" style="grid-column:1/-1;">No scores found for your favorite teams right now. <a href="settings.html">Update your teams</a></div>`;
+        if (favGames.length === 0 && otherGames.length === 0) {
+          document.getElementById('scores-cards').innerHTML = `<div class="no-favorites" style="grid-column:1/-1;">No scores available right now. <a href="settings.html">Update your teams</a></div>`;
           document.getElementById('scores-cards').style.display = 'grid';
           return;
         }
-        document.getElementById('scores-cards').style.display = 'grid';
-        document.getElementById('scores-cards').innerHTML = favGames.slice(0, 6).map(game => {
+        const scoreCard = (game, fav) => {
           const home = game.teams?.home?.name ?? 'Home';
           const away = game.teams?.away?.name ?? 'Away';
           const homeScore = game.scores?.home?.total ?? game.scores?.home ?? '-';
@@ -405,18 +530,25 @@
           const status = game.status?.long ?? game.status?.short ?? 'N/A';
           const date = game.date ? new Date(game.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
           return `
-            <div class="feed-card">
+            <div class="feed-card${fav ? ' fav' : ''}">
+              ${fav ? '<span class="fav-star">⭐</span>' : ''}
               <span class="sport-label">${game._sport}</span>
               <p class="${getStatusClass(status)}" style="font-size:0.8rem;margin-bottom:0.5rem;">● ${status}</p>
               <h4>${logoImg(allLogoMap[away], away)}${away} @ ${logoImg(allLogoMap[home], home)}${home}</h4>
               <p style="font-size:1.3rem;font-weight:bold;">${awayScore} – ${homeScore}</p>
               <p>📅 ${date}</p>
+              <p class="weather-line" data-home="${home}" data-at="${game.date ?? ''}" data-final="${status === 'Final'}" style="opacity:0.55;font-size:0.78rem;margin:0.25rem 0 0;"></p>
             </div>
           `;
-        }).join('');
-        document.getElementById('scores-table-title').style.display = 'block';
-        document.getElementById('scores-table-wrap').style.display = 'block';
-        document.getElementById('scores-table-body').innerHTML = favGames.map(game => {
+        };
+        const otherSlice = otherGames.slice(0, 6);
+        document.getElementById('scores-cards').style.display = 'grid';
+        document.getElementById('scores-cards').innerHTML =
+          favGames.slice(0, 6).map(g => scoreCard(g, true)).join('') +
+          (otherSlice.length ? '<div class="other-divider">Other Games</div>' : '') +
+          otherSlice.map(g => scoreCard(g, false)).join('');
+        populateWeatherLines(document.getElementById('scores-cards'));
+        const scoreRow = (game, fav) => {
           const home = game.teams?.home?.name ?? 'Home';
           const away = game.teams?.away?.name ?? 'Away';
           const homeScore = game.scores?.home?.total ?? game.scores?.home ?? '-';
@@ -424,7 +556,7 @@
           const status = game.status?.long ?? game.status?.short ?? 'N/A';
           const date = game.date ? new Date(game.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'N/A';
           return `
-            <tr>
+            <tr${fav ? ' class="fav-row"' : ''}>
               <td>${game._sport}</td>
               <td><div class="td-team">${logoImg(allLogoMap[home], home)}${home}</div></td>
               <td><div class="td-team">${logoImg(allLogoMap[away], away)}${away}</div></td>
@@ -433,7 +565,12 @@
               <td>${date}</td>
             </tr>
           `;
-        }).join('');
+        };
+        document.getElementById('scores-table-title').style.display = 'block';
+        document.getElementById('scores-table-wrap').style.display = 'block';
+        document.getElementById('scores-table-body').innerHTML =
+          favGames.map(g => scoreRow(g, true)).join('') +
+          otherGames.map(g => scoreRow(g, false)).join('');
       }
 
       let currentUser = null;

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lifetime Matchups – BetterBookie</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .matchup-wrap { padding: 1.5rem 2rem 3rem; max-width: 1100px; margin: 0 auto; }
+      .sport-nav { display: flex; gap: 0.6rem; justify-content: center; margin: 1rem 0; flex-wrap: wrap; }
+      .sport-nav button { padding: 0.5rem 1.1rem; border: 2px solid currentColor; background: transparent; cursor: pointer; font-size: 0.9rem; border-radius: 4px; color: inherit; }
+      .sport-nav button.active { background: #fff; color: #000; }
+      .pickers { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; align-items: center; margin: 1.5rem 0; }
+      .picker-col { display: flex; flex-direction: column; gap: 0.4rem; }
+      .picker-col label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.55; }
+      .picker-col select { padding: 0.55rem 0.9rem; min-width: 240px; font-size: 0.95rem; border-radius: 4px; border: 2px solid currentColor; background: #1a1a2e; color: inherit; cursor: pointer; }
+      .vs-badge { font-size: 1.5rem; font-weight: 700; opacity: 0.7; margin: 0 0.3rem; }
+      .matchup-status { text-align: center; padding: 2.5rem 1rem; opacity: 0.7; }
+      .record-headline { text-align: center; margin: 1.5rem 0 2rem; font-size: 1.4rem; font-weight: 600; }
+      .record-headline .lead { color: #ffd93d; }
+      .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+      .stat-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem 1.1rem; }
+      .stat-card .stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.55; margin-bottom: 0.4rem; }
+      .stat-card .stat-value { font-size: 1.1rem; font-weight: 600; line-height: 1.3; }
+      .stat-card .stat-sub { font-size: 0.78rem; opacity: 0.6; margin-top: 0.25rem; }
+      .section-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.6; margin: 1.8rem 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+      .matchup-table-wrap { overflow-x: auto; margin-bottom: 1rem; }
+      table.matchup-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+      table.matchup-table th, table.matchup-table td { text-align: left; padding: 0.6rem 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+      table.matchup-table th { opacity: 0.55; font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em; }
+      .winner-team { font-weight: 600; }
+      .show-more-btn { display: inline-block; margin-top: 0.5rem; padding: 0.45rem 1rem; background: transparent; border: 1px solid rgba(255,255,255,0.25); border-radius: 6px; color: inherit; cursor: pointer; font-size: 0.85rem; opacity: 0.8; }
+      .show-more-btn:hover { opacity: 1; background: rgba(255,255,255,0.05); }
+      .nav-dropdown { position: relative; display: inline-block; }
+      .nav-dropdown-btn { background: transparent; border: none; color: inherit; cursor: pointer; font-size: 1rem; padding: 0; font-family: inherit; }
+      .nav-dropdown-menu { display: none; position: absolute; top: 100%; right: 0; background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; min-width: 200px; z-index: 100; padding: 0.5rem 0; }
+      .nav-dropdown.open .nav-dropdown-menu { display: block; }
+      .nav-dropdown-menu a { display: block; padding: 0.6rem 1rem; color: inherit; text-decoration: none; font-size: 0.9rem; opacity: 0.8; }
+      .nav-dropdown-menu a:hover { opacity: 1; background: rgba(255,255,255,0.05); }
+      .nav-dropdown-menu .menu-divider { border-top: 1px solid rgba(255,255,255,0.1); margin: 0.25rem 0; }
+      .nav-dropdown-menu .menu-label { padding: 0.4rem 1rem 0.1rem; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.4; display: block; }
+    </style>
+  </head>
+  <body>
+    <header class="hero" style="min-height:auto;padding-bottom:1rem;">
+      <nav class="nav">
+        <h1 class="logo"><a href="index.html" style="text-decoration:none;color:inherit;">BetterBookie</a></h1>
+        <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false">☰</button>
+        <div class="nav-links" id="nav-links">
+          <a href="index.html#features">Features</a>
+          <a href="scores.html">Scores</a>
+          <a href="schedule.html">Schedule</a>
+          <a href="odds.html">Live Odds</a>
+          <a href="injuries.html">Injuries</a>
+          <a href="matchups.html">Matchups</a>
+          <a href="standings.html">Standings</a>
+          <a href="leaders.html">Leaders</a>
+          <a href="news.html">News</a>
+          <a href="dashboard.html">Dashboard</a>
+          <div class="nav-dropdown" id="nav-settings-dropdown">
+            <button class="nav-dropdown-btn" onclick="document.getElementById('nav-settings-dropdown').classList.toggle('open')">Settings ▾</button>
+            <div class="nav-dropdown-menu">
+              <span class="menu-label">Preferences</span>
+              <a href="settings.html">All Preferences</a>
+              <a href="settings.html#sports">Sports Preferences</a>
+              <a href="settings.html#teams">Team Preferences</a>
+              <a href="settings.html#gambling">Gambling Preferences</a>
+              <a href="settings.html#fantasy">Fantasy Preferences</a>
+              <div class="menu-divider"></div>
+              <a href="#" id="nav-signout">Logout</a>
+            </div>
+          </div>
+          <a href="login.html" id="nav-login">Login</a>
+        </div>
+      </nav>
+      <div class="hero-content" style="padding-top:1rem;">
+        <h2>Lifetime Matchups</h2>
+        <p>Head-to-head records, recent results, and trends between any two teams.</p>
+      </div>
+    </header>
+
+    <section class="matchup-wrap">
+      <div class="sport-nav" id="sport-nav">
+        <button class="active" data-sport="nfl">NFL</button>
+        <button data-sport="nba">NBA</button>
+        <button data-sport="mlb">MLB</button>
+        <button data-sport="nhl">NHL</button>
+        <button data-sport="ncaafb">NCAA FB</button>
+        <button data-sport="ncaabb">NCAA BB</button>
+      </div>
+
+      <div class="pickers">
+        <div class="picker-col">
+          <label for="team1-select">Team 1</label>
+          <select id="team1-select"><option value="">— Loading teams —</option></select>
+        </div>
+        <span class="vs-badge">vs</span>
+        <div class="picker-col">
+          <label for="team2-select">Team 2</label>
+          <select id="team2-select"><option value="">— Loading teams —</option></select>
+        </div>
+      </div>
+
+      <div id="matchup-result">
+        <div class="matchup-status">Pick two teams to see their head-to-head history.</div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>&copy; 2026 BetterBookie. Built by a beginner.</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+      const VERCEL = 'https://better-bookie-five.vercel.app';
+      const COLLEGE_SPORTS = new Set(['ncaafb', 'ncaabb']);
+      const SUPPORTED_SPORTS = new Set(['nfl', 'nba', 'mlb', 'nhl', 'ncaafb', 'ncaabb']);
+      let currentSport = 'nfl';
+      let teamList = []; // [{ id, name }]
+      const teamCache = {};
+      const matchupCache = {};
+
+      // ----- URL params -----
+      function readUrlParams() {
+        const params = new URLSearchParams(window.location.search);
+        return {
+          sport: params.get('sport'),
+          home: params.get('home'),
+          away: params.get('away'),
+        };
+      }
+
+      // ----- Team list loading (cached in localStorage for 7 days) -----
+      async function getTeams(sport) {
+        if (teamCache[sport]) return teamCache[sport];
+        try {
+          const raw = localStorage.getItem(`teams_${sport}`);
+          if (raw) {
+            const { teams, savedAt } = JSON.parse(raw);
+            if (Date.now() - savedAt < 7 * 24 * 60 * 60 * 1000) {
+              teamCache[sport] = teams;
+              return teams;
+            }
+          }
+        } catch {}
+        try {
+          const r = await fetch(`${VERCEL}/api/matchup-teams?sport=${sport}`);
+          const data = await r.json();
+          const teams = data?.teams ?? [];
+          teamCache[sport] = teams;
+          try { localStorage.setItem(`teams_${sport}`, JSON.stringify({ teams, savedAt: Date.now() })); } catch {}
+          return teams;
+        } catch {
+          return [];
+        }
+      }
+
+      function fillTeamSelect(selectEl, teams, selectedId) {
+        selectEl.innerHTML = '<option value="">— Select team —</option>' +
+          teams.map(t => `<option value="${t.id}"${String(t.id) === String(selectedId) ? ' selected' : ''}>${t.name}</option>`).join('');
+      }
+
+      function findTeamIdByName(teams, name) {
+        if (!name) return '';
+        const lower = name.toLowerCase();
+        const exact = teams.find(t => (t.name ?? '').toLowerCase() === lower);
+        if (exact) return exact.id;
+        const partial = teams.find(t => (t.name ?? '').toLowerCase().includes(lower) || lower.includes((t.name ?? '').toLowerCase()));
+        return partial ? partial.id : '';
+      }
+
+      // ----- Stats computation -----
+      function computeStats(games, team1Id, team2Id, team1Name, team2Name) {
+        if (!games.length) return { totalGames: 0 };
+
+        // Sort newest-first.
+        const sorted = [...games].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        let team1Wins = 0, team2Wins = 0, ties = 0;
+        let team1PtsFor = 0, team2PtsFor = 0;
+        let biggestMargin = { margin: -1 };
+        for (const g of sorted) {
+          const hs = Number(g.home?.score);
+          const as = Number(g.away?.score);
+          if (Number.isNaN(hs) || Number.isNaN(as)) continue;
+          const t1IsHome = String(g.home?.id) === String(team1Id);
+          const t1Score = t1IsHome ? hs : as;
+          const t2Score = t1IsHome ? as : hs;
+          team1PtsFor += t1Score;
+          team2PtsFor += t2Score;
+          if (t1Score > t2Score) team1Wins++;
+          else if (t2Score > t1Score) team2Wins++;
+          else ties++;
+          const margin = Math.abs(t1Score - t2Score);
+          if (margin > biggestMargin.margin) {
+            biggestMargin = {
+              margin,
+              winner: t1Score > t2Score ? team1Name : t2Score > t1Score ? team2Name : 'Tie',
+              loserScore: Math.min(t1Score, t2Score),
+              winnerScore: Math.max(t1Score, t2Score),
+              date: g.date,
+            };
+          }
+        }
+
+        // Streak: walk newest-first.
+        let streakTeam = null, streakLen = 0;
+        for (const g of sorted) {
+          const hs = Number(g.home?.score);
+          const as = Number(g.away?.score);
+          if (Number.isNaN(hs) || Number.isNaN(as) || hs === as) break;
+          const t1IsHome = String(g.home?.id) === String(team1Id);
+          const t1Score = t1IsHome ? hs : as;
+          const t2Score = t1IsHome ? as : hs;
+          const winner = t1Score > t2Score ? team1Name : team2Name;
+          if (streakTeam === null) { streakTeam = winner; streakLen = 1; }
+          else if (winner === streakTeam) streakLen++;
+          else break;
+        }
+
+        const totalGames = team1Wins + team2Wins + ties;
+        return {
+          totalGames,
+          team1Wins, team2Wins, ties,
+          team1AvgScore: totalGames ? (team1PtsFor / totalGames).toFixed(1) : null,
+          team2AvgScore: totalGames ? (team2PtsFor / totalGames).toFixed(1) : null,
+          biggestMargin: biggestMargin.margin >= 0 ? biggestMargin : null,
+          streak: streakTeam ? { team: streakTeam, length: streakLen } : null,
+        };
+      }
+
+      // ----- Rendering -----
+      function renderResult(games, team1, team2) {
+        const root = document.getElementById('matchup-result');
+        if (!games.length) {
+          root.innerHTML = `<div class="matchup-status">No head-to-head games found between ${team1.name} and ${team2.name}.</div>`;
+          return;
+        }
+        const stats = computeStats(games, team1.id, team2.id, team1.name, team2.name);
+        const leader = stats.team1Wins > stats.team2Wins ? team1.name : stats.team2Wins > stats.team1Wins ? team2.name : 'Even';
+        const leaderHTML = leader === 'Even'
+          ? `<span class="lead">Even</span> · ${stats.team1Wins}-${stats.team2Wins}${stats.ties ? '-' + stats.ties : ''}`
+          : `<span class="lead">${leader} leads</span> ${Math.max(stats.team1Wins, stats.team2Wins)}-${Math.min(stats.team1Wins, stats.team2Wins)}${stats.ties ? '-' + stats.ties : ''}`;
+
+        const statCards = [];
+        statCards.push(`
+          <div class="stat-card">
+            <div class="stat-label">Avg score</div>
+            <div class="stat-value">${stats.team1AvgScore ?? '—'} – ${stats.team2AvgScore ?? '—'}</div>
+            <div class="stat-sub">${team1.name} vs ${team2.name}</div>
+          </div>
+        `);
+        if (stats.streak) {
+          statCards.push(`
+            <div class="stat-card">
+              <div class="stat-label">Current streak</div>
+              <div class="stat-value">${stats.streak.team}</div>
+              <div class="stat-sub">${stats.streak.length} game${stats.streak.length === 1 ? '' : 's'} in a row</div>
+            </div>
+          `);
+        }
+        if (stats.biggestMargin) {
+          const d = new Date(stats.biggestMargin.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          statCards.push(`
+            <div class="stat-card">
+              <div class="stat-label">Biggest win</div>
+              <div class="stat-value">${stats.biggestMargin.winner} by ${stats.biggestMargin.margin}</div>
+              <div class="stat-sub">${stats.biggestMargin.winnerScore}–${stats.biggestMargin.loserScore} · ${d}</div>
+            </div>
+          `);
+        }
+        statCards.push(`
+          <div class="stat-card">
+            <div class="stat-label">Total meetings</div>
+            <div class="stat-value">${stats.totalGames}</div>
+            <div class="stat-sub">${stats.ties ? `${stats.ties} tie${stats.ties === 1 ? '' : 's'}` : 'No ties'}</div>
+          </div>
+        `);
+
+        const sorted = [...games].sort((a, b) => new Date(b.date) - new Date(a.date));
+        const renderRow = g => {
+          const hs = g.home?.score, as = g.away?.score;
+          const winner = (hs > as) ? g.home?.name : (as > hs) ? g.away?.name : null;
+          const d = g.date ? new Date(g.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+          return `
+            <tr>
+              <td>${d}</td>
+              <td${winner === g.away?.name ? ' class="winner-team"' : ''}>${g.away?.name ?? '—'}</td>
+              <td>${as ?? '—'}</td>
+              <td${winner === g.home?.name ? ' class="winner-team"' : ''}>${g.home?.name ?? '—'}</td>
+              <td>${hs ?? '—'}</td>
+            </tr>
+          `;
+        };
+        const last10 = sorted.slice(0, 10).map(renderRow).join('');
+        const showRestBtn = sorted.length > 10
+          ? `<button class="show-more-btn" id="show-all-meetings">Show all ${sorted.length} meetings</button>`
+          : '';
+
+        const coverageNote = COLLEGE_SPORTS.has(currentSport)
+          ? `<p style="text-align:center;opacity:0.5;font-size:0.78rem;margin:-0.75rem 0 1rem;">Coverage: last 15 completed seasons</p>`
+          : '';
+        root.innerHTML = `
+          <div class="record-headline">${leaderHTML} ${COLLEGE_SPORTS.has(currentSport) ? 'in recent seasons' : 'all-time'}</div>
+          ${coverageNote}
+          <div class="stat-grid">${statCards.join('')}</div>
+          <div class="section-title">Last ${Math.min(10, sorted.length)} meetings</div>
+          <div class="matchup-table-wrap">
+            <table class="matchup-table">
+              <thead><tr><th>Date</th><th>Away</th><th>Score</th><th>Home</th><th>Score</th></tr></thead>
+              <tbody id="meetings-tbody">${last10}</tbody>
+            </table>
+          </div>
+          ${showRestBtn}
+        `;
+
+        const btn = document.getElementById('show-all-meetings');
+        if (btn) {
+          btn.addEventListener('click', () => {
+            document.getElementById('meetings-tbody').innerHTML = sorted.map(renderRow).join('');
+            btn.remove();
+          });
+        }
+      }
+
+      async function loadMatchup() {
+        const sel1 = document.getElementById('team1-select');
+        const sel2 = document.getElementById('team2-select');
+        const t1Id = sel1.value, t2Id = sel2.value;
+        const root = document.getElementById('matchup-result');
+        if (!t1Id || !t2Id) {
+          root.innerHTML = `<div class="matchup-status">Pick two teams to see their head-to-head history.</div>`;
+          return;
+        }
+        if (t1Id === t2Id) {
+          root.innerHTML = `<div class="matchup-status">Please pick two different teams.</div>`;
+          return;
+        }
+        const team1 = teamList.find(t => String(t.id) === String(t1Id));
+        const team2 = teamList.find(t => String(t.id) === String(t2Id));
+        const key = `${currentSport}|${t1Id}|${t2Id}`;
+        root.innerHTML = `<div class="matchup-status">Loading head-to-head history…</div>`;
+        let data = matchupCache[key];
+        if (!data) {
+          try {
+            const r = await fetch(`${VERCEL}/api/matchup?sport=${currentSport}&team1=${t1Id}&team2=${t2Id}`);
+            data = await r.json();
+            matchupCache[key] = data;
+          } catch (e) {
+            root.innerHTML = `<div class="matchup-status">Failed to load matchup data.</div>`;
+            return;
+          }
+        }
+        if (data?.error) {
+          root.innerHTML = `<div class="matchup-status">${data.error}</div>`;
+          return;
+        }
+        renderResult(data?.games ?? [], team1, team2);
+      }
+
+      async function switchSport(sport, preselect = {}) {
+        currentSport = sport;
+        document.querySelectorAll('#sport-nav button').forEach(b => b.classList.toggle('active', b.dataset.sport === sport));
+        const sel1 = document.getElementById('team1-select');
+        const sel2 = document.getElementById('team2-select');
+        sel1.innerHTML = '<option value="">— Loading teams —</option>';
+        sel2.innerHTML = '<option value="">— Loading teams —</option>';
+        teamList = await getTeams(sport);
+        if (!teamList.length) {
+          sel1.innerHTML = '<option value="">— Failed to load —</option>';
+          sel2.innerHTML = '<option value="">— Failed to load —</option>';
+          document.getElementById('matchup-result').innerHTML =
+            `<div class="matchup-status">Couldn't load team list for ${sport.toUpperCase()}.</div>`;
+          return;
+        }
+        const t1Id = preselect.home ? findTeamIdByName(teamList, preselect.home) : '';
+        const t2Id = preselect.away ? findTeamIdByName(teamList, preselect.away) : '';
+        fillTeamSelect(sel1, teamList, t1Id);
+        fillTeamSelect(sel2, teamList, t2Id);
+        if (t1Id && t2Id) loadMatchup();
+        else document.getElementById('matchup-result').innerHTML =
+          `<div class="matchup-status">Pick two teams to see their head-to-head history.</div>`;
+      }
+
+      // ----- Wire up -----
+      document.querySelectorAll('#sport-nav button').forEach(btn => {
+        btn.addEventListener('click', () => switchSport(btn.dataset.sport));
+      });
+      document.getElementById('team1-select').addEventListener('change', loadMatchup);
+      document.getElementById('team2-select').addEventListener('change', loadMatchup);
+
+      // Initial load: respect URL params if present.
+      const initial = readUrlParams();
+      const initSport = initial.sport && ['nfl','nba','mlb','nhl','ncaafb','ncaabb'].includes(initial.sport) ? initial.sport : 'nfl';
+      switchSport(initSport, { home: initial.home, away: initial.away });
+    </script>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+      import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+      const app = initializeApp({
+        apiKey: "AIzaSyC2sgfkqCVFU1RfiWsArIWjpvpebKVxT64",
+        authDomain: "betterbookie.firebaseapp.com",
+        projectId: "betterbookie",
+        storageBucket: "betterbookie.firebasestorage.app",
+        messagingSenderId: "995577929895",
+        appId: "1:995577929895:web:303a93aa15628d6c503b82"
+      });
+      const auth = getAuth(app);
+
+      onAuthStateChanged(auth, user => {
+        const loginLink = document.getElementById('nav-login');
+        if (loginLink) loginLink.style.display = user ? 'none' : 'inline';
+      });
+
+      document.addEventListener('click', (e) => {
+        const dropdown = document.getElementById('nav-settings-dropdown');
+        if (dropdown && !dropdown.contains(e.target)) dropdown.classList.remove('open');
+      });
+
+      document.getElementById('nav-signout')?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await signOut(auth);
+        window.location.href = 'login.html';
+      });
+    </script>
+  </body>
+</html>

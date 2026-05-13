@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Schedule – BetterBookie</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .schedule-wrap { padding: 1.5rem 2rem 3rem; max-width: 1200px; margin: 0 auto; }
+      .controls { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; align-items: end; margin: 1rem 0 1.5rem; }
+      .control-col { display: flex; flex-direction: column; gap: 0.35rem; }
+      .control-col label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.55; }
+      .control-col input[type="date"], .control-col select { padding: 0.5rem 0.8rem; font-size: 0.9rem; border-radius: 4px; border: 2px solid currentColor; background: #1a1a2e; color: inherit; cursor: pointer; font-family: inherit; }
+      .quick-buttons { display: flex; gap: 0.4rem; }
+      .quick-btn { padding: 0.5rem 0.85rem; border: 1px solid rgba(255,255,255,0.25); background: transparent; cursor: pointer; font-size: 0.82rem; border-radius: 4px; color: inherit; opacity: 0.8; }
+      .quick-btn:hover, .quick-btn.active { background: rgba(255,255,255,0.08); opacity: 1; border-color: rgba(255,255,255,0.5); }
+      .sport-filter { display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: center; margin-bottom: 1.5rem; }
+      .sport-pill { padding: 0.35rem 0.85rem; border: 1px solid rgba(255,255,255,0.2); background: transparent; cursor: pointer; font-size: 0.8rem; border-radius: 20px; color: inherit; opacity: 0.7; }
+      .sport-pill.active { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.5); opacity: 1; }
+      .status { text-align: center; padding: 2.5rem 1rem; opacity: 0.7; }
+      .date-group { margin-bottom: 2rem; }
+      .date-header { font-size: 0.9rem; font-weight: 600; opacity: 0.7; margin: 0 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+      .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 1rem; }
+      .game-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.9rem 1rem; }
+      .game-card .sport-label { display: inline-block; font-size: 0.65rem; padding: 0.15rem 0.5rem; border-radius: 4px; background: rgba(255,255,255,0.12); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; }
+      .game-matchup { display: flex; align-items: center; gap: 0.4rem; font-weight: 600; margin-bottom: 0.4rem; flex-wrap: wrap; }
+      .game-matchup img { width: 22px; height: 22px; object-fit: contain; }
+      .game-meta { font-size: 0.82rem; opacity: 0.7; line-height: 1.5; }
+      .game-meta .venue { font-size: 0.75rem; opacity: 0.7; }
+      .game-weather { font-size: 0.78rem; opacity: 0.6; margin-top: 0.3rem; }
+      .game-link { font-size: 0.78rem; opacity: 0.65; text-decoration: none; color: inherit; border-bottom: 1px dotted rgba(255,255,255,0.3); display: inline-block; margin-top: 0.4rem; }
+      .nav-dropdown { position: relative; display: inline-block; }
+      .nav-dropdown-btn { background: transparent; border: none; color: inherit; cursor: pointer; font-size: 1rem; padding: 0; font-family: inherit; }
+      .nav-dropdown-menu { display: none; position: absolute; top: 100%; right: 0; background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; min-width: 200px; z-index: 100; padding: 0.5rem 0; }
+      .nav-dropdown.open .nav-dropdown-menu { display: block; }
+      .nav-dropdown-menu a { display: block; padding: 0.6rem 1rem; color: inherit; text-decoration: none; font-size: 0.9rem; opacity: 0.8; }
+      .nav-dropdown-menu a:hover { opacity: 1; background: rgba(255,255,255,0.05); }
+      .nav-dropdown-menu .menu-divider { border-top: 1px solid rgba(255,255,255,0.1); margin: 0.25rem 0; }
+      .nav-dropdown-menu .menu-label { padding: 0.4rem 1rem 0.1rem; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.4; display: block; }
+    </style>
+  </head>
+  <body>
+    <header class="hero" style="min-height:auto;padding-bottom:1rem;">
+      <nav class="nav">
+        <h1 class="logo"><a href="index.html" style="text-decoration:none;color:inherit;">BetterBookie</a></h1>
+        <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false">☰</button>
+        <div class="nav-links" id="nav-links">
+          <a href="index.html#features">Features</a>
+          <a href="scores.html">Scores</a>
+          <a href="schedule.html">Schedule</a>
+          <a href="odds.html">Live Odds</a>
+          <a href="injuries.html">Injuries</a>
+          <a href="matchups.html">Matchups</a>
+          <a href="standings.html">Standings</a>
+          <a href="leaders.html">Leaders</a>
+          <a href="news.html">News</a>
+          <a href="dashboard.html">Dashboard</a>
+          <div class="nav-dropdown" id="nav-settings-dropdown">
+            <button class="nav-dropdown-btn" onclick="document.getElementById('nav-settings-dropdown').classList.toggle('open')">Settings ▾</button>
+            <div class="nav-dropdown-menu">
+              <span class="menu-label">Preferences</span>
+              <a href="settings.html">All Preferences</a>
+              <a href="settings.html#sports">Sports Preferences</a>
+              <a href="settings.html#teams">Team Preferences</a>
+              <a href="settings.html#gambling">Gambling Preferences</a>
+              <a href="settings.html#fantasy">Fantasy Preferences</a>
+              <div class="menu-divider"></div>
+              <a href="#" id="nav-signout">Logout</a>
+            </div>
+          </div>
+          <a href="login.html" id="nav-login">Login</a>
+        </div>
+      </nav>
+      <div class="hero-content" style="padding-top:1rem;">
+        <h2>Schedule</h2>
+        <p>Upcoming games across the major leagues. Pick a date or look at the week ahead.</p>
+      </div>
+    </header>
+
+    <section class="schedule-wrap">
+      <div class="controls">
+        <div class="control-col">
+          <label for="date-input">Date</label>
+          <input type="date" id="date-input" />
+        </div>
+        <div class="control-col">
+          <label>Range</label>
+          <div class="quick-buttons" id="quick-buttons">
+            <button class="quick-btn active" data-range="today">Today</button>
+            <button class="quick-btn" data-range="tomorrow">Tomorrow</button>
+            <button class="quick-btn" data-range="week">Next 7 days</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="sport-filter" id="sport-filter">
+        <button class="sport-pill active" data-sport="all">All</button>
+        <button class="sport-pill" data-sport="nfl">NFL</button>
+        <button class="sport-pill" data-sport="nba">NBA</button>
+        <button class="sport-pill" data-sport="mlb">MLB</button>
+        <button class="sport-pill" data-sport="nhl">NHL</button>
+        <button class="sport-pill" data-sport="ncaafb">NCAA FB</button>
+        <button class="sport-pill" data-sport="ncaabb">NCAA BB</button>
+      </div>
+
+      <div id="schedule-result">
+        <div class="status">Loading schedule…</div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>&copy; 2026 BetterBookie. Built by a beginner.</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="stadium-coords.js"></script>
+    <script>
+      const VERCEL = 'https://better-bookie-five.vercel.app';
+      const ALL_SPORTS = ['nfl', 'nba', 'mlb', 'nhl', 'ncaafb', 'ncaabb'];
+      const PRO_SPORTS = new Set(['nfl', 'nba', 'mlb', 'nhl']);
+      let activeSports = new Set(['all']);
+      let currentRange = 'today';
+      let currentDate = todayYmd();
+      const cache = {}; // sport-YYYYMMDD -> events[]
+      const weatherCache = {};
+
+      function todayYmd() {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      }
+      function ymdToCompact(ymd) { return ymd.replace(/-/g, ''); }
+      function addDays(ymd, n) {
+        const [y, m, d] = ymd.split('-').map(Number);
+        const dt = new Date(y, m - 1, d);
+        dt.setDate(dt.getDate() + n);
+        return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+      }
+      function prettyDate(ymd) {
+        const [y, m, d] = ymd.split('-').map(Number);
+        return new Date(y, m - 1, d).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+      }
+
+      async function fetchSportDate(sport, ymd) {
+        const key = `${sport}-${ymd}`;
+        if (cache[key]) return cache[key];
+        const compact = ymdToCompact(ymd);
+        try {
+          const r = await fetch(`${VERCEL}/api/espn-scores?sport=${sport}&date=${compact}`);
+          const data = await r.json();
+          const events = (data?.events ?? []).map(e => ({ ...e, _sport: sport }));
+          cache[key] = events;
+          return events;
+        } catch {
+          cache[key] = [];
+          return [];
+        }
+      }
+
+      function sportsToFetch() {
+        if (activeSports.has('all')) return ALL_SPORTS;
+        return ALL_SPORTS.filter(s => activeSports.has(s));
+      }
+
+      function datesToFetch() {
+        if (currentRange === 'week') {
+          return Array.from({ length: 7 }, (_, i) => addDays(currentDate, i));
+        }
+        return [currentDate];
+      }
+
+      function eventTime(event) {
+        const date = new Date(event.date);
+        return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      }
+
+      function eventCard(event) {
+        const sport = event._sport;
+        const comp = event.competitions?.[0];
+        const home = (comp?.competitors ?? []).find(c => c.homeAway === 'home');
+        const away = (comp?.competitors ?? []).find(c => c.homeAway === 'away');
+        const homeName = home?.team?.displayName ?? home?.team?.name ?? 'Home';
+        const awayName = away?.team?.displayName ?? away?.team?.name ?? 'Away';
+        const homeLogo = home?.team?.logo ?? '';
+        const awayLogo = away?.team?.logo ?? '';
+        const venue = comp?.venue?.fullName ?? '';
+        const matchupLink = PRO_SPORTS.has(sport)
+          ? `<a class="game-link" href="matchups.html?sport=${sport}&home=${encodeURIComponent(homeName)}&away=${encodeURIComponent(awayName)}">🆚 Lifetime matchup →</a>`
+          : '';
+        return `
+          <div class="game-card">
+            <span class="sport-label">${sport === 'ncaafb' ? 'NCAA FB' : sport === 'ncaabb' ? 'NCAA BB' : sport.toUpperCase()}</span>
+            <div class="game-matchup">
+              ${awayLogo ? `<img src="${awayLogo}" alt="${awayName}" onerror="this.style.display='none'">` : ''}
+              <span>${awayName}</span>
+              <span style="opacity:0.4;font-weight:400;">@</span>
+              ${homeLogo ? `<img src="${homeLogo}" alt="${homeName}" onerror="this.style.display='none'">` : ''}
+              <span>${homeName}</span>
+            </div>
+            <div class="game-meta">
+              <div>🕒 ${eventTime(event)}</div>
+              ${venue ? `<div class="venue">📍 ${venue}</div>` : ''}
+              <div class="game-weather" data-home="${homeName}" data-at="${event.date}"></div>
+              ${matchupLink}
+            </div>
+          </div>
+        `;
+      }
+
+      function fetchForecast(coords, atIso) {
+        const key = `${coords.lat},${coords.lon}|${atIso ?? ''}`;
+        if (weatherCache[key]) return weatherCache[key];
+        const url = `${VERCEL}/api/weather?lat=${coords.lat}&lon=${coords.lon}` + (atIso ? `&at=${encodeURIComponent(atIso)}` : '');
+        const p = fetch(url).then(r => r.ok ? r.json() : null).catch(() => null);
+        weatherCache[key] = p;
+        return p;
+      }
+
+      function populateWeather(root) {
+        root.querySelectorAll('.game-weather').forEach(el => {
+          const homeName = el.dataset.home;
+          const atIso = el.dataset.at;
+          const coords = window.STADIUM_COORDS?.[homeName];
+          if (!coords) return;
+          if (coords.roof === 'dome') { el.textContent = '🏟️ Indoor venue'; return; }
+          const roofNote = coords.roof === 'retractable' ? ' · retractable roof' : '';
+          el.textContent = '⏳ Loading weather…';
+          fetchForecast(coords, atIso).then(data => {
+            const p = data?.period;
+            if (!p) { el.textContent = ''; return; }
+            el.textContent = `🌤️ ${p.temperature}°${p.temperatureUnit} · ${p.shortForecast} · ${p.windSpeed} ${p.windDirection}${roofNote}`;
+          });
+        });
+      }
+
+      async function loadSchedule() {
+        const root = document.getElementById('schedule-result');
+        root.innerHTML = '<div class="status">Loading schedule…</div>';
+        const sports = sportsToFetch();
+        const dates = datesToFetch();
+
+        // Fetch every (sport, date) combination in parallel.
+        const fetches = [];
+        for (const ymd of dates) {
+          for (const sport of sports) {
+            fetches.push(fetchSportDate(sport, ymd).then(events => ({ ymd, events })));
+          }
+        }
+        const results = await Promise.all(fetches);
+
+        // Group by date, filter to upcoming (not final).
+        const byDate = {};
+        for (const { ymd, events } of results) {
+          if (!byDate[ymd]) byDate[ymd] = [];
+          for (const ev of events) {
+            const statusName = ev.competitions?.[0]?.status?.type?.name;
+            if (statusName === 'STATUS_FINAL') continue;
+            byDate[ymd].push(ev);
+          }
+        }
+
+        const dateKeys = dates.filter(d => byDate[d]?.length);
+        if (dateKeys.length === 0) {
+          root.innerHTML = '<div class="status">No upcoming games for this selection.</div>';
+          return;
+        }
+
+        const html = dateKeys.map(ymd => {
+          const events = [...byDate[ymd]].sort((a, b) => new Date(a.date) - new Date(b.date));
+          const cards = events.map(eventCard).join('');
+          return `
+            <div class="date-group">
+              <div class="date-header">${prettyDate(ymd)}</div>
+              <div class="games-grid">${cards}</div>
+            </div>
+          `;
+        }).join('');
+        root.innerHTML = html;
+        populateWeather(root);
+      }
+
+      // Wire up controls
+      document.getElementById('date-input').value = currentDate;
+      document.getElementById('date-input').addEventListener('change', e => {
+        currentDate = e.target.value || todayYmd();
+        // Switching dates manually drops the quick-button highlight unless it matches.
+        document.querySelectorAll('.quick-btn').forEach(b => b.classList.remove('active'));
+        loadSchedule();
+      });
+      document.querySelectorAll('.quick-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.quick-btn').forEach(b => b.classList.toggle('active', b === btn));
+          currentRange = btn.dataset.range;
+          if (currentRange === 'today') currentDate = todayYmd();
+          else if (currentRange === 'tomorrow') currentDate = addDays(todayYmd(), 1);
+          else currentDate = todayYmd();
+          document.getElementById('date-input').value = currentDate;
+          loadSchedule();
+        });
+      });
+      document.querySelectorAll('#sport-filter .sport-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const sport = btn.dataset.sport;
+          if (sport === 'all') {
+            activeSports = new Set(['all']);
+          } else {
+            activeSports.delete('all');
+            if (activeSports.has(sport)) activeSports.delete(sport);
+            else activeSports.add(sport);
+            if (activeSports.size === 0) activeSports = new Set(['all']);
+          }
+          document.querySelectorAll('#sport-filter .sport-pill').forEach(b => {
+            b.classList.toggle('active', activeSports.has(b.dataset.sport));
+          });
+          loadSchedule();
+        });
+      });
+
+      loadSchedule();
+    </script>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+      import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+      const app = initializeApp({
+        apiKey: "AIzaSyC2sgfkqCVFU1RfiWsArIWjpvpebKVxT64",
+        authDomain: "betterbookie.firebaseapp.com",
+        projectId: "betterbookie",
+        storageBucket: "betterbookie.firebasestorage.app",
+        messagingSenderId: "995577929895",
+        appId: "1:995577929895:web:303a93aa15628d6c503b82"
+      });
+      const auth = getAuth(app);
+
+      onAuthStateChanged(auth, user => {
+        const loginLink = document.getElementById('nav-login');
+        if (loginLink) loginLink.style.display = user ? 'none' : 'inline';
+      });
+
+      document.addEventListener('click', (e) => {
+        const dropdown = document.getElementById('nav-settings-dropdown');
+        if (dropdown && !dropdown.contains(e.target)) dropdown.classList.remove('open');
+      });
+
+      document.getElementById('nav-signout')?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await signOut(auth);
+        window.location.href = 'login.html';
+      });
+    </script>
+  </body>
+</html>

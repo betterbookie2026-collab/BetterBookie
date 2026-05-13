@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stat Leaders – BetterBookie</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .leaders-wrap { padding: 1.5rem 2rem 3rem; max-width: 1200px; margin: 0 auto; }
+      .sport-nav { display: flex; gap: 0.6rem; justify-content: center; margin: 1rem 0; flex-wrap: wrap; }
+      .sport-nav button { padding: 0.5rem 1.1rem; border: 2px solid currentColor; background: transparent; cursor: pointer; font-size: 0.9rem; border-radius: 4px; color: inherit; }
+      .sport-nav button.active { background: #fff; color: #000; }
+      .controls { display: flex; gap: 0.75rem; justify-content: center; align-items: center; flex-wrap: wrap; margin: 1rem 0 1.5rem; }
+      .controls label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.55; }
+      .controls select { padding: 0.45rem 0.8rem; font-size: 0.9rem; border-radius: 4px; border: 2px solid currentColor; background: #1a1a2e; color: inherit; cursor: pointer; }
+      .status { text-align: center; padding: 2.5rem 1rem; opacity: 0.7; }
+      .category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+      .category-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.9rem 1rem; }
+      .category-title { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.6; margin-bottom: 0.6rem; padding-bottom: 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+      .leader-row { display: flex; align-items: center; gap: 0.55rem; padding: 0.35rem 0; font-size: 0.88rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+      .leader-row:last-child { border-bottom: none; }
+      .leader-rank { width: 1.25rem; text-align: right; opacity: 0.45; font-variant-numeric: tabular-nums; font-size: 0.78rem; }
+      .leader-headshot { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; background: rgba(255,255,255,0.05); flex-shrink: 0; }
+      .leader-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .leader-name .small-team { font-size: 0.72rem; opacity: 0.55; margin-left: 0.4rem; }
+      .leader-value { font-weight: 600; font-variant-numeric: tabular-nums; opacity: 0.95; }
+      .nav-dropdown { position: relative; display: inline-block; }
+      .nav-dropdown-btn { background: transparent; border: none; color: inherit; cursor: pointer; font-size: 1rem; padding: 0; font-family: inherit; }
+      .nav-dropdown-menu { display: none; position: absolute; top: 100%; right: 0; background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; min-width: 200px; z-index: 100; padding: 0.5rem 0; }
+      .nav-dropdown.open .nav-dropdown-menu { display: block; }
+      .nav-dropdown-menu a { display: block; padding: 0.6rem 1rem; color: inherit; text-decoration: none; font-size: 0.9rem; opacity: 0.8; }
+      .nav-dropdown-menu a:hover { opacity: 1; background: rgba(255,255,255,0.05); }
+      .nav-dropdown-menu .menu-divider { border-top: 1px solid rgba(255,255,255,0.1); margin: 0.25rem 0; }
+      .nav-dropdown-menu .menu-label { padding: 0.4rem 1rem 0.1rem; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.4; display: block; }
+    </style>
+  </head>
+  <body>
+    <header class="hero" style="min-height:auto;padding-bottom:1rem;">
+      <nav class="nav">
+        <h1 class="logo"><a href="index.html" style="text-decoration:none;color:inherit;">BetterBookie</a></h1>
+        <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false">☰</button>
+        <div class="nav-links" id="nav-links">
+          <a href="index.html#features">Features</a>
+          <a href="scores.html">Scores</a>
+          <a href="schedule.html">Schedule</a>
+          <a href="odds.html">Live Odds</a>
+          <a href="injuries.html">Injuries</a>
+          <a href="matchups.html">Matchups</a>
+          <a href="standings.html">Standings</a>
+          <a href="leaders.html">Leaders</a>
+          <a href="news.html">News</a>
+          <a href="dashboard.html">Dashboard</a>
+          <div class="nav-dropdown" id="nav-settings-dropdown">
+            <button class="nav-dropdown-btn" onclick="document.getElementById('nav-settings-dropdown').classList.toggle('open')">Settings ▾</button>
+            <div class="nav-dropdown-menu">
+              <span class="menu-label">Preferences</span>
+              <a href="settings.html">All Preferences</a>
+              <a href="settings.html#sports">Sports Preferences</a>
+              <a href="settings.html#teams">Team Preferences</a>
+              <a href="settings.html#gambling">Gambling Preferences</a>
+              <a href="settings.html#fantasy">Fantasy Preferences</a>
+              <div class="menu-divider"></div>
+              <a href="#" id="nav-signout">Logout</a>
+            </div>
+          </div>
+          <a href="login.html" id="nav-login">Login</a>
+        </div>
+      </nav>
+      <div class="hero-content" style="padding-top:1rem;">
+        <h2>Stat Leaders</h2>
+        <p>Top players across every major statistical category, by sport and season.</p>
+      </div>
+    </header>
+
+    <section class="leaders-wrap">
+      <div class="sport-nav" id="sport-nav">
+        <button class="active" data-sport="nfl">NFL</button>
+        <button data-sport="nba">NBA</button>
+        <button data-sport="mlb">MLB</button>
+        <button data-sport="nhl">NHL</button>
+        <button data-sport="ncaafb">NCAA FB</button>
+        <button data-sport="ncaabb">NCAA BB</button>
+      </div>
+
+      <div class="controls">
+        <label for="season-select">Season</label>
+        <select id="season-select"></select>
+      </div>
+
+      <div id="leaders-result">
+        <div class="status">Loading leaders…</div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>&copy; 2026 BetterBookie. Built by a beginner.</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+      const VERCEL = 'https://better-bookie-five.vercel.app';
+      let currentSport = 'nfl';
+      let currentSeason = new Date().getFullYear();
+      const cache = {};
+
+      function populateSeasons() {
+        const sel = document.getElementById('season-select');
+        const start = new Date().getFullYear();
+        const years = [];
+        for (let y = start; y >= start - 5; y--) years.push(y);
+        sel.innerHTML = years.map(y => `<option value="${y}"${y === currentSeason ? ' selected' : ''}>${y}</option>`).join('');
+      }
+
+      // ESPN's leaders responses vary by sport; categories may live under a few different paths.
+      function flattenCategories(data) {
+        const sources = [];
+        const collect = node => {
+          if (!node) return;
+          const cats = node.categories ?? node.leaders ?? [];
+          for (const cat of cats) {
+            if (Array.isArray(cat.leaders) && cat.leaders.length) {
+              sources.push({
+                name: cat.displayName ?? cat.name ?? cat.abbreviation ?? '',
+                leaders: cat.leaders,
+              });
+            }
+          }
+        };
+        collect(data);
+        (data?.leagues ?? []).forEach(l => collect(l));
+        (data?.sports ?? []).forEach(s => (s?.leagues ?? []).forEach(l => collect(l)));
+        return sources;
+      }
+
+      function leaderRow(leader, rank) {
+        const athlete = leader.athlete ?? {};
+        const team = leader.team ?? athlete.team ?? {};
+        const headshot = athlete.headshot?.href ?? athlete.headshot ?? '';
+        const name = athlete.displayName ?? athlete.shortName ?? athlete.fullName ?? '—';
+        const teamAbbrev = team.abbreviation ?? team.abbrev ?? '';
+        const value = leader.displayValue ?? leader.value ?? '—';
+        return `
+          <div class="leader-row">
+            <span class="leader-rank">${rank}</span>
+            ${headshot ? `<img class="leader-headshot" src="${headshot}" alt="${name}" onerror="this.style.background='rgba(255,255,255,0.08)';this.src='';">` : '<div class="leader-headshot"></div>'}
+            <span class="leader-name">${name}${teamAbbrev ? `<span class="small-team">${teamAbbrev}</span>` : ''}</span>
+            <span class="leader-value">${value}</span>
+          </div>
+        `;
+      }
+
+      function renderCategories(categories) {
+        const root = document.getElementById('leaders-result');
+        if (!categories.length) {
+          root.innerHTML = '<div class="status">No leader data available for this selection.</div>';
+          return;
+        }
+        const html = categories.map(cat => {
+          const rows = cat.leaders.slice(0, 5).map((l, i) => leaderRow(l, i + 1)).join('');
+          return `
+            <div class="category-card">
+              <div class="category-title">${cat.name}</div>
+              ${rows}
+            </div>
+          `;
+        }).join('');
+        root.innerHTML = `<div class="category-grid">${html}</div>`;
+      }
+
+      async function loadLeaders() {
+        const root = document.getElementById('leaders-result');
+        root.innerHTML = '<div class="status">Loading leaders…</div>';
+        const key = `${currentSport}-${currentSeason}`;
+        let data = cache[key];
+        if (!data) {
+          try {
+            const r = await fetch(`${VERCEL}/api/espn-leaders?sport=${currentSport}&season=${currentSeason}`);
+            data = await r.json();
+            cache[key] = data;
+          } catch {
+            root.innerHTML = `<div class="status">Failed to load leaders.</div>`;
+            return;
+          }
+        }
+        if (data?.error) {
+          root.innerHTML = `<div class="status">${data.error}</div>`;
+          return;
+        }
+        renderCategories(flattenCategories(data));
+      }
+
+      document.querySelectorAll('#sport-nav button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('#sport-nav button').forEach(b => b.classList.toggle('active', b === btn));
+          currentSport = btn.dataset.sport;
+          loadLeaders();
+        });
+      });
+      document.getElementById('season-select').addEventListener('change', e => {
+        currentSeason = parseInt(e.target.value, 10);
+        loadLeaders();
+      });
+
+      populateSeasons();
+      loadLeaders();
+    </script>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+      import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+      const app = initializeApp({
+        apiKey: "AIzaSyC2sgfkqCVFU1RfiWsArIWjpvpebKVxT64",
+        authDomain: "betterbookie.firebaseapp.com",
+        projectId: "betterbookie",
+        storageBucket: "betterbookie.firebasestorage.app",
+        messagingSenderId: "995577929895",
+        appId: "1:995577929895:web:303a93aa15628d6c503b82"
+      });
+      const auth = getAuth(app);
+
+      onAuthStateChanged(auth, user => {
+        const loginLink = document.getElementById('nav-login');
+        if (loginLink) loginLink.style.display = user ? 'none' : 'inline';
+      });
+
+      document.addEventListener('click', (e) => {
+        const dropdown = document.getElementById('nav-settings-dropdown');
+        if (dropdown && !dropdown.contains(e.target)) dropdown.classList.remove('open');
+      });
+
+      document.getElementById('nav-signout')?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await signOut(auth);
+        window.location.href = 'login.html';
+      });
+    </script>
+  </body>
+</html>
