@@ -302,6 +302,7 @@
           <a href="standings.html">Standings</a>
           <a href="leaders.html">Leaders</a>
           <a href="news.html">News</a>
+          <a href="bets.html">My Bets</a>
           <a href="dashboard.html">Dashboard</a>
           <div class="nav-dropdown" id="nav-settings-dropdown">
             <button class="nav-dropdown-btn" onclick="document.getElementById('nav-settings-dropdown').classList.toggle('open')">Settings ▾</button>
@@ -371,6 +372,14 @@
           </select>
           <button class="clear-filter-btn" id="clear-team-filter">✕ Clear</button>
         </div>
+
+        <div style="text-align:center;margin:0.5rem 0;">
+          <span id="live-indicator" style="display:none;align-items:center;gap:0.4rem;font-size:0.78rem;padding:0.3rem 0.7rem;border:1px solid rgba(239,68,68,0.4);border-radius:20px;color:#ff6b6b;">
+            <span style="display:inline-block;width:7px;height:7px;background:#ff6b6b;border-radius:50%;animation:livePulse 1.5s ease-in-out infinite;"></span>
+            LIVE · auto-refreshing every 30s
+          </span>
+        </div>
+        <style>@keyframes livePulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }</style>
 
         <div id="cards-container" class="odds-cards">
           <div class="loading">Loading scores...</div>
@@ -755,6 +764,11 @@
           const awayName = awayTeam?.team?.displayName ?? awayTeam?.team?.name ?? 'Away';
           const homeLogo = homeTeam?.team?.logo ?? '';
           const awayLogo = awayTeam?.team?.logo ?? '';
+          const homeId = homeTeam?.team?.id ?? homeTeam?.id ?? '';
+          const awayId = awayTeam?.team?.id ?? awayTeam?.id ?? '';
+          const teamLink = (name, id) => id
+            ? `<a href="team.html?sport=${sport}&id=${id}" style="color:inherit;text-decoration:none;border-bottom:1px dotted rgba(255,255,255,0.25);">${name}</a>`
+            : name;
           const homeScore = homeTeam?.score ?? '-';
           const awayScore = awayTeam?.score ?? '-';
           const statusLabel = getStatusLabel(competition);
@@ -774,10 +788,10 @@
             <p class="${statusClass}" style="font-size:0.8rem;margin-bottom:0.5rem;">● ${statusLabel}</p>
             <h4>
               <img src="${awayLogo}" class="team-logo-sm" alt="${awayName}" onerror="this.style.display='none'">
-              ${awayName}
+              ${teamLink(awayName, awayId)}
               <span style="opacity:0.4;font-size:0.8rem;">@</span>
               <img src="${homeLogo}" class="team-logo-sm" alt="${homeName}" onerror="this.style.display='none'">
-              ${homeName}
+              ${teamLink(homeName, homeId)}
             </h4>
             <p class="score">${awayScore} – ${homeScore}</p>
             ${displayDate ? `<p>📅 ${displayDate}</p>` : ''}
@@ -805,7 +819,32 @@
         });
       }
 
+      // Live auto-refresh: when any game is in progress, re-fetch every 30s so the
+      // scoreboard stays current without user action.
+      let liveRefreshTimer = null;
+      const LIVE_REFRESH_MS = 30000;
+      function hasLiveGames(events) {
+        return events.some(ev => ev.competitions?.[0]?.status?.type?.name === 'STATUS_IN_PROGRESS');
+      }
+      function cancelLiveRefresh() {
+        if (liveRefreshTimer) { clearTimeout(liveRefreshTimer); liveRefreshTimer = null; }
+        const ind = document.getElementById('live-indicator');
+        if (ind) ind.style.display = 'none';
+      }
+      function scheduleLiveRefresh(events) {
+        cancelLiveRefresh();
+        if (!hasLiveGames(events)) return;
+        const ind = document.getElementById('live-indicator');
+        if (ind) ind.style.display = 'inline-flex';
+        liveRefreshTimer = setTimeout(() => {
+          const cacheKey = `${currentSport}-${currentSeason}-${currentSeasonType}-${currentWeek}`;
+          delete scoresCache[cacheKey];
+          fetchScores();
+        }, LIVE_REFRESH_MS);
+      }
+
       async function fetchScores() {
+        cancelLiveRefresh();
         const cacheKey = `${currentSport}-${currentSeason}-${currentSeasonType}-${currentWeek}`;
         document.getElementById('cards-container').innerHTML = '<div class="loading">Loading scores...</div>';
         try {
@@ -820,6 +859,7 @@
             events = data.events ?? [];
             scoresCache[cacheKey] = events;
           }
+          scheduleLiveRefresh(events);
           await populateTeamFilter(events);
           updateScoresFavBar(events);
           let filtered = events;

@@ -75,6 +75,7 @@
           <a href="standings.html">Standings</a>
           <a href="leaders.html">Leaders</a>
           <a href="news.html">News</a>
+          <a href="bets.html">My Bets</a>
           <a href="dashboard.html">Dashboard</a>
           <div class="nav-dropdown" id="nav-settings-dropdown">
             <button class="nav-dropdown-btn" onclick="document.getElementById('nav-settings-dropdown').classList.toggle('open')">Settings ▾</button>
@@ -150,6 +151,13 @@
 
         <!-- SCORES TAB -->
         <div class="tab-content" id="tab-scores">
+          <div style="text-align:center;margin:0 0 0.75rem;">
+            <span id="scores-live-indicator" style="display:none;align-items:center;gap:0.4rem;font-size:0.78rem;padding:0.3rem 0.7rem;border:1px solid rgba(239,68,68,0.4);border-radius:20px;color:#ff6b6b;">
+              <span style="display:inline-block;width:7px;height:7px;background:#ff6b6b;border-radius:50%;animation:livePulse 1.5s ease-in-out infinite;"></span>
+              LIVE · auto-refreshing every 30s
+            </span>
+          </div>
+          <style>@keyframes livePulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }</style>
           <div class="my-teams-bar" id="scores-teams-bar" style="display:none;">
             <span class="my-teams-label">My Teams</span>
             <div id="scores-teams-chips"></div>
@@ -489,8 +497,8 @@
                       : (t?.shortDetail || t?.detail || 'Scheduled');
           return {
             teams: {
-              home: { name: homeC?.team?.displayName ?? homeC?.team?.name ?? 'Home' },
-              away: { name: awayC?.team?.displayName ?? awayC?.team?.name ?? 'Away' },
+              home: { name: homeC?.team?.displayName ?? homeC?.team?.name ?? 'Home', id: homeC?.team?.id ?? homeC?.id ?? null },
+              away: { name: awayC?.team?.displayName ?? awayC?.team?.name ?? 'Away', id: awayC?.team?.id ?? awayC?.id ?? null },
             },
             scores: {
               home: { total: homeC?.score ?? '-' },
@@ -499,6 +507,8 @@
             status: { long: label, short: t?.shortDetail ?? '' },
             date: event.date,
             _sport: sport.toUpperCase(),
+            _sportKey: sport,
+            _isLive: t?.name === 'STATUS_IN_PROGRESS',
           };
         };
         let allGames = [];
@@ -525,6 +535,12 @@
         const scoreCard = (game, fav) => {
           const home = game.teams?.home?.name ?? 'Home';
           const away = game.teams?.away?.name ?? 'Away';
+          const homeId = game.teams?.home?.id;
+          const awayId = game.teams?.away?.id;
+          const sportKey = game._sportKey;
+          const teamLink = (name, id) => (id && sportKey)
+            ? `<a href="team.html?sport=${sportKey}&id=${id}" style="color:inherit;text-decoration:none;border-bottom:1px dotted rgba(255,255,255,0.25);">${name}</a>`
+            : name;
           const homeScore = game.scores?.home?.total ?? game.scores?.home ?? '-';
           const awayScore = game.scores?.away?.total ?? game.scores?.away ?? '-';
           const status = game.status?.long ?? game.status?.short ?? 'N/A';
@@ -534,7 +550,7 @@
               ${fav ? '<span class="fav-star">⭐</span>' : ''}
               <span class="sport-label">${game._sport}</span>
               <p class="${getStatusClass(status)}" style="font-size:0.8rem;margin-bottom:0.5rem;">● ${status}</p>
-              <h4>${logoImg(allLogoMap[away], away)}${away} @ ${logoImg(allLogoMap[home], home)}${home}</h4>
+              <h4>${logoImg(allLogoMap[away], away)}${teamLink(away, awayId)} @ ${logoImg(allLogoMap[home], home)}${teamLink(home, homeId)}</h4>
               <p style="font-size:1.3rem;font-weight:bold;">${awayScore} – ${homeScore}</p>
               <p>📅 ${date}</p>
               <p class="weather-line" data-home="${home}" data-at="${game.date ?? ''}" data-final="${status === 'Final'}" style="opacity:0.55;font-size:0.78rem;margin:0.25rem 0 0;"></p>
@@ -571,6 +587,21 @@
         document.getElementById('scores-table-body').innerHTML =
           favGames.map(g => scoreRow(g, true)).join('') +
           otherGames.map(g => scoreRow(g, false)).join('');
+        scheduleScoresLiveRefresh(allGames, favTeams, allLogoMap);
+      }
+
+      // Live auto-refresh: when any of the visible games is in progress,
+      // re-call loadScores after 30s so scoreboards stay fresh.
+      let scoresLiveTimer = null;
+      function scheduleScoresLiveRefresh(allGames, favTeams, allLogoMap) {
+        if (scoresLiveTimer) { clearTimeout(scoresLiveTimer); scoresLiveTimer = null; }
+        const ind = document.getElementById('scores-live-indicator');
+        if (!allGames.some(g => g._isLive)) {
+          if (ind) ind.style.display = 'none';
+          return;
+        }
+        if (ind) ind.style.display = 'inline-flex';
+        scoresLiveTimer = setTimeout(() => loadScores(favTeams, allLogoMap), 30000);
       }
 
       let currentUser = null;

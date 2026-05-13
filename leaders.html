@@ -49,6 +49,7 @@
           <a href="standings.html">Standings</a>
           <a href="leaders.html">Leaders</a>
           <a href="news.html">News</a>
+          <a href="bets.html">My Bets</a>
           <a href="dashboard.html">Dashboard</a>
           <div class="nav-dropdown" id="nav-settings-dropdown">
             <button class="nav-dropdown-btn" onclick="document.getElementById('nav-settings-dropdown').classList.toggle('open')">Settings ▾</button>
@@ -139,11 +140,15 @@
         const name = athlete.displayName ?? athlete.shortName ?? athlete.fullName ?? '—';
         const teamAbbrev = team.abbreviation ?? team.abbrev ?? '';
         const value = leader.displayValue ?? leader.value ?? '—';
+        const playerLink = athlete.id ? `player.html?sport=${currentSport}&id=${athlete.id}` : '';
+        const nameHtml = playerLink
+          ? `<a href="${playerLink}" style="color:inherit;text-decoration:none;">${name}${teamAbbrev ? `<span class="small-team">${teamAbbrev}</span>` : ''}</a>`
+          : `${name}${teamAbbrev ? `<span class="small-team">${teamAbbrev}</span>` : ''}`;
         return `
           <div class="leader-row">
             <span class="leader-rank">${rank}</span>
             ${headshot ? `<img class="leader-headshot" src="${headshot}" alt="${name}" onerror="this.style.background='rgba(255,255,255,0.08)';this.src='';">` : '<div class="leader-headshot"></div>'}
-            <span class="leader-name">${name}${teamAbbrev ? `<span class="small-team">${teamAbbrev}</span>` : ''}</span>
+            <span class="leader-name">${nameHtml}</span>
             <span class="leader-value">${value}</span>
           </div>
         `;

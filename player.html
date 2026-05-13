@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Player – BetterBookie</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .player-wrap { padding: 1.5rem 2rem 3rem; max-width: 1100px; margin: 0 auto; }
+      .player-hero { display: flex; align-items: center; gap: 1.2rem; padding: 1.25rem; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+      .player-hero img.headshot { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; background: rgba(255,255,255,0.06); flex-shrink: 0; }
+      .player-hero .player-meta h2 { margin: 0 0 0.3rem; font-size: 1.6rem; }
+      .player-hero .player-meta .sub { font-size: 0.9rem; opacity: 0.7; margin-bottom: 0.4rem; }
+      .player-hero .player-meta .bio-line { font-size: 0.82rem; opacity: 0.65; }
+      .player-hero .player-meta .jersey-pos { display: inline-block; padding: 0.2rem 0.55rem; background: rgba(255,255,255,0.1); border-radius: 4px; font-size: 0.78rem; font-weight: 600; margin-right: 0.5rem; }
+      .status { text-align: center; padding: 2.5rem 1rem; opacity: 0.7; }
+      .panel { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; padding: 1rem 1.1rem; margin-bottom: 1.25rem; }
+      .panel-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.6; margin: 0 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+      .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.75rem; }
+      .stat-item { background: rgba(255,255,255,0.03); border-radius: 6px; padding: 0.6rem 0.75rem; }
+      .stat-item .stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.55; margin-bottom: 0.2rem; }
+      .stat-item .stat-value { font-size: 1.1rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+      .games-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+      .games-table th, .games-table td { padding: 0.5rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.07); text-align: left; }
+      .games-table th { opacity: 0.55; font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em; }
+      .games-table .gr-win { color: #6bcb77; }
+      .games-table .gr-loss { color: #ff6b6b; }
+      .games-table .gr-tie { color: #ffd93d; }
+      .games-wrap { overflow-x: auto; }
+      .nav-dropdown { position: relative; display: inline-block; }
+      .nav-dropdown-btn { background: transparent; border: none; color: inherit; cursor: pointer; font-size: 1rem; padding: 0; font-family: inherit; }
+      .nav-dropdown-menu { display: none; position: absolute; top: 100%; right: 0; background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; min-width: 200px; z-index: 100; padding: 0.5rem 0; }
+      .nav-dropdown.open .nav-dropdown-menu { display: block; }
+      .nav-dropdown-menu a { display: block; padding: 0.6rem 1rem; color: inherit; text-decoration: none; font-size: 0.9rem; opacity: 0.8; }
+      .nav-dropdown-menu a:hover { opacity: 1; background: rgba(255,255,255,0.05); }
+      .nav-dropdown-menu .menu-divider { border-top: 1px solid rgba(255,255,255,0.1); margin: 0.25rem 0; }
+      .nav-dropdown-menu .menu-label { padding: 0.4rem 1rem 0.1rem; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.4; display: block; }
+    </style>
+  </head>
+  <body>
+    <header class="hero" style="min-height:auto;padding-bottom:1rem;">
+      <nav class="nav">
+        <h1 class="logo"><a href="index.html" style="text-decoration:none;color:inherit;">BetterBookie</a></h1>
+        <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false">☰</button>
+        <div class="nav-links" id="nav-links">
+          <a href="index.html#features">Features</a>
+          <a href="scores.html">Scores</a>
+          <a href="schedule.html">Schedule</a>
+          <a href="odds.html">Live Odds</a>
+          <a href="injuries.html">Injuries</a>
+          <a href="matchups.html">Matchups</a>
+          <a href="standings.html">Standings</a>
+          <a href="leaders.html">Leaders</a>
+          <a href="news.html">News</a>
+          <a href="bets.html">My Bets</a>
+          <a href="dashboard.html">Dashboard</a>
+          <div class="nav-dropdown" id="nav-settings-dropdown">
+            <button class="nav-dropdown-btn" onclick="document.getElementById('nav-settings-dropdown').classList.toggle('open')">Settings ▾</button>
+            <div class="nav-dropdown-menu">
+              <span class="menu-label">Preferences</span>
+              <a href="settings.html">All Preferences</a>
+              <a href="settings.html#sports">Sports Preferences</a>
+              <a href="settings.html#teams">Team Preferences</a>
+              <a href="settings.html#gambling">Gambling Preferences</a>
+              <a href="settings.html#fantasy">Fantasy Preferences</a>
+              <div class="menu-divider"></div>
+              <a href="#" id="nav-signout">Logout</a>
+            </div>
+          </div>
+          <a href="login.html" id="nav-login">Login</a>
+        </div>
+      </nav>
+    </header>
+
+    <section class="player-wrap" id="player-wrap">
+      <div class="status" id="player-status">Loading player…</div>
+    </section>
+
+    <footer class="footer">
+      <p>&copy; 2026 BetterBookie. Built by a beginner.</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+      const VERCEL = 'https://better-bookie-five.vercel.app';
+
+      function getParams() {
+        const u = new URLSearchParams(window.location.search);
+        return { sport: u.get('sport'), id: u.get('id') };
+      }
+
+      // Pulls a flat list of season stats out of ESPN's overview response.
+      // The shape varies slightly by sport, so we look at a couple of places.
+      function flattenSeasonStats(overview) {
+        const stats = overview?.statistics ?? overview?.stats;
+        if (!stats) return [];
+        const labels = stats.labels ?? stats.names ?? [];
+        const displayNames = stats.displayNames ?? stats.labels ?? labels;
+        // Most common shape: stats.splits.categories[0].stats[] with stat objects.
+        const splitsCats = stats.splits?.categories;
+        if (Array.isArray(splitsCats) && splitsCats.length) {
+          const cat = splitsCats[0];
+          const arr = cat?.stats ?? [];
+          return arr.map((s, i) => ({
+            label: s.displayName ?? s.name ?? labels[i] ?? '',
+            value: s.displayValue ?? s.value ?? '',
+          })).filter(s => s.label);
+        }
+        // Some sports return stats.splits.stats[] as a flat array of values aligned with labels[].
+        const flat = stats.splits?.stats;
+        if (Array.isArray(flat) && flat.length && labels.length) {
+          return flat.map((v, i) => ({ label: displayNames[i] ?? labels[i], value: v })).filter(s => s.label);
+        }
+        return [];
+      }
+
+      function recentGames(gamelog) {
+        // ESPN gamelog: seasonTypes[].categories[].events[]
+        // Each event has eventId, score, result (W/L), homeTeamId/awayTeamId, week.
+        // We flatten all events across season types and categories, then dedupe by eventId,
+        // and sort by week descending. The "categories" axis is per stat block; the same
+        // event can show up under multiple categories, so dedup is necessary.
+        const out = new Map();
+        const types = gamelog?.seasonTypes ?? [];
+        for (const t of types) {
+          const cats = t.categories ?? [];
+          for (const cat of cats) {
+            for (const ev of (cat.events ?? [])) {
+              if (!ev.eventId) continue;
+              if (!out.has(ev.eventId)) out.set(ev.eventId, { ...ev, _seasonType: t.displayName });
+            }
+          }
+        }
+        return [...out.values()].sort((a, b) => (b.week ?? 0) - (a.week ?? 0)).slice(0, 10);
+      }
+
+      function gamelogTeamLookup(gamelog) {
+        // ESPN gamelog includes a `teams` map keyed by team id; use it to resolve opponents.
+        const map = {};
+        const list = gamelog?.teams;
+        if (list && typeof list === 'object') {
+          for (const k of Object.keys(list)) {
+            map[k] = list[k];
+          }
+        }
+        return map;
+      }
+
+      function renderPlayer(data, sport) {
+        const wrap = document.getElementById('player-wrap');
+        const overview = data?.overview ?? {};
+        const ath = overview.athlete ?? {};
+        const name = ath.displayName ?? ath.fullName ?? 'Player';
+        const headshot = ath.headshot?.href ?? '';
+        const team = ath.team ?? {};
+        const teamName = team.displayName ?? team.name ?? '';
+        const teamId = team.id;
+        const pos = ath.position?.abbreviation ?? ath.position?.displayName ?? '';
+        const jersey = ath.jersey;
+        const ht = ath.displayHeight ?? ath.height;
+        const wt = ath.displayWeight ?? ath.weight;
+        const age = ath.age;
+        const college = ath.college?.name ?? '';
+        const dob = ath.dateOfBirth ? new Date(ath.dateOfBirth).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
+        const birthplace = ath.birthPlace ? [ath.birthPlace.city, ath.birthPlace.state, ath.birthPlace.country].filter(Boolean).join(', ') : '';
+
+        document.title = `${name} – BetterBookie`;
+
+        const teamLink = teamId
+          ? `<a href="team.html?sport=${sport}&id=${teamId}" style="color:inherit;text-decoration:none;border-bottom:1px dotted rgba(255,255,255,0.3);">${teamName}</a>`
+          : teamName;
+
+        const bioBits = [];
+        if (ht) bioBits.push(ht);
+        if (wt) bioBits.push(wt);
+        if (age != null) bioBits.push(`Age ${age}`);
+        if (dob) bioBits.push(`Born ${dob}`);
+        if (birthplace) bioBits.push(birthplace);
+        if (college) bioBits.push(`College: ${college}`);
+
+        const stats = flattenSeasonStats(overview);
+        const statsHtml = stats.length
+          ? `<div class="stat-grid">${stats.map(s => `
+              <div class="stat-item">
+                <div class="stat-label">${s.label}</div>
+                <div class="stat-value">${s.value}</div>
+              </div>
+            `).join('')}</div>`
+          : '<div style="opacity:0.6;font-size:0.85rem;padding:0.5rem 0;">No season stats available.</div>';
+
+        const games = recentGames(data?.gamelog);
+        const teamMap = gamelogTeamLookup(data?.gamelog);
+        const gamesHtml = games.length
+          ? `
+            <div class="games-wrap">
+              <table class="games-table">
+                <thead>
+                  <tr><th>Date</th><th>Opponent</th><th>Result</th><th>Score</th></tr>
+                </thead>
+                <tbody>
+                  ${games.map(g => {
+                    const oppId = String(g.homeTeamId) === String(teamId) ? g.awayTeamId : g.homeTeamId;
+                    const opp = teamMap[oppId];
+                    const oppName = opp?.displayName ?? opp?.shortDisplayName ?? '—';
+                    const oppLogo = opp?.logo ?? '';
+                    const isHome = String(g.homeTeamId) === String(teamId);
+                    const r = (g.gameResult ?? g.result ?? '').toString().toUpperCase();
+                    const rClass = r === 'W' ? 'gr-win' : r === 'L' ? 'gr-loss' : r === 'T' ? 'gr-tie' : '';
+                    const date = g.gameDate ? new Date(g.gameDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+                    return `
+                      <tr>
+                        <td>${date}</td>
+                        <td><div style="display:flex;align-items:center;gap:0.4rem;"><span style="opacity:0.5;font-size:0.78rem;">${isHome ? 'vs' : '@'}</span>${oppLogo ? `<img src="${oppLogo}" style="width:20px;height:20px;object-fit:contain;" alt="${oppName}" onerror="this.style.display='none'">` : ''}<span>${oppName}</span></div></td>
+                        <td><span class="${rClass}">${r || '—'}</span></td>
+                        <td>${g.score ?? '—'}</td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          `
+          : '<div style="opacity:0.6;font-size:0.85rem;padding:0.5rem 0;">No recent games available.</div>';
+
+        wrap.innerHTML = `
+          <div class="player-hero">
+            ${headshot ? `<img class="headshot" src="${headshot}" alt="${name}" onerror="this.style.background='rgba(255,255,255,0.08)';this.src='';">` : '<div class="headshot"></div>'}
+            <div class="player-meta">
+              <h2>${name}</h2>
+              <div class="sub">
+                ${jersey ? `<span class="jersey-pos">#${jersey}</span>` : ''}
+                ${pos ? `<span class="jersey-pos">${pos}</span>` : ''}
+                ${teamLink}
+              </div>
+              ${bioBits.length ? `<div class="bio-line">${bioBits.join(' · ')}</div>` : ''}
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3 class="panel-title">Season Stats</h3>
+            ${statsHtml}
+          </div>
+
+          <div class="panel">
+            <h3 class="panel-title">Recent Games</h3>
+            ${gamesHtml}
+          </div>
+        `;
+      }
+
+      async function loadPlayer() {
+        const status = document.getElementById('player-status');
+        const { sport, id } = getParams();
+        if (!sport || !id) {
+          status.innerHTML = 'Open a player from <a href="leaders.html" style="color:inherit;text-decoration:underline;">Leaders</a> or a team roster to see their profile.';
+          return;
+        }
+        try {
+          const r = await fetch(`${VERCEL}/api/espn-player?sport=${sport}&id=${id}`);
+          const data = await r.json();
+          if (data?.error) {
+            status.textContent = data.error;
+            return;
+          }
+          renderPlayer(data, sport);
+        } catch {
+          status.textContent = 'Failed to load player.';
+        }
+      }
+
+      loadPlayer();
+    </script>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+      import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+      const app = initializeApp({
+        apiKey: "AIzaSyC2sgfkqCVFU1RfiWsArIWjpvpebKVxT64",
+        authDomain: "betterbookie.firebaseapp.com",
+        projectId: "betterbookie",
+        storageBucket: "betterbookie.firebasestorage.app",
+        messagingSenderId: "995577929895",
+        appId: "1:995577929895:web:303a93aa15628d6c503b82"
+      });
+      const auth = getAuth(app);
+
+      onAuthStateChanged(auth, user => {
+        const loginLink = document.getElementById('nav-login');
+        if (loginLink) loginLink.style.display = user ? 'none' : 'inline';
+      });
+
+      document.addEventListener('click', (e) => {
+        const dropdown = document.getElementById('nav-settings-dropdown');
+        if (dropdown && !dropdown.contains(e.target)) dropdown.classList.remove('open');
+      });
+
+      document.getElementById('nav-signout')?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await signOut(auth);
+        window.location.href = 'login.html';
+      });
+    </script>
+  </body>
+</html>

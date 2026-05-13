@@ -79,6 +79,7 @@
           <a href="standings.html">Standings</a>
           <a href="leaders.html">Leaders</a>
           <a href="news.html">News</a>
+          <a href="bets.html">My Bets</a>
           <a href="dashboard.html">Dashboard</a>
           <div class="nav-dropdown" id="nav-settings-dropdown">
             <button class="nav-dropdown-btn" onclick="document.getElementById('nav-settings-dropdown').classList.toggle('open')">Settings ▾</button>
@@ -281,6 +282,10 @@
             return;
           }
           const sportLabel = sport.includes('nfl') ? 'NFL' : sport.includes('nba') ? 'NBA' : 'MLB';
+          const sportKey = sport.includes('nfl') ? 'nfl' : sport.includes('nba') ? 'nba' : 'mlb';
+          const trackHref = (team, odds) =>
+            `bets.html?sport=${sportKey}&type=moneyline&team=${encodeURIComponent(team)}&odds=${odds}`;
+          const trackBtnStyle = 'margin-left:0.4rem;padding:0.15rem 0.5rem;border:1px solid rgba(255,255,255,0.25);border-radius:4px;font-size:0.7rem;color:inherit;text-decoration:none;opacity:0.7;';
           cardsContainer.innerHTML = data.slice(0, 6).map(game => {
             const home = game.home_team;
             const away = game.away_team;
@@ -294,8 +299,8 @@
                 <span class="sport-label">${sportLabel}</span>
                 <h4>${logoImg(home)} ${home} vs ${logoImg(away)} ${away}</h4>
                 <p>📅 ${date}</p>
-                <div class="team-row">${logoImg(home)} <span>${home}: <strong>${homeOdds > 0 ? '+' : ''}${homeOdds}</strong></span></div>
-                <div class="team-row">${logoImg(away)} <span>${away}: <strong>${awayOdds > 0 ? '+' : ''}${awayOdds}</strong></span></div>
+                <div class="team-row">${logoImg(home)} <span>${home}: <strong>${homeOdds > 0 ? '+' : ''}${homeOdds}</strong></span>${homeOdds !== 'N/A' ? `<a href="${trackHref(home, homeOdds)}" style="${trackBtnStyle}">📋 Track</a>` : ''}</div>
+                <div class="team-row">${logoImg(away)} <span>${away}: <strong>${awayOdds > 0 ? '+' : ''}${awayOdds}</strong></span>${awayOdds !== 'N/A' ? `<a href="${trackHref(away, awayOdds)}" style="${trackBtnStyle}">📋 Track</a>` : ''}</div>
                 <p class="weather-line" data-home="${home}" data-at="${game.commence_time}" style="opacity:0.55;font-size:0.78rem;margin:0.4rem 0 0.2rem;"></p>
                 <p style="opacity:0.5;font-size:0.8rem;margin-top:0.5rem;">via ${bookmaker?.title ?? 'N/A'}</p>
               </div>

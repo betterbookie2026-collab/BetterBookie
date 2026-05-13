@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bet Tracker – BetterBookie</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .bets-wrap { padding: 1.5rem 2rem 3rem; max-width: 1100px; margin: 0 auto; }
+      .summary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.85rem; margin-bottom: 1.5rem; }
+      .summary-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.9rem 1rem; }
+      .summary-card .label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.55; margin-bottom: 0.3rem; }
+      .summary-card .value { font-size: 1.4rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+      .summary-card .sub { font-size: 0.75rem; opacity: 0.55; margin-top: 0.2rem; }
+      .pl-positive { color: #6bcb77; }
+      .pl-negative { color: #ff6b6b; }
+      .panel { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; padding: 1rem 1.1rem; margin-bottom: 1.25rem; }
+      .panel-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.65; margin: 0 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; }
+      .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.75rem; align-items: end; }
+      .form-grid .full { grid-column: 1 / -1; }
+      .field label { display: block; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.6; margin-bottom: 0.25rem; }
+      .field input, .field select, .field textarea { width: 100%; box-sizing: border-box; padding: 0.5rem 0.7rem; font-size: 0.9rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.18); background: #1a1a2e; color: inherit; font-family: inherit; }
+      .field textarea { resize: vertical; min-height: 60px; }
+      .submit-btn { padding: 0.55rem 1.2rem; border: 2px solid currentColor; background: transparent; cursor: pointer; font-size: 0.88rem; border-radius: 4px; color: inherit; }
+      .submit-btn:hover { background: rgba(255,255,255,0.06); }
+      .filter-bar { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+      .filter-pill { padding: 0.3rem 0.75rem; border: 1px solid rgba(255,255,255,0.2); background: transparent; cursor: pointer; font-size: 0.78rem; border-radius: 20px; color: inherit; opacity: 0.7; }
+      .filter-pill.active { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.5); opacity: 1; }
+      .bet-row { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; padding: 0.7rem 0.2rem; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.88rem; }
+      .bet-row:last-child { border-bottom: none; }
+      .bet-row .br-main { flex: 1; min-width: 240px; }
+      .bet-row .br-desc { font-weight: 600; margin-bottom: 0.15rem; }
+      .bet-row .br-sub { font-size: 0.75rem; opacity: 0.6; }
+      .bet-row .br-stake { font-variant-numeric: tabular-nums; opacity: 0.85; min-width: 100px; }
+      .bet-row .br-status { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.2rem 0.55rem; border-radius: 4px; background: rgba(255,255,255,0.08); font-weight: 600; }
+      .status-pending { background: rgba(255,217,61,0.18); color: #ffd93d; }
+      .status-won     { background: rgba(107,203,119,0.18); color: #6bcb77; }
+      .status-lost    { background: rgba(255,107,107,0.18); color: #ff6b6b; }
+      .status-push    { background: rgba(176,176,176,0.18); color: #b0b0b0; }
+      .status-void    { background: rgba(120,120,120,0.18); color: #999; }
+      .bet-actions { display: flex; gap: 0.3rem; }
+      .bet-actions button { padding: 0.25rem 0.55rem; font-size: 0.72rem; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: inherit; cursor: pointer; border-radius: 4px; }
+      .bet-actions button:hover { background: rgba(255,255,255,0.05); }
+      .bet-actions button.danger { border-color: rgba(255,107,107,0.4); color: #ff6b6b; }
+      .empty { text-align: center; padding: 2rem 1rem; opacity: 0.6; font-size: 0.9rem; }
+      .nav-dropdown { position: relative; display: inline-block; }
+      .nav-dropdown-btn { background: transparent; border: none; color: inherit; cursor: pointer; font-size: 1rem; padding: 0; font-family: inherit; }
+      .nav-dropdown-menu { display: none; position: absolute; top: 100%; right: 0; background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; min-width: 200px; z-index: 100; padding: 0.5rem 0; }
+      .nav-dropdown.open .nav-dropdown-menu { display: block; }
+      .nav-dropdown-menu a { display: block; padding: 0.6rem 1rem; color: inherit; text-decoration: none; font-size: 0.9rem; opacity: 0.8; }
+      .nav-dropdown-menu a:hover { opacity: 1; background: rgba(255,255,255,0.05); }
+      .nav-dropdown-menu .menu-divider { border-top: 1px solid rgba(255,255,255,0.1); margin: 0.25rem 0; }
+      .nav-dropdown-menu .menu-label { padding: 0.4rem 1rem 0.1rem; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.4; display: block; }
+    </style>
+  </head>
+  <body>
+    <header class="hero" style="min-height:auto;padding-bottom:1rem;">
+      <nav class="nav">
+        <h1 class="logo"><a href="index.html" style="text-decoration:none;color:inherit;">BetterBookie</a></h1>
+        <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false">☰</button>
+        <div class="nav-links" id="nav-links">
+          <a href="index.html#features">Features</a>
+          <a href="scores.html">Scores</a>
+          <a href="schedule.html">Schedule</a>
+          <a href="odds.html">Live Odds</a>
+          <a href="injuries.html">Injuries</a>
+          <a href="matchups.html">Matchups</a>
+          <a href="standings.html">Standings</a>
+          <a href="leaders.html">Leaders</a>
+          <a href="news.html">News</a>
+          <a href="bets.html">My Bets</a>
+          <a href="dashboard.html">Dashboard</a>
+          <div class="nav-dropdown" id="nav-settings-dropdown">
+            <button class="nav-dropdown-btn" onclick="document.getElementById('nav-settings-dropdown').classList.toggle('open')">Settings ▾</button>
+            <div class="nav-dropdown-menu">
+              <span class="menu-label">Preferences</span>
+              <a href="settings.html">All Preferences</a>
+              <a href="settings.html#sports">Sports Preferences</a>
+              <a href="settings.html#teams">Team Preferences</a>
+              <a href="settings.html#gambling">Gambling Preferences</a>
+              <a href="settings.html#fantasy">Fantasy Preferences</a>
+              <div class="menu-divider"></div>
+              <a href="#" id="nav-signout">Logout</a>
+            </div>
+          </div>
+          <a href="login.html" id="nav-login">Login</a>
+        </div>
+      </nav>
+      <div class="hero-content" style="padding-top:1rem;">
+        <h2>My Bets</h2>
+        <p>Track every bet you've placed. Watch your win % and net P/L roll up automatically.</p>
+      </div>
+    </header>
+
+    <section class="bets-wrap">
+      <div id="bets-content">
+        <div class="empty" id="bets-loading">Loading your bets…</div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>&copy; 2026 BetterBookie. Built by a beginner.</p>
+    </footer>
+
+    <script src="script.js"></script>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+      import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+      import {
+        getFirestore, collection, doc, addDoc, updateDoc, deleteDoc,
+        getDocs, query, orderBy, serverTimestamp
+      } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+      const app = initializeApp({
+        apiKey: "AIzaSyC2sgfkqCVFU1RfiWsArIWjpvpebKVxT64",
+        authDomain: "betterbookie.firebaseapp.com",
+        projectId: "betterbookie",
+        storageBucket: "betterbookie.firebasestorage.app",
+        messagingSenderId: "995577929895",
+        appId: "1:995577929895:web:303a93aa15628d6c503b82"
+      });
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      onAuthStateChanged(auth, user => {
+        const loginLink = document.getElementById('nav-login');
+        if (loginLink) loginLink.style.display = user ? 'none' : 'inline';
+      });
+
+      document.addEventListener('click', (e) => {
+        const dropdown = document.getElementById('nav-settings-dropdown');
+        if (dropdown && !dropdown.contains(e.target)) dropdown.classList.remove('open');
+      });
+
+      document.getElementById('nav-signout')?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await signOut(auth);
+        window.location.href = 'login.html';
+      });
+
+      // ===== Bet tracking =====
+      // American odds → multiplier from stake to total payout on win.
+      // +150 stake $100 → profit $150, total $250 → multiplier 2.5
+      // -150 stake $100 → profit $66.67, total $166.67 → multiplier 1.667
+      function payoutMultiplier(americanOdds) {
+        const n = Number(americanOdds);
+        if (!Number.isFinite(n) || n === 0) return 1;
+        return n > 0 ? 1 + (n / 100) : 1 + (100 / Math.abs(n));
+      }
+      function formatMoney(n) {
+        const sign = n < 0 ? '-' : '';
+        return `${sign}$${Math.abs(n).toFixed(2)}`;
+      }
+      function netForBet(bet) {
+        const stake = Number(bet.stake) || 0;
+        const mult = payoutMultiplier(bet.odds);
+        if (bet.status === 'won') return stake * mult - stake;        // profit
+        if (bet.status === 'lost') return -stake;
+        if (bet.status === 'push' || bet.status === 'void') return 0;
+        return 0; // pending excluded from realized P/L
+      }
+
+      let currentUser = null;
+      let bets = [];
+      let currentFilter = 'all';
+
+      // When the user lands here from a "📋 Track" button on odds.html, the URL
+      // carries sport/team/odds/type. We use these to prefill the Log a Bet form
+      // on the first render only, then clear so subsequent renders are clean.
+      function readUrlPrefill() {
+        const p = new URLSearchParams(window.location.search);
+        if (!p.get('team') && !p.get('odds')) return null;
+        const team = p.get('team') || '';
+        const betType = p.get('type') || 'moneyline';
+        return {
+          sport: p.get('sport') || 'nfl',
+          betType,
+          odds: p.get('odds') || '',
+          description: team ? `${team} ${betType}` : '',
+        };
+      }
+      let pendingPrefill = readUrlPrefill();
+
+      function summary() {
+        const settled = bets.filter(b => b.status === 'won' || b.status === 'lost');
+        const wins = settled.filter(b => b.status === 'won').length;
+        const losses = settled.filter(b => b.status === 'lost').length;
+        const pending = bets.filter(b => b.status === 'pending').length;
+        const totalStake = bets.filter(b => b.status !== 'void').reduce((s, b) => s + (Number(b.stake) || 0), 0);
+        const netPL = bets.reduce((s, b) => s + netForBet(b), 0);
+        const winPct = settled.length ? (wins / settled.length) * 100 : null;
+        return { total: bets.length, wins, losses, pending, totalStake, netPL, winPct };
+      }
+
+      function renderSummary() {
+        const s = summary();
+        const plClass = s.netPL > 0 ? 'pl-positive' : s.netPL < 0 ? 'pl-negative' : '';
+        return `
+          <div class="summary-grid">
+            <div class="summary-card">
+              <div class="label">Total Bets</div>
+              <div class="value">${s.total}</div>
+              <div class="sub">${s.pending} pending</div>
+            </div>
+            <div class="summary-card">
+              <div class="label">Win %</div>
+              <div class="value">${s.winPct == null ? '—' : s.winPct.toFixed(1) + '%'}</div>
+              <div class="sub">${s.wins}-${s.losses} settled</div>
+            </div>
+            <div class="summary-card">
+              <div class="label">Total Staked</div>
+              <div class="value">${formatMoney(s.totalStake)}</div>
+              <div class="sub">excluding voids</div>
+            </div>
+            <div class="summary-card">
+              <div class="label">Net P/L</div>
+              <div class="value ${plClass}">${formatMoney(s.netPL)}</div>
+              <div class="sub">realized only</div>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderAddForm() {
+        const p = pendingPrefill;
+        const sel = (val, target) => val === target ? ' selected' : '';
+        return `
+          <div class="panel" id="add-bet-panel">
+            <h3 class="panel-title">Log a Bet${p ? ' <span style="opacity:0.55;font-size:0.7rem;font-weight:400;">prefilled from odds</span>' : ''}</h3>
+            <form id="add-form" class="form-grid">
+              <div class="field"><label>Sport</label>
+                <select name="sport" required>
+                  <option value="nfl"${sel(p?.sport,'nfl')}>NFL</option>
+                  <option value="nba"${sel(p?.sport,'nba')}>NBA</option>
+                  <option value="mlb"${sel(p?.sport,'mlb')}>MLB</option>
+                  <option value="nhl"${sel(p?.sport,'nhl')}>NHL</option>
+                  <option value="ncaafb"${sel(p?.sport,'ncaafb')}>NCAA FB</option>
+                  <option value="ncaabb"${sel(p?.sport,'ncaabb')}>NCAA BB</option>
+                  <option value="other"${sel(p?.sport,'other')}>Other</option>
+                </select>
+              </div>
+              <div class="field"><label>Type</label>
+                <select name="betType" required>
+                  <option value="moneyline"${sel(p?.betType,'moneyline')}>Moneyline</option>
+                  <option value="spread"${sel(p?.betType,'spread')}>Spread</option>
+                  <option value="total"${sel(p?.betType,'total')}>Over / Under</option>
+                  <option value="parlay"${sel(p?.betType,'parlay')}>Parlay</option>
+                  <option value="prop"${sel(p?.betType,'prop')}>Prop</option>
+                  <option value="futures"${sel(p?.betType,'futures')}>Futures</option>
+                </select>
+              </div>
+              <div class="field"><label>Odds (American)</label>
+                <input type="number" name="odds" placeholder="-110" value="${p?.odds ?? ''}" required>
+              </div>
+              <div class="field"><label>Stake ($)</label>
+                <input type="number" name="stake" step="0.01" min="0" placeholder="50.00" required>
+              </div>
+              <div class="field"><label>Game Date</label>
+                <input type="date" name="gameDate">
+              </div>
+              <div class="field full"><label>Description</label>
+                <input type="text" name="description" placeholder="e.g. Chiefs ML vs Bills" value="${p?.description ?? ''}" required>
+              </div>
+              <div class="field full"><label>Notes (optional)</label>
+                <textarea name="notes" placeholder="Reasoning, gut feel, etc."></textarea>
+              </div>
+              <div class="field full" style="display:flex;justify-content:flex-end;">
+                <button type="submit" class="submit-btn">+ Add Bet</button>
+              </div>
+            </form>
+          </div>
+        `;
+      }
+
+      function renderBetsList() {
+        const filtered = currentFilter === 'all' ? bets : bets.filter(b => b.status === currentFilter);
+        if (!filtered.length) {
+          return `
+            <div class="panel">
+              <h3 class="panel-title">${currentFilter === 'all' ? 'All Bets' : currentFilter[0].toUpperCase() + currentFilter.slice(1)}</h3>
+              <div class="empty">No bets to show in this view.</div>
+            </div>
+          `;
+        }
+        const rows = filtered.map(bet => {
+          const sport = (bet.sport ?? 'other').toUpperCase();
+          const odds = bet.odds > 0 ? `+${bet.odds}` : bet.odds;
+          const stake = Number(bet.stake) || 0;
+          const potential = stake * payoutMultiplier(bet.odds);
+          const profit = potential - stake;
+          const net = netForBet(bet);
+          const netHtml = bet.status === 'pending'
+            ? `<span style="opacity:0.6;font-size:0.78rem;">to win ${formatMoney(profit)}</span>`
+            : `<span class="${net > 0 ? 'pl-positive' : net < 0 ? 'pl-negative' : ''}" style="font-weight:600;">${formatMoney(net)}</span>`;
+          const dateStr = bet.gameDate ?? '';
+          return `
+            <div class="bet-row" data-bet-id="${bet.id}">
+              <div class="br-main">
+                <div class="br-desc">${bet.description ?? '(no description)'}</div>
+                <div class="br-sub">${sport} · ${bet.betType ?? 'bet'} · ${odds}${dateStr ? ' · ' + dateStr : ''}</div>
+              </div>
+              <div class="br-stake">${formatMoney(stake)}</div>
+              <div class="br-stake" style="text-align:right;">${netHtml}</div>
+              <span class="br-status status-${bet.status}">${bet.status}</span>
+              <div class="bet-actions">
+                ${bet.status === 'pending' ? `
+                  <button data-action="settle" data-status="won">Won</button>
+                  <button data-action="settle" data-status="lost">Lost</button>
+                  <button data-action="settle" data-status="push">Push</button>
+                  <button data-action="settle" data-status="void">Void</button>
+                ` : `
+                  <button data-action="settle" data-status="pending">Reopen</button>
+                `}
+                <button data-action="delete" class="danger">Delete</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+        const filterBar = `
+          <div class="filter-bar">
+            ${['all','pending','won','lost','push','void'].map(f => `
+              <button class="filter-pill${currentFilter === f ? ' active' : ''}" data-filter="${f}">${f[0].toUpperCase() + f.slice(1)}</button>
+            `).join('')}
+          </div>
+        `;
+        return `
+          <div class="panel">
+            <h3 class="panel-title">My Bets <span style="opacity:0.5;font-size:0.7rem;font-weight:400;">${filtered.length} shown</span></h3>
+            ${filterBar}
+            ${rows}
+          </div>
+        `;
+      }
+
+      function renderAll() {
+        const wasPrefilled = !!pendingPrefill;
+        const root = document.getElementById('bets-content');
+        root.innerHTML = renderSummary() + renderAddForm() + renderBetsList();
+        if (wasPrefilled) {
+          // Consume the prefill and scroll/focus the form so the user can fill in the stake.
+          pendingPrefill = null;
+          history.replaceState({}, '', 'bets.html');
+          const panel = document.getElementById('add-bet-panel');
+          if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          document.querySelector('#add-form input[name="stake"]')?.focus();
+        }
+
+        document.getElementById('add-form')?.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const form = e.target;
+          const fd = new FormData(form);
+          const newBet = {
+            sport: fd.get('sport'),
+            betType: fd.get('betType'),
+            odds: parseFloat(fd.get('odds')),
+            stake: parseFloat(fd.get('stake')),
+            description: fd.get('description'),
+            gameDate: fd.get('gameDate') || null,
+            notes: fd.get('notes') || '',
+            status: 'pending',
+            createdAt: serverTimestamp(),
+          };
+          try {
+            const colRef = collection(db, 'users', currentUser.uid, 'bets');
+            const docRef = await addDoc(colRef, newBet);
+            bets.unshift({ id: docRef.id, ...newBet, createdAt: new Date() });
+            renderAll();
+          } catch (err) {
+            alert('Failed to save bet: ' + err.message);
+          }
+        });
+
+        document.querySelectorAll('.filter-pill').forEach(btn => {
+          btn.addEventListener('click', () => {
+            currentFilter = btn.dataset.filter;
+            renderAll();
+          });
+        });
+
+        document.querySelectorAll('.bet-row').forEach(row => {
+          const betId = row.dataset.betId;
+          row.querySelectorAll('[data-action="settle"]').forEach(btn => {
+            btn.addEventListener('click', async () => {
+              const newStatus = btn.dataset.status;
+              try {
+                await updateDoc(doc(db, 'users', currentUser.uid, 'bets', betId), {
+                  status: newStatus,
+                  settledAt: newStatus === 'pending' ? null : serverTimestamp(),
+                });
+                const bet = bets.find(b => b.id === betId);
+                if (bet) bet.status = newStatus;
+                renderAll();
+              } catch (err) {
+                alert('Failed to update bet: ' + err.message);
+              }
+            });
+          });
+          row.querySelector('[data-action="delete"]')?.addEventListener('click', async () => {
+            if (!confirm('Delete this bet?')) return;
+            try {
+              await deleteDoc(doc(db, 'users', currentUser.uid, 'bets', betId));
+              bets = bets.filter(b => b.id !== betId);
+              renderAll();
+            } catch (err) {
+              alert('Failed to delete bet: ' + err.message);
+            }
+          });
+        });
+      }
+
+      async function loadBets() {
+        const colRef = collection(db, 'users', currentUser.uid, 'bets');
+        try {
+          const snap = await getDocs(query(colRef, orderBy('createdAt', 'desc')));
+          bets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        } catch (err) {
+          // If the user has never written, the index is missing — fall back to unordered.
+          const snap = await getDocs(colRef);
+          bets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        }
+        renderAll();
+      }
+
+      onAuthStateChanged(auth, user => {
+        if (!user) { window.location.href = 'login.html'; return; }
+        currentUser = user;
+        loadBets();
+      });
+    </script>
+  </body>
+</html>

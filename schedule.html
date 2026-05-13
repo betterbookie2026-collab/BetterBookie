@@ -54,6 +54,7 @@
           <a href="standings.html">Standings</a>
           <a href="leaders.html">Leaders</a>
           <a href="news.html">News</a>
+          <a href="bets.html">My Bets</a>
           <a href="dashboard.html">Dashboard</a>
           <div class="nav-dropdown" id="nav-settings-dropdown">
             <button class="nav-dropdown-btn" onclick="document.getElementById('nav-settings-dropdown').classList.toggle('open')">Settings ▾</button>
@@ -182,6 +183,11 @@
         const awayName = away?.team?.displayName ?? away?.team?.name ?? 'Away';
         const homeLogo = home?.team?.logo ?? '';
         const awayLogo = away?.team?.logo ?? '';
+        const homeId = home?.team?.id ?? home?.id ?? '';
+        const awayId = away?.team?.id ?? away?.id ?? '';
+        const teamLink = (name, id) => id
+          ? `<a href="team.html?sport=${sport}&id=${id}" style="color:inherit;text-decoration:none;border-bottom:1px dotted rgba(255,255,255,0.25);">${name}</a>`
+          : `<span>${name}</span>`;
         const venue = comp?.venue?.fullName ?? '';
         const matchupLink = PRO_SPORTS.has(sport)
           ? `<a class="game-link" href="matchups.html?sport=${sport}&home=${encodeURIComponent(homeName)}&away=${encodeURIComponent(awayName)}">🆚 Lifetime matchup →</a>`
@@ -191,10 +197,10 @@
             <span class="sport-label">${sport === 'ncaafb' ? 'NCAA FB' : sport === 'ncaabb' ? 'NCAA BB' : sport.toUpperCase()}</span>
             <div class="game-matchup">
               ${awayLogo ? `<img src="${awayLogo}" alt="${awayName}" onerror="this.style.display='none'">` : ''}
-              <span>${awayName}</span>
+              ${teamLink(awayName, awayId)}
               <span style="opacity:0.4;font-weight:400;">@</span>
               ${homeLogo ? `<img src="${homeLogo}" alt="${homeName}" onerror="this.style.display='none'">` : ''}
-              <span>${homeName}</span>
+              ${teamLink(homeName, homeId)}
             </div>
             <div class="game-meta">
               <div>🕒 ${eventTime(event)}</div>
