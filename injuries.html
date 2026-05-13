@@ -204,11 +204,51 @@
         return '';
       }
 
+      // Favorites populated later by the Firestore lookup in the module script.
+      // Until that resolves the set is empty and the dropdown behaves as before.
+      let favTeams = new Set();
+
       function populateTeamDropdown(sport) {
         const select = document.getElementById('team-select');
-        select.innerHTML = teams[sport].map(t => `<option value="${t.id}">${t.name}</option>`).join('');
-        currentTeam = teams[sport][0].id.toString();
+        const list = teams[sport];
+        const favs = list.filter(t => favTeams.has(t.name));
+        const others = list.filter(t => !favTeams.has(t.name));
+        const opt = t => `<option value="${t.id}">${t.name}</option>`;
+        if (favs.length) {
+          select.innerHTML =
+            `<optgroup label="My Teams">${favs.map(opt).join('')}</optgroup>` +
+            `<optgroup label="Other Teams">${others.map(opt).join('')}</optgroup>`;
+          currentTeam = favs[0].id.toString();
+        } else {
+          select.innerHTML = list.map(opt).join('');
+          currentTeam = list[0].id.toString();
+        }
+        select.value = currentTeam;
       }
+
+      // Choose the initial sport tab: first sport (in NFL/NBA/MLB/NHL order)
+      // where the user has a favorite, otherwise NFL.
+      function pickInitialSport() {
+        const order = ['nfl', 'nba', 'mlb', 'nhl'];
+        for (const s of order) {
+          if (teams[s]?.some(t => favTeams.has(t.name))) return s;
+        }
+        return 'nfl';
+      }
+
+      // Called by the auth module once prefs are known. If the user has any
+      // favorite teams, re-pick the active sport tab, refresh the dropdown,
+      // and refetch — otherwise leave the default render alone.
+      window.__applyFavTeams = (names) => {
+        favTeams = new Set(names ?? []);
+        if (!favTeams.size) return;
+        currentSport = pickInitialSport();
+        document.querySelectorAll('.odds-nav button').forEach(b => {
+          b.classList.toggle('active', b.dataset.sport === currentSport);
+        });
+        populateTeamDropdown(currentSport);
+        fetchInjuries(currentSport, currentTeam);
+      };
 
       function showUnavailable(sport) {
         const { icon, name } = unavailableSports[sport];
@@ -312,6 +352,7 @@
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
       import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+      import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
       const app = initializeApp({
         apiKey: "AIzaSyC2sgfkqCVFU1RfiWsArIWjpvpebKVxT64",
@@ -322,10 +363,22 @@
         appId: "1:995577929895:web:303a93aa15628d6c503b82"
       });
       const auth = getAuth(app);
+      const db = getFirestore(app);
 
-      onAuthStateChanged(auth, user => {
+      let prefsApplied = false;
+      onAuthStateChanged(auth, async user => {
         const loginLink = document.getElementById('nav-login');
         if (loginLink) loginLink.style.display = user ? 'none' : 'inline';
+
+        if (prefsApplied) return;
+        prefsApplied = true;
+        if (!user) return;
+        try {
+          const snap = await getDoc(doc(db, 'users', user.uid));
+          if (snap.exists()) {
+            window.__applyFavTeams?.(snap.data().teams ?? []);
+          }
+        } catch {}
       });
 
       document.addEventListener('click', (e) => {
