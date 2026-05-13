@@ -14,8 +14,8 @@
       .picker-col { display: flex; flex-direction: column; gap: 0.4rem; position: relative; }
       .picker-col label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.55; }
       .team-combo { position: relative; min-width: 260px; }
-      .team-combo input { width: 100%; box-sizing: border-box; padding: 0.55rem 0.9rem; font-size: 0.95rem; border-radius: 4px; border: 2px solid currentColor; background: #1a1a2e; color: #fff; }
-      .team-combo input::placeholder { opacity: 0.4; }
+      .team-combo input { width: 100%; box-sizing: border-box; padding: 0.5rem 1rem; font-size: 0.95rem; border-radius: 4px; border: 2px solid currentColor; background: transparent; color: inherit; cursor: text; font-family: inherit; }
+      .team-combo input::placeholder { color: inherit; opacity: 0.55; }
       .team-combo input:focus { outline: none; border-color: rgba(255,255,255,0.7); }
       .team-combo-list { display: none; position: absolute; left: 0; right: 0; top: calc(100% + 4px); max-height: 280px; overflow-y: auto; background: #1a1a2e; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; z-index: 50; padding: 0.3rem 0; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
       .team-combo.open .team-combo-list { display: block; }
@@ -65,7 +65,6 @@
         <h1 class="logo"><a href="index.html" style="text-decoration:none;color:inherit;">BetterBookie</a></h1>
         <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false">☰</button>
         <div class="nav-links" id="nav-links">
-          <a href="index.html#features">Features</a>
           <a href="scores.html">Scores</a>
           <a href="schedule.html">Schedule</a>
           <a href="odds.html">Live Odds</a>

@@ -41,7 +41,6 @@
         <h1 class="logo"><a href="index.html" style="text-decoration:none;color:inherit;">BetterBookie</a></h1>
         <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false">☰</button>
         <div class="nav-links" id="nav-links">
-          <a href="index.html#features">Features</a>
           <a href="scores.html">Scores</a>
           <a href="schedule.html">Schedule</a>
           <a href="odds.html">Live Odds</a>
@@ -113,24 +112,29 @@
         sel.innerHTML = years.map(y => `<option value="${y}"${y === currentSeason ? ' selected' : ''}>${y}</option>`).join('');
       }
 
-      // ESPN's leaders responses vary by sport; categories may live under a few different paths.
+      // ESPN's v3 leaders responses use { leaders: { categories: [{ displayName, leaders }] } }.
+      // The collector also walks .categories at every level just in case ESPN tweaks the shape.
       function flattenCategories(data) {
         const sources = [];
+        const seen = new Set();
         const collect = node => {
-          if (!node) return;
-          const cats = node.categories ?? node.leaders ?? [];
-          for (const cat of cats) {
-            if (Array.isArray(cat.leaders) && cat.leaders.length) {
-              sources.push({
-                name: cat.displayName ?? cat.name ?? cat.abbreviation ?? '',
-                leaders: cat.leaders,
-              });
+          if (!node || typeof node !== 'object') return;
+          const cats = Array.isArray(node) ? node : (node.categories ?? null);
+          if (Array.isArray(cats)) {
+            for (const cat of cats) {
+              if (Array.isArray(cat?.leaders) && cat.leaders.length) {
+                const name = cat.displayName ?? cat.name ?? cat.abbreviation ?? '';
+                if (seen.has(name)) continue;
+                seen.add(name);
+                sources.push({ name, leaders: cat.leaders });
+              }
             }
           }
         };
+        collect(data?.leaders);
         collect(data);
-        (data?.leagues ?? []).forEach(l => collect(l));
-        (data?.sports ?? []).forEach(s => (s?.leagues ?? []).forEach(l => collect(l)));
+        (data?.leagues ?? []).forEach(l => { collect(l?.leaders); collect(l); });
+        (data?.sports ?? []).forEach(s => (s?.leagues ?? []).forEach(l => { collect(l?.leaders); collect(l); }));
         return sources;
       }
 

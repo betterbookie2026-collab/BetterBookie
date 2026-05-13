@@ -26,6 +26,29 @@ select option {
   color: #fff;
 }
 
+/* Date inputs share the dropdown look so the text and calendar icon stay
+   readable on the dark theme. The icon needs an invert filter because the
+   browser default renders it black, which disappears on dark backgrounds. */
+input[type="date"] {
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  border-radius: 4px;
+  border: 2px solid currentColor;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-family: inherit;
+  color-scheme: dark;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+  opacity: 0.8;
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
 body {
   font-family: Arial, sans-serif;
   color: #1f2937;

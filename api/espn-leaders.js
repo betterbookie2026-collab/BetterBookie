@@ -4,13 +4,15 @@
 //   sport (required) — nfl | nba | mlb | nhl | ncaafb | ncaabb
 //   season (optional) — start year of the season
 
+// ESPN's working leaders endpoint lives on the v3 site.web host. The older
+// v2 path under site.api.espn.com returns 404 across the board now.
 const URLS = {
-  nfl:    'https://site.api.espn.com/apis/site/v2/sports/football/nfl/leaders',
-  nba:    'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/leaders',
-  mlb:    'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/leaders',
-  nhl:    'https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/leaders',
-  ncaafb: 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/leaders',
-  ncaabb: 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/leaders',
+  nfl:    'https://site.web.api.espn.com/apis/site/v3/sports/football/nfl/leaders',
+  nba:    'https://site.web.api.espn.com/apis/site/v3/sports/basketball/nba/leaders',
+  mlb:    'https://site.web.api.espn.com/apis/site/v3/sports/baseball/mlb/leaders',
+  nhl:    'https://site.web.api.espn.com/apis/site/v3/sports/hockey/nhl/leaders',
+  ncaafb: 'https://site.web.api.espn.com/apis/site/v3/sports/football/college-football/leaders',
+  ncaabb: 'https://site.web.api.espn.com/apis/site/v3/sports/basketball/mens-college-basketball/leaders',
 };
 
 export default async function handler(req, res) {

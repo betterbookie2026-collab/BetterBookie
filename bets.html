@@ -59,7 +59,6 @@
         <h1 class="logo"><a href="index.html" style="text-decoration:none;color:inherit;">BetterBookie</a></h1>
         <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false">☰</button>
         <div class="nav-links" id="nav-links">
-          <a href="index.html#features">Features</a>
           <a href="scores.html">Scores</a>
           <a href="schedule.html">Schedule</a>
           <a href="odds.html">Live Odds</a>
@@ -108,8 +107,8 @@
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
       import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
       import {
-        getFirestore, collection, doc, addDoc, updateDoc, deleteDoc,
-        getDocs, query, orderBy, serverTimestamp
+        getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, setDoc,
+        getDoc, getDocs, query, orderBy, serverTimestamp
       } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
       const app = initializeApp({
@@ -333,10 +332,43 @@
         `;
       }
 
+      // ===== Email forwarding =====
+      // Update this to your real inbound domain once MX records are live.
+      const INBOUND_EMAIL_DOMAIN = 'mail.betterbookie.example';
+
+      function renderEmailImportPanel() {
+        const token = window.userEmailToken;
+        // Hide the panel entirely until token + lookup-doc are both in place.
+        // Until the Firestore rules + inbound domain are wired up, this is a no-op.
+        if (!token) return '';
+        const address = `bets+${token}@${INBOUND_EMAIL_DOMAIN}`;
+        return `
+          <div class="panel" id="email-import-panel">
+            <h3 class="panel-title">📧 Email Auto-Import</h3>
+            <p style="opacity:0.75;font-size:0.85rem;margin-bottom:0.6rem;">
+              Forward your sportsbook bet-confirmation emails to the address below and they'll appear here automatically. Currently parsing: <strong>DraftKings</strong>.
+            </p>
+            <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-bottom:0.75rem;">
+              <code style="background:rgba(255,255,255,0.08);padding:0.45rem 0.7rem;border-radius:4px;font-size:0.85rem;flex:1;min-width:240px;">${address}</code>
+              <button type="button" id="copy-email-btn" class="submit-btn" style="font-size:0.8rem;padding:0.4rem 0.9rem;">📋 Copy</button>
+            </div>
+            <details style="font-size:0.82rem;opacity:0.75;">
+              <summary style="cursor:pointer;opacity:0.85;">How to set this up</summary>
+              <ol style="margin:0.5rem 0 0 1.25rem;line-height:1.6;">
+                <li>In Gmail/Outlook/etc., create a filter for messages <em>from</em> <code>noreply@draftkings.com</code> (and similar sportsbook addresses).</li>
+                <li>Set the filter action to forward those emails to the address above.</li>
+                <li>Place a real bet on DraftKings — the confirmation email arrives, gets forwarded, and shows up here within seconds.</li>
+                <li>The status starts as <em>pending</em>; mark Won/Lost manually for now (settlement-email parsing comes next).</li>
+              </ol>
+            </details>
+          </div>
+        `;
+      }
+
       function renderAll() {
         const wasPrefilled = !!pendingPrefill;
         const root = document.getElementById('bets-content');
-        root.innerHTML = renderSummary() + renderAddForm() + renderBetsList();
+        root.innerHTML = renderSummary() + renderEmailImportPanel() + renderAddForm() + renderBetsList();
         if (wasPrefilled) {
           // Consume the prefill and scroll/focus the form so the user can fill in the stake.
           pendingPrefill = null;
@@ -378,6 +410,18 @@
           });
         });
 
+        document.getElementById('copy-email-btn')?.addEventListener('click', async () => {
+          const code = document.querySelector('#email-import-panel code');
+          if (!code) return;
+          try {
+            await navigator.clipboard.writeText(code.textContent);
+            const btn = document.getElementById('copy-email-btn');
+            const orig = btn.textContent;
+            btn.textContent = '✓ Copied';
+            setTimeout(() => { btn.textContent = orig; }, 1500);
+          } catch {}
+        });
+
         document.querySelectorAll('.bet-row').forEach(row => {
           const betId = row.dataset.betId;
           row.querySelectorAll('[data-action="settle"]').forEach(btn => {
@@ -409,7 +453,37 @@
         });
       }
 
+      // First-visit token: short random string stored on the user doc plus a
+      // reverse-lookup doc at emailTokens/{token} so the webhook can map an
+      // inbound address back to a uid without a composite query.
+      // Both writes are wrapped: if Firestore rules haven't been updated to
+      // allow the emailTokens collection yet, the panel stays hidden instead
+      // of breaking /bets.
+      async function ensureEmailToken() {
+        if (!currentUser) return;
+        let token = null;
+        try {
+          const userRef = doc(db, 'users', currentUser.uid);
+          const snap = await getDoc(userRef);
+          token = snap.exists() ? snap.data().emailToken : null;
+          if (!token) {
+            token = Math.random().toString(36).slice(2, 10);
+            await setDoc(userRef, { emailToken: token }, { merge: true });
+          }
+        } catch (e) {
+          console.warn('Email token user-doc write failed:', e?.message);
+        }
+        if (!token) return;
+        try {
+          await setDoc(doc(db, 'emailTokens', token), { uid: currentUser.uid });
+          window.userEmailToken = token;
+        } catch (e) {
+          console.warn('emailTokens lookup blocked (rules not yet set?):', e?.message);
+        }
+      }
+
       async function loadBets() {
+        await ensureEmailToken();
         const colRef = collection(db, 'users', currentUser.uid, 'bets');
         try {
           const snap = await getDocs(query(colRef, orderBy('createdAt', 'desc')));
