@@ -22,6 +22,67 @@ if (params.get("thanks") === "1") {
   alert("Thanks — your email was submitted successfully!");
 }
 
+// ===== Nav consolidation =====
+// Groups data pages into "Live ▾" and "Insights ▾" dropdowns to keep the nav
+// from wrapping on smaller widths. Reuses the .nav-dropdown* classes that
+// already style the Settings dropdown across the site.
+(function consolidateNav() {
+  const navLinks = document.getElementById('nav-links');
+  if (!navLinks) return;
+
+  const groups = [
+    { label: 'Live', hrefs: ['scores.html', 'schedule.html', 'odds.html', 'injuries.html'] },
+    { label: 'Insights', hrefs: ['matchups.html', 'standings.html', 'leaders.html', 'news.html'] },
+  ];
+
+  const currentPage = (window.location.pathname.split('/').pop() || 'index.html');
+
+  for (const group of groups) {
+    const links = group.hrefs
+      .map(h => navLinks.querySelector(`a[href="${h}"]`))
+      .filter(Boolean);
+    if (links.length === 0) continue;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = `nav-dropdown nav-grouped-${group.label.toLowerCase()}`;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'nav-dropdown-btn';
+    btn.textContent = `${group.label} ▾`;
+    if (group.hrefs.includes(currentPage)) btn.classList.add('active');
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      // Close other consolidated dropdowns first.
+      document.querySelectorAll('.nav-grouped-live, .nav-grouped-insights').forEach(dd => {
+        if (dd !== wrapper) dd.classList.remove('open');
+      });
+      wrapper.classList.toggle('open');
+    });
+
+    const menu = document.createElement('div');
+    menu.className = 'nav-dropdown-menu';
+    // Left-align the menu under the button; the inline per-page rule sets
+    // `right: 0` for the Settings dropdown, so we override here.
+    menu.style.left = '0';
+    menu.style.right = 'auto';
+
+    // Drop the wrapper where the first matched link was, then move the matched
+    // links into the menu so order in the menu mirrors original nav order.
+    navLinks.insertBefore(wrapper, links[0]);
+    wrapper.appendChild(btn);
+    wrapper.appendChild(menu);
+    links.forEach(link => menu.appendChild(link));
+  }
+
+  // Outside click closes any open grouped dropdown.
+  document.addEventListener('click', (e) => {
+    document.querySelectorAll('.nav-grouped-live, .nav-grouped-insights').forEach(dd => {
+      if (!dd.contains(e.target)) dd.classList.remove('open');
+    });
+  });
+})();
+
 // ===== Global team search (injected into the nav of every page) =====
 (function setupTeamSearch() {
   const VERCEL = 'https://better-bookie-five.vercel.app';

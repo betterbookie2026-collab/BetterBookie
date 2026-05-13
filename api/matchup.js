@@ -34,16 +34,44 @@ export default async function handler(req, res) {
   return res.status(400).json({ error: 'Unsupported sport.' });
 }
 
+// ESPN's score field is sometimes a number string, sometimes an object like
+// { value: 27, displayValue: '27' }. Normalize to a plain number (or null).
+function extractScore(s) {
+  if (s == null) return null;
+  if (typeof s === 'number') return s;
+  if (typeof s === 'string') {
+    const n = Number(s);
+    return Number.isNaN(n) ? null : n;
+  }
+  if (typeof s === 'object') {
+    if (typeof s.value === 'number') return s.value;
+    const raw = s.value ?? s.displayValue;
+    const n = raw != null ? Number(raw) : NaN;
+    return Number.isNaN(n) ? null : n;
+  }
+  return null;
+}
+
 async function loadProMatchup(sport, team1, team2, res) {
   const cfg = PRO_HOSTS[sport];
-  const url = `${cfg.base}/games?h2h=${team1}-${team2}&league=${cfg.league}`;
+  // api-sports' h2h endpoint requires a `season` param; without it the response
+  // is empty for sports not currently in-season. We iterate the last 10 seasons
+  // in parallel and merge so the result is genuinely "lifetime" (within the
+  // window the free tier allows). Cache aggressively.
+  const currentYear = new Date().getFullYear();
+  const seasons = Array.from({ length: 11 }, (_, i) => currentYear - i);
+
   try {
-    const r = await fetch(url, {
-      headers: { 'x-apisports-key': process.env.APISPORTS_KEY },
-    });
-    if (!r.ok) return res.status(r.status).json({ error: `Upstream ${r.status}` });
-    const data = await r.json();
-    const games = (data?.response ?? []).map(g => normalize(g, sport));
+    const perSeason = await Promise.all(seasons.map(async year => {
+      const url = `${cfg.base}/games?h2h=${team1}-${team2}&league=${cfg.league}&season=${year}`;
+      try {
+        const r = await fetch(url, { headers: { 'x-apisports-key': process.env.APISPORTS_KEY } });
+        if (!r.ok) return [];
+        const data = await r.json();
+        return data?.response ?? [];
+      } catch { return []; }
+    }));
+    const games = perSeason.flat().map(g => normalize(g, sport));
     res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=86400');
     res.status(200).json({ games });
   } catch (err) {
@@ -89,12 +117,12 @@ async function loadCollegeMatchup(sport, team1, team2, res) {
           home: {
             id: home?.id ?? null,
             name: home?.team?.displayName ?? home?.team?.name ?? null,
-            score: home?.score != null ? Number(home.score) : null,
+            score: extractScore(home?.score),
           },
           away: {
             id: away?.id ?? null,
             name: away?.team?.displayName ?? away?.team?.name ?? null,
-            score: away?.score != null ? Number(away.score) : null,
+            score: extractScore(away?.score),
           },
         });
       }
