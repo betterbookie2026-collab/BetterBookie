@@ -24,6 +24,8 @@
       .leader-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .leader-name .small-team { font-size: 0.72rem; opacity: 0.55; margin-left: 0.4rem; }
       .leader-value { font-weight: 600; font-variant-numeric: tabular-nums; opacity: 0.95; }
+      .leader-row.fav-team { background: rgba(255,217,61,0.06); border-radius: 4px; padding-left: 0.25rem; }
+      .leader-row.fav-team .leader-name::before { content: '⭐ '; font-size: 0.75rem; opacity: 0.85; }
       .nav-dropdown { position: relative; display: inline-block; }
       .nav-dropdown-btn { background: transparent; border: none; color: inherit; cursor: pointer; font-size: 1rem; padding: 0; font-family: inherit; }
       .nav-dropdown-menu { display: none; position: absolute; top: 100%; right: 0; background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; min-width: 200px; z-index: 100; padding: 0.5rem 0; }
@@ -133,6 +135,13 @@
         return sources;
       }
 
+      function isFavTeam(teamObj) {
+        const favs = window.favTeams ?? [];
+        if (!favs.length) return false;
+        const candidates = [teamObj?.displayName, teamObj?.name, teamObj?.fullName, teamObj?.shortDisplayName].filter(Boolean);
+        return candidates.some(c => favs.includes(c));
+      }
+
       function leaderRow(leader, rank) {
         const athlete = leader.athlete ?? {};
         const team = leader.team ?? athlete.team ?? {};
@@ -144,8 +153,9 @@
         const nameHtml = playerLink
           ? `<a href="${playerLink}" style="color:inherit;text-decoration:none;">${name}${teamAbbrev ? `<span class="small-team">${teamAbbrev}</span>` : ''}</a>`
           : `${name}${teamAbbrev ? `<span class="small-team">${teamAbbrev}</span>` : ''}`;
+        const favClass = isFavTeam(team) ? ' fav-team' : '';
         return `
-          <div class="leader-row">
+          <div class="leader-row${favClass}">
             <span class="leader-rank">${rank}</span>
             ${headshot ? `<img class="leader-headshot" src="${headshot}" alt="${name}" onerror="this.style.background='rgba(255,255,255,0.08)';this.src='';">` : '<div class="leader-headshot"></div>'}
             <span class="leader-name">${nameHtml}</span>
@@ -208,11 +218,13 @@
 
       populateSeasons();
       loadLeaders();
+      window.addEventListener('userprefs', () => loadLeaders());
     </script>
 
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
       import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+      import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
       const app = initializeApp({
         apiKey: "AIzaSyC2sgfkqCVFU1RfiWsArIWjpvpebKVxT64",
@@ -223,10 +235,19 @@
         appId: "1:995577929895:web:303a93aa15628d6c503b82"
       });
       const auth = getAuth(app);
+      const db = getFirestore(app);
 
-      onAuthStateChanged(auth, user => {
+      onAuthStateChanged(auth, async user => {
         const loginLink = document.getElementById('nav-login');
         if (loginLink) loginLink.style.display = user ? 'none' : 'inline';
+        if (!user) return;
+        try {
+          const snap = await getDoc(doc(db, 'users', user.uid));
+          if (snap.exists()) {
+            window.favTeams = snap.data().teams ?? [];
+            window.dispatchEvent(new Event('userprefs'));
+          }
+        } catch {}
       });
 
       document.addEventListener('click', (e) => {

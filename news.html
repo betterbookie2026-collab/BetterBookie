@@ -21,6 +21,8 @@
       .news-headline { font-size: 0.98rem; font-weight: 600; line-height: 1.3; margin: 0; }
       .news-desc { font-size: 0.82rem; opacity: 0.7; line-height: 1.4; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
       .news-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; opacity: 0.5; margin-top: auto; padding-top: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
+      .news-card.fav-team { border-color: rgba(255,217,61,0.45); box-shadow: inset 0 0 0 1px rgba(255,217,61,0.1); }
+      .news-card.fav-team .news-headline::before { content: '⭐ '; font-size: 0.85rem; opacity: 0.85; }
       .news-tag { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px; background: rgba(255,255,255,0.08); font-size: 0.65rem; }
       .nav-dropdown { position: relative; display: inline-block; }
       .nav-dropdown-btn { background: transparent; border: none; color: inherit; cursor: pointer; font-size: 1rem; padding: 0; font-family: inherit; }
@@ -122,13 +124,28 @@
         return article.links?.web?.href ?? article.links?.mobile?.href ?? '#';
       }
 
+      function isFavArticle(article) {
+        const favs = window.favTeams ?? [];
+        if (!favs.length) return false;
+        for (const cat of (article.categories ?? [])) {
+          const teamName = cat.team?.displayName ?? cat.team?.name ?? cat.description;
+          if (teamName && favs.includes(teamName)) return true;
+        }
+        // Fallback: scan the headline for a fav team name match.
+        const headline = (article.headline ?? article.title ?? '').toLowerCase();
+        return favs.some(t => headline.includes(t.toLowerCase()));
+      }
+
       function renderArticles(articles) {
         const root = document.getElementById('news-result');
         if (!articles.length) {
           root.innerHTML = '<div class="status">No news available for this selection.</div>';
           return;
         }
-        const html = articles.map(a => {
+        // Float fav-team articles to the top of the feed.
+        const annotated = articles.map(a => ({ a, fav: isFavArticle(a) }));
+        annotated.sort((x, y) => (y.fav ? 1 : 0) - (x.fav ? 1 : 0));
+        const html = annotated.map(({ a, fav }) => {
           const img = pickImage(a);
           const url = articleLink(a);
           const headline = a.headline ?? a.title ?? 'Untitled';
@@ -139,7 +156,7 @@
             ? `<img class="news-thumb" src="${img}" alt="" loading="lazy" onerror="this.outerHTML='<div class=\\'news-thumb-placeholder\\'>📰</div>'">`
             : `<div class="news-thumb-placeholder">📰</div>`;
           return `
-            <article class="news-card">
+            <article class="news-card${fav ? ' fav-team' : ''}">
               <a href="${url}" target="_blank" rel="noopener noreferrer">
                 ${thumbHtml}
                 <div class="news-body">
@@ -187,11 +204,13 @@
       });
 
       loadNews();
+      window.addEventListener('userprefs', () => loadNews());
     </script>
 
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
       import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+      import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
       const app = initializeApp({
         apiKey: "AIzaSyC2sgfkqCVFU1RfiWsArIWjpvpebKVxT64",
@@ -202,10 +221,19 @@
         appId: "1:995577929895:web:303a93aa15628d6c503b82"
       });
       const auth = getAuth(app);
+      const db = getFirestore(app);
 
-      onAuthStateChanged(auth, user => {
+      onAuthStateChanged(auth, async user => {
         const loginLink = document.getElementById('nav-login');
         if (loginLink) loginLink.style.display = user ? 'none' : 'inline';
+        if (!user) return;
+        try {
+          const snap = await getDoc(doc(db, 'users', user.uid));
+          if (snap.exists()) {
+            window.favTeams = snap.data().teams ?? [];
+            window.dispatchEvent(new Event('userprefs'));
+          }
+        } catch {}
       });
 
       document.addEventListener('click', (e) => {

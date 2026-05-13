@@ -10,11 +10,31 @@
       .sport-nav { display: flex; gap: 0.6rem; justify-content: center; margin: 1rem 0; flex-wrap: wrap; }
       .sport-nav button { padding: 0.5rem 1.1rem; border: 2px solid currentColor; background: transparent; cursor: pointer; font-size: 0.9rem; border-radius: 4px; color: inherit; }
       .sport-nav button.active { background: #fff; color: #000; }
-      .pickers { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; align-items: center; margin: 1.5rem 0; }
-      .picker-col { display: flex; flex-direction: column; gap: 0.4rem; }
+      .pickers { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; align-items: flex-end; margin: 1.5rem 0; }
+      .picker-col { display: flex; flex-direction: column; gap: 0.4rem; position: relative; }
       .picker-col label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.55; }
-      .picker-col select { padding: 0.55rem 0.9rem; min-width: 240px; font-size: 0.95rem; border-radius: 4px; border: 2px solid currentColor; background: #1a1a2e; color: inherit; cursor: pointer; }
+      .picker-col select { padding: 0.55rem 0.9rem; min-width: 240px; font-size: 0.95rem; border-radius: 4px; border: 2px solid currentColor; background: #1a1a2e; color: #fff; cursor: pointer; }
+      .picker-col select option { background: #1a1a2e; color: #fff; }
+      .team-combo { position: relative; min-width: 260px; }
+      .team-combo input { width: 100%; box-sizing: border-box; padding: 0.55rem 0.9rem; font-size: 0.95rem; border-radius: 4px; border: 2px solid currentColor; background: #1a1a2e; color: #fff; }
+      .team-combo input::placeholder { opacity: 0.4; }
+      .team-combo input:focus { outline: none; border-color: rgba(255,255,255,0.7); }
+      .team-combo-list { display: none; position: absolute; left: 0; right: 0; top: calc(100% + 4px); max-height: 280px; overflow-y: auto; background: #1a1a2e; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; z-index: 50; padding: 0.3rem 0; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+      .team-combo.open .team-combo-list { display: block; }
+      .team-combo-list .tc-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.45rem 0.75rem; color: #fff; cursor: pointer; font-size: 0.88rem; }
+      .team-combo-list .tc-item:hover, .team-combo-list .tc-item.active { background: rgba(255,255,255,0.07); }
+      .team-combo-list .tc-item img { width: 22px; height: 22px; object-fit: contain; flex-shrink: 0; }
+      .team-combo-empty { padding: 0.5rem 0.75rem; opacity: 0.55; font-size: 0.82rem; color: #fff; }
       .vs-badge { font-size: 1.5rem; font-weight: 700; opacity: 0.7; margin: 0 0.3rem; }
+      .view-toggle { display: flex; gap: 0; justify-content: center; margin: 0.5rem 0 0.25rem; }
+      .view-toggle button { padding: 0.45rem 1.1rem; border: 1px solid rgba(255,255,255,0.3); background: transparent; cursor: pointer; font-size: 0.85rem; color: inherit; opacity: 0.7; }
+      .view-toggle button:first-child { border-radius: 4px 0 0 4px; }
+      .view-toggle button:last-child { border-radius: 0 4px 4px 0; border-left: none; }
+      .view-toggle button.active { background: #fff; color: #000; opacity: 1; border-color: #fff; }
+      .future-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 0.6rem; display: flex; gap: 0.85rem; align-items: center; flex-wrap: wrap; }
+      .future-card .fc-date { font-size: 0.78rem; opacity: 0.55; text-transform: uppercase; letter-spacing: 0.05em; min-width: 110px; }
+      .future-card .fc-matchup { flex: 1; min-width: 220px; font-weight: 600; }
+      .future-card .fc-time { font-size: 0.85rem; opacity: 0.75; font-variant-numeric: tabular-nums; }
       .matchup-status { text-align: center; padding: 2.5rem 1rem; opacity: 0.7; }
       .record-headline { text-align: center; margin: 1.5rem 0 2rem; font-size: 1.4rem; font-weight: 600; }
       .record-headline .lead { color: #ffd93d; }
@@ -92,14 +112,25 @@
 
       <div class="pickers">
         <div class="picker-col">
-          <label for="team1-select">Team 1</label>
-          <select id="team1-select"><option value="">— Loading teams —</option></select>
+          <label>Team 1</label>
+          <div class="team-combo" data-slot="1">
+            <input type="text" class="team-combo-input" placeholder="Search team…" autocomplete="off" aria-label="Team 1">
+            <div class="team-combo-list" role="listbox"></div>
+          </div>
         </div>
         <span class="vs-badge">vs</span>
         <div class="picker-col">
-          <label for="team2-select">Team 2</label>
-          <select id="team2-select"><option value="">— Loading teams —</option></select>
+          <label>Team 2</label>
+          <div class="team-combo" data-slot="2">
+            <input type="text" class="team-combo-input" placeholder="Search team…" autocomplete="off" aria-label="Team 2">
+            <div class="team-combo-list" role="listbox"></div>
+          </div>
         </div>
+      </div>
+
+      <div class="view-toggle" id="view-toggle">
+        <button class="active" data-view="historical">Historical</button>
+        <button data-view="future">Future</button>
       </div>
 
       <div id="matchup-result">
@@ -156,18 +187,104 @@
         }
       }
 
-      function fillTeamSelect(selectEl, teams, selectedId) {
-        selectEl.innerHTML = '<option value="">— Select team —</option>' +
-          teams.map(t => `<option value="${t.id}"${String(t.id) === String(selectedId) ? ' selected' : ''}>${t.name}</option>`).join('');
-      }
-
-      function findTeamIdByName(teams, name) {
-        if (!name) return '';
+      function findTeamByName(teams, name) {
+        if (!name) return null;
         const lower = name.toLowerCase();
         const exact = teams.find(t => (t.name ?? '').toLowerCase() === lower);
-        if (exact) return exact.id;
-        const partial = teams.find(t => (t.name ?? '').toLowerCase().includes(lower) || lower.includes((t.name ?? '').toLowerCase()));
-        return partial ? partial.id : '';
+        if (exact) return exact;
+        return teams.find(t => (t.name ?? '').toLowerCase().includes(lower) || lower.includes((t.name ?? '').toLowerCase())) || null;
+      }
+
+      // ----- Combobox state -----
+      // selected[1] / selected[2] hold the chosen team object (or null) for each slot.
+      const selected = { 1: null, 2: null };
+      let currentView = 'historical';
+
+      function scoreTeam(team, q) {
+        const name = (team.name ?? '').toLowerCase();
+        const abbr = (team.code ?? team.abbreviation ?? '').toLowerCase();
+        if (name === q || abbr === q) return 100;
+        if (name.startsWith(q)) return 80;
+        if (abbr.startsWith(q)) return 70;
+        if (name.includes(q)) return 50;
+        return 0;
+      }
+
+      function filterTeams(q) {
+        if (!q) return teamList.slice(0, 10);
+        const lower = q.trim().toLowerCase();
+        return teamList
+          .map(t => ({ ...t, _score: scoreTeam(t, lower) }))
+          .filter(t => t._score > 0)
+          .sort((a, b) => b._score - a._score)
+          .slice(0, 10);
+      }
+
+      function renderComboItems(combo, matches) {
+        const list = combo.querySelector('.team-combo-list');
+        if (!matches.length) {
+          list.innerHTML = `<div class="team-combo-empty">No teams match.</div>`;
+          return;
+        }
+        list.innerHTML = matches.map(t => `
+          <div class="tc-item" role="option" data-id="${t.id}">
+            ${t.logo ? `<img src="${t.logo}" alt="" onerror="this.style.display='none'">` : ''}
+            <span>${t.name}</span>
+          </div>
+        `).join('');
+      }
+
+      function setSelected(slot, team) {
+        selected[slot] = team;
+        const combo = document.querySelector(`.team-combo[data-slot="${slot}"]`);
+        const input = combo?.querySelector('input');
+        if (input) input.value = team ? team.name : '';
+        combo?.classList.remove('open');
+      }
+
+      function wireCombo(slot) {
+        const combo = document.querySelector(`.team-combo[data-slot="${slot}"]`);
+        if (!combo) return;
+        const input = combo.querySelector('input');
+        const list = combo.querySelector('.team-combo-list');
+        let activeIdx = -1;
+        const visible = () => [...list.querySelectorAll('.tc-item')];
+
+        const open = () => { renderComboItems(combo, filterTeams(input.value)); combo.classList.add('open'); activeIdx = -1; };
+        const close = () => { combo.classList.remove('open'); };
+
+        input.addEventListener('focus', open);
+        input.addEventListener('input', () => {
+          renderComboItems(combo, filterTeams(input.value));
+          combo.classList.add('open');
+          activeIdx = -1;
+          // typing breaks any previous selection until they pick from the list
+          if (selected[slot] && input.value !== selected[slot].name) selected[slot] = null;
+        });
+        input.addEventListener('keydown', (e) => {
+          const items = visible();
+          if (!items.length) return;
+          if (e.key === 'ArrowDown') { e.preventDefault(); activeIdx = (activeIdx + 1) % items.length; items.forEach((el, i) => el.classList.toggle('active', i === activeIdx)); items[activeIdx].scrollIntoView({ block: 'nearest' }); }
+          else if (e.key === 'ArrowUp') { e.preventDefault(); activeIdx = (activeIdx - 1 + items.length) % items.length; items.forEach((el, i) => el.classList.toggle('active', i === activeIdx)); items[activeIdx].scrollIntoView({ block: 'nearest' }); }
+          else if (e.key === 'Enter') {
+            const pick = activeIdx >= 0 ? items[activeIdx] : items[0];
+            if (pick) { e.preventDefault(); pickItem(pick); }
+          } else if (e.key === 'Escape') { close(); input.blur(); }
+        });
+        list.addEventListener('mousedown', (e) => {
+          // mousedown beats blur, so the click registers before the list hides
+          const item = e.target.closest('.tc-item');
+          if (item) { e.preventDefault(); pickItem(item); }
+        });
+        document.addEventListener('click', (e) => { if (!combo.contains(e.target)) close(); });
+
+        function pickItem(itemEl) {
+          const id = itemEl.dataset.id;
+          const team = teamList.find(t => String(t.id) === String(id));
+          if (!team) return;
+          setSelected(slot, team);
+          loadMatchup();
+        }
       }
 
       // ----- Stats computation -----
@@ -231,10 +348,45 @@
       }
 
       // ----- Rendering -----
-      function renderResult(games, team1, team2) {
+      function isCompleted(g) {
+        if (g.completed === true) return true;
+        if (g.completed === false) return false;
+        const hs = Number(g.home?.score), as = Number(g.away?.score);
+        return !Number.isNaN(hs) && !Number.isNaN(as) && (hs > 0 || as > 0 || g.status === 'FT' || g.status === 'AOT');
+      }
+
+      function renderFuture(games, team1, team2) {
         const root = document.getElementById('matchup-result');
+        const upcoming = games.filter(g => !isCompleted(g))
+          .sort((a, b) => new Date(a.date) - new Date(b.date));
+        if (!upcoming.length) {
+          root.innerHTML = `<div class="matchup-status">No upcoming meetings scheduled between ${team1.name} and ${team2.name}.</div>`;
+          return;
+        }
+        const html = upcoming.map(g => {
+          const d = g.date ? new Date(g.date) : null;
+          const dateStr = d ? d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+          const timeStr = d ? d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
+          return `
+            <div class="future-card">
+              <div class="fc-date">${dateStr}</div>
+              <div class="fc-matchup">${g.away?.name ?? '—'} @ ${g.home?.name ?? '—'}</div>
+              <div class="fc-time">${timeStr}</div>
+            </div>
+          `;
+        }).join('');
+        root.innerHTML = `
+          <div class="section-title">Upcoming meetings (${upcoming.length})</div>
+          ${html}
+        `;
+      }
+
+      function renderHistorical(games, team1, team2) {
+        const root = document.getElementById('matchup-result');
+        // Historical = completed games only.
+        games = games.filter(isCompleted);
         if (!games.length) {
-          root.innerHTML = `<div class="matchup-status">No head-to-head games found between ${team1.name} and ${team2.name}.</div>`;
+          root.innerHTML = `<div class="matchup-status">No completed head-to-head games found between ${team1.name} and ${team2.name}.</div>`;
           return;
         }
         const stats = computeStats(games, team1.id, team2.id, team1.name, team2.name);
@@ -325,26 +477,23 @@
       }
 
       async function loadMatchup() {
-        const sel1 = document.getElementById('team1-select');
-        const sel2 = document.getElementById('team2-select');
-        const t1Id = sel1.value, t2Id = sel2.value;
+        const team1 = selected[1];
+        const team2 = selected[2];
         const root = document.getElementById('matchup-result');
-        if (!t1Id || !t2Id) {
-          root.innerHTML = `<div class="matchup-status">Pick two teams to see their head-to-head history.</div>`;
+        if (!team1 || !team2) {
+          root.innerHTML = `<div class="matchup-status">Pick two teams to see their ${currentView === 'future' ? 'upcoming meetings' : 'head-to-head history'}.</div>`;
           return;
         }
-        if (t1Id === t2Id) {
+        if (String(team1.id) === String(team2.id)) {
           root.innerHTML = `<div class="matchup-status">Please pick two different teams.</div>`;
           return;
         }
-        const team1 = teamList.find(t => String(t.id) === String(t1Id));
-        const team2 = teamList.find(t => String(t.id) === String(t2Id));
-        const key = `${currentSport}|${t1Id}|${t2Id}`;
-        root.innerHTML = `<div class="matchup-status">Loading head-to-head history…</div>`;
+        const key = `${currentSport}|${team1.id}|${team2.id}`;
+        root.innerHTML = `<div class="matchup-status">Loading ${currentView === 'future' ? 'upcoming meetings' : 'head-to-head history'}…</div>`;
         let data = matchupCache[key];
         if (!data) {
           try {
-            const r = await fetch(`${VERCEL}/api/matchup?sport=${currentSport}&team1=${t1Id}&team2=${t2Id}`);
+            const r = await fetch(`${VERCEL}/api/matchup?sport=${currentSport}&team1=${team1.id}&team2=${team2.id}`);
             data = await r.json();
             matchupCache[key] = data;
           } catch (e) {
@@ -356,39 +505,56 @@
           root.innerHTML = `<div class="matchup-status">${data.error}</div>`;
           return;
         }
-        renderResult(data?.games ?? [], team1, team2);
+        const games = data?.games ?? [];
+        if (currentView === 'future') renderFuture(games, team1, team2);
+        else renderHistorical(games, team1, team2);
       }
 
       async function switchSport(sport, preselect = {}) {
         currentSport = sport;
         document.querySelectorAll('#sport-nav button').forEach(b => b.classList.toggle('active', b.dataset.sport === sport));
-        const sel1 = document.getElementById('team1-select');
-        const sel2 = document.getElementById('team2-select');
-        sel1.innerHTML = '<option value="">— Loading teams —</option>';
-        sel2.innerHTML = '<option value="">— Loading teams —</option>';
+        // Reset both pickers + clear inputs while teams load.
+        selected[1] = null; selected[2] = null;
+        document.querySelectorAll('.team-combo input').forEach(i => { i.value = ''; i.placeholder = 'Loading teams…'; });
+        document.querySelectorAll('.team-combo').forEach(c => c.classList.remove('open'));
+        document.getElementById('matchup-result').innerHTML =
+          `<div class="matchup-status">Loading team list…</div>`;
         teamList = await getTeams(sport);
         if (!teamList.length) {
-          sel1.innerHTML = '<option value="">— Failed to load —</option>';
-          sel2.innerHTML = '<option value="">— Failed to load —</option>';
+          document.querySelectorAll('.team-combo input').forEach(i => { i.placeholder = 'Failed to load teams'; });
           document.getElementById('matchup-result').innerHTML =
             `<div class="matchup-status">Couldn't load team list for ${sport.toUpperCase()}.</div>`;
           return;
         }
-        const t1Id = preselect.home ? findTeamIdByName(teamList, preselect.home) : '';
-        const t2Id = preselect.away ? findTeamIdByName(teamList, preselect.away) : '';
-        fillTeamSelect(sel1, teamList, t1Id);
-        fillTeamSelect(sel2, teamList, t2Id);
-        if (t1Id && t2Id) loadMatchup();
+        document.querySelectorAll('.team-combo input').forEach(i => { i.placeholder = 'Search team…'; });
+        // Optional preselection from URL params, fuzzy-matched against the loaded teams.
+        if (preselect.home) {
+          const t = findTeamByName(teamList, preselect.home);
+          if (t) setSelected(1, t);
+        }
+        if (preselect.away) {
+          const t = findTeamByName(teamList, preselect.away);
+          if (t) setSelected(2, t);
+        }
+        if (selected[1] && selected[2]) loadMatchup();
         else document.getElementById('matchup-result').innerHTML =
-          `<div class="matchup-status">Pick two teams to see their head-to-head history.</div>`;
+          `<div class="matchup-status">Pick two teams to see their ${currentView === 'future' ? 'upcoming meetings' : 'head-to-head history'}.</div>`;
       }
 
       // ----- Wire up -----
       document.querySelectorAll('#sport-nav button').forEach(btn => {
         btn.addEventListener('click', () => switchSport(btn.dataset.sport));
       });
-      document.getElementById('team1-select').addEventListener('change', loadMatchup);
-      document.getElementById('team2-select').addEventListener('change', loadMatchup);
+      document.querySelectorAll('#view-toggle button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (btn.classList.contains('active')) return;
+          document.querySelectorAll('#view-toggle button').forEach(b => b.classList.toggle('active', b === btn));
+          currentView = btn.dataset.view;
+          loadMatchup();
+        });
+      });
+      wireCombo(1);
+      wireCombo(2);
 
       // Initial load: respect URL params if present.
       const initial = readUrlParams();

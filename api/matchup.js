@@ -78,7 +78,6 @@ async function loadCollegeMatchup(sport, team1, team2, res) {
         const opponent = competitors.find(c => String(c.id) === t2Id);
         if (!opponent) continue;
         const completed = comp?.status?.type?.completed === true;
-        if (!completed) continue; // lifetime H2H only counts finished games
         const home = competitors.find(c => c.homeAway === 'home') ?? competitors[0];
         const away = competitors.find(c => c.homeAway === 'away') ?? competitors[1];
         games.push({
@@ -86,6 +85,7 @@ async function loadCollegeMatchup(sport, team1, team2, res) {
           date: ev.date ?? null,
           season: ev.season?.year ?? null,
           status: comp?.status?.type?.name ?? null,
+          completed,
           home: {
             id: home?.id ?? null,
             name: home?.team?.displayName ?? home?.team?.name ?? null,
@@ -110,38 +110,28 @@ async function loadCollegeMatchup(sport, team1, team2, res) {
 // Normalize the per-sport response shape into a consistent game record.
 function normalize(g, sport) {
   if (sport === 'nfl') {
+    const homeScore = g.scores?.home?.total ?? null;
+    const awayScore = g.scores?.away?.total ?? null;
     return {
       id: g.game?.id ?? null,
       date: g.game?.date?.date ?? null,
       season: g.league?.season ?? null,
       status: g.game?.status?.short ?? null,
-      home: {
-        id: g.teams?.home?.id ?? null,
-        name: g.teams?.home?.name ?? null,
-        score: g.scores?.home?.total ?? null,
-      },
-      away: {
-        id: g.teams?.away?.id ?? null,
-        name: g.teams?.away?.name ?? null,
-        score: g.scores?.away?.total ?? null,
-      },
+      completed: homeScore != null && awayScore != null,
+      home: { id: g.teams?.home?.id ?? null, name: g.teams?.home?.name ?? null, score: homeScore },
+      away: { id: g.teams?.away?.id ?? null, name: g.teams?.away?.name ?? null, score: awayScore },
     };
   }
   // NBA / MLB / NHL share a flatter shape.
+  const homeScore = g.scores?.home?.total ?? g.scores?.home ?? null;
+  const awayScore = g.scores?.away?.total ?? g.scores?.away ?? null;
   return {
     id: g.id ?? null,
     date: g.date ?? null,
     season: g.season ?? null,
     status: g.status?.short ?? g.status?.long ?? null,
-    home: {
-      id: g.teams?.home?.id ?? null,
-      name: g.teams?.home?.name ?? null,
-      score: g.scores?.home?.total ?? g.scores?.home ?? null,
-    },
-    away: {
-      id: g.teams?.away?.id ?? null,
-      name: g.teams?.away?.name ?? null,
-      score: g.scores?.away?.total ?? g.scores?.away ?? null,
-    },
+    completed: homeScore != null && awayScore != null,
+    home: { id: g.teams?.home?.id ?? null, name: g.teams?.home?.name ?? null, score: homeScore },
+    away: { id: g.teams?.away?.id ?? null, name: g.teams?.away?.name ?? null, score: awayScore },
   };
 }

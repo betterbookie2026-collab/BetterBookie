@@ -29,15 +29,16 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const { sport, id } = req.query;
+  const { sport, id, season } = req.query;
   const cfg = SPORT_CFG[sport];
   if (!cfg) return res.status(400).json({ error: 'Unsupported sport' });
   if (!id) return res.status(400).json({ error: 'id required' });
 
   const base = `https://site.api.espn.com/apis/site/v2/sports/${cfg.sport}/${cfg.league}/teams/${encodeURIComponent(id)}`;
+  const scheduleUrl = season ? `${base}/schedule?season=${encodeURIComponent(season)}` : `${base}/schedule`;
   const [info, schedule, roster] = await Promise.all([
     jsonOrNull(base),
-    jsonOrNull(`${base}/schedule`),
+    jsonOrNull(scheduleUrl),
     jsonOrNull(`${base}/roster`),
   ]);
 

@@ -173,6 +173,13 @@
           </div>
         </div>
 
+        <!-- CONFERENCES SECTION (populated based on selected sports) -->
+        <div class="pref-section" id="conferences" style="display:none;">
+          <h4>2️⃣ 🏛️ Favorite Divisions / Conferences</h4>
+          <p style="opacity:0.6;font-size:0.85rem;margin:0 0 0.75rem;">Picked conferences float to the top on Standings and other views.</p>
+          <div id="conferences-grid"></div>
+        </div>
+
         <!-- TEAMS SECTION -->
         <div id="teams">
           <div id="favorite-sport-sections"></div>
@@ -396,8 +403,45 @@
       const TOP_N = 30;
       const collegeSports = ['ncaafb', 'ncaabb', 'ncaasb', 'ncaasoftball'];
       let allTeams = [];
-      let savedPrefs = { sports: [], teams: [] };
+      let savedPrefs = { sports: [], teams: [], conferences: [] };
       const loadedTeams = {};
+
+      // Divisions/conferences per sport. Names match the substrings ESPN uses in
+      // its standings response group titles, so we can prioritize them later.
+      const SPORT_CONFERENCES = {
+        nfl: ['AFC East', 'AFC North', 'AFC South', 'AFC West', 'NFC East', 'NFC North', 'NFC South', 'NFC West'],
+        nba: ['Atlantic', 'Central', 'Southeast', 'Northwest', 'Pacific', 'Southwest'],
+        mlb: ['AL East', 'AL Central', 'AL West', 'NL East', 'NL Central', 'NL West'],
+        nhl: ['Atlantic Division', 'Metropolitan', 'Central Division', 'Pacific Division'],
+        ncaafb: ['SEC', 'Big Ten', 'Big 12', 'ACC', 'American Athletic', 'Conference USA', 'Mid-American', 'Mountain West', 'Sun Belt', 'FBS Independents'],
+        ncaabb: ['ACC', 'Big East', 'Big Ten', 'Big 12', 'SEC', 'Pac-12', 'Mountain West', 'American Athletic', 'Atlantic 10', 'Big West', 'Conference USA', 'Sun Belt', 'WCC'],
+      };
+
+      function renderConferencesSection() {
+        const section = document.getElementById('conferences');
+        const grid = document.getElementById('conferences-grid');
+        const sports = [...document.querySelectorAll('#sports-grid input:checked')].map(cb => cb.value);
+        const relevant = sports.filter(s => SPORT_CONFERENCES[s]);
+        if (relevant.length === 0) {
+          section.style.display = 'none';
+          grid.innerHTML = '';
+          return;
+        }
+        section.style.display = 'block';
+        grid.innerHTML = relevant.map(sport => {
+          const confs = SPORT_CONFERENCES[sport];
+          return `
+            <div style="margin-bottom:1rem;">
+              <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.06em;opacity:0.55;margin:0 0 0.5rem;">${sport === 'ncaafb' ? 'NCAA FB' : sport === 'ncaabb' ? 'NCAA BB' : sport.toUpperCase()}</div>
+              <div class="checkbox-grid">
+                ${confs.map(c => `
+                  <label><input type="checkbox" class="conf-cb" value="${c}" data-sport="${sport}"${savedPrefs.conferences?.includes(c) ? ' checked' : ''}/> ${c}</label>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
 
       function updateSelectedTeamsPanel() {
         const grid = document.getElementById('selected-teams-grid');
@@ -585,7 +629,10 @@
         arrow.textContent = isHidden ? '▲' : '▼';
       });
 
-      document.getElementById('sports-grid').addEventListener('change', updateSections);
+      document.getElementById('sports-grid').addEventListener('change', () => {
+        updateSections();
+        renderConferencesSection();
+      });
 
       document.getElementById('team-search').addEventListener('input', (e) => {
         const query = e.target.value.trim().toLowerCase();
@@ -663,6 +710,7 @@
           }
         }
         await loadAllTeams();
+        renderConferencesSection();
         updateSelectedTeamsPanel();
       });
 
@@ -672,7 +720,11 @@
         const teamSet = new Set([...document.querySelectorAll('.pref-section input[type="checkbox"]:checked, .extra-teams input:checked')].map(cb => cb.value));
         document.querySelectorAll('.recommended-card.selected').forEach(card => teamSet.add(card.dataset.team));
         sports.forEach(s => teamSet.delete(s));
-        await setDoc(doc(db, 'users', currentUser.uid), { sports, teams: [...teamSet] });
+        const conferences = [...document.querySelectorAll('.conf-cb:checked')].map(cb => cb.value);
+        // conference checkboxes share the same .pref-section selector as team checkboxes,
+        // so strip them back out of the team set before saving.
+        conferences.forEach(c => teamSet.delete(c));
+        await setDoc(doc(db, 'users', currentUser.uid), { sports, teams: [...teamSet], conferences });
         const msg = document.getElementById('success-msg');
         msg.style.display = 'block';
         setTimeout(() => msg.style.display = 'none', 4000);

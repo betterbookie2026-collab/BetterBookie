@@ -24,6 +24,8 @@
       .team-cell { display: flex; align-items: center; gap: 0.55rem; }
       .team-cell img { width: 22px; height: 22px; object-fit: contain; }
       .rank-cell { opacity: 0.55; font-variant-numeric: tabular-nums; width: 1.5rem; }
+      table.standings-table tr.fav-team { background: rgba(255,217,61,0.06); }
+      table.standings-table tr.fav-team td:first-child::before { content: '⭐ '; font-size: 0.7rem; opacity: 0.85; }
       .nav-dropdown { position: relative; display: inline-block; }
       .nav-dropdown-btn { background: transparent; border: none; color: inherit; cursor: pointer; font-size: 1rem; padding: 0; font-family: inherit; }
       .nav-dropdown-menu { display: none; position: absolute; top: 100%; right: 0; background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; min-width: 200px; z-index: 100; padding: 0.5rem 0; }
@@ -86,6 +88,14 @@
       <div class="controls">
         <label for="season-select">Season</label>
         <select id="season-select"></select>
+        <label for="asof-mode" style="margin-left:0.5rem;">View</label>
+        <select id="asof-mode">
+          <option value="current">Current</option>
+          <option value="week">Through week…</option>
+          <option value="date">Through date…</option>
+        </select>
+        <select id="asof-week" style="display:none;"></select>
+        <input type="date" id="asof-date" style="display:none;">
       </div>
 
       <div id="standings-result">
@@ -100,9 +110,14 @@
     <script src="script.js"></script>
     <script>
       const VERCEL = 'https://better-bookie-five.vercel.app';
+      const WEEKLY_SPORTS = new Set(['nfl', 'ncaafb']);
       let currentSport = 'nfl';
       let currentSeason = new Date().getFullYear();
+      let asOfMode = 'current'; // 'current' | 'week' | 'date'
+      let asOfWeek = 1;
+      let asOfDate = '';
       const cache = {};
+      const asOfCache = {};
 
       function populateSeasons() {
         const sel = document.getElementById('season-select');
@@ -133,6 +148,17 @@
         return groups;
       }
 
+      // Order groups so any whose title matches a saved favorite conference comes
+      // first. Falls back to ESPN's natural ordering when there's no match.
+      function prioritizeGroups(groups) {
+        const favs = (window.favConferences ?? []).map(s => s.toLowerCase());
+        if (!favs.length) return groups;
+        const isFav = g => favs.some(f => g.title.toLowerCase().includes(f));
+        const favG = groups.filter(isFav);
+        const otherG = groups.filter(g => !isFav(g));
+        return [...favG, ...otherG];
+      }
+
       function stat(entry, ...names) {
         const stats = entry.stats ?? [];
         for (const n of names) {
@@ -142,11 +168,16 @@
         return '';
       }
 
+      function isFavTeam(name) {
+        return (window.favTeams ?? []).some(f => f === name);
+      }
+
       function rowHtml(entry, rank) {
         const team = entry.team ?? {};
         const logo = team.logos?.[0]?.href ?? '';
         const name = team.displayName ?? team.location ?? team.shortDisplayName ?? '—';
         const teamLink = team.id ? `team.html?sport=${currentSport}&id=${team.id}` : '';
+        const favClass = isFavTeam(name) ? ' class="fav-team"' : '';
         const wins = stat(entry, 'wins', 'W');
         const losses = stat(entry, 'losses', 'L');
         const ties = stat(entry, 'ties', 'T');
@@ -158,7 +189,7 @@
           ? (parseFloat(pct) > 1 ? parseFloat(pct).toFixed(3) : parseFloat(pct).toFixed(3).replace(/^0/, ''))
           : '—';
         return `
-          <tr>
+          <tr${favClass}>
             <td class="rank-cell">${rank}</td>
             <td><div class="team-cell">${logo ? `<img src="${logo}" alt="${name}" onerror="this.style.display='none'">` : ''}${teamLink ? `<a href="${teamLink}" style="color:inherit;text-decoration:none;border-bottom:1px dotted rgba(255,255,255,0.25);">${name}</a>` : `<span>${name}</span>`}</div></td>
             <td class="num">${record}</td>
@@ -203,6 +234,7 @@
 
       async function loadStandings() {
         const root = document.getElementById('standings-result');
+        if (asOfMode === 'week' || asOfMode === 'date') return loadAsOfStandings();
         root.innerHTML = '<div class="status">Loading standings…</div>';
         const key = `${currentSport}-${currentSeason}`;
         let data = cache[key];
@@ -220,13 +252,102 @@
           root.innerHTML = `<div class="status">${data.error}</div>`;
           return;
         }
-        renderGroups(flattenStandingsGroups(data));
+        renderGroups(prioritizeGroups(flattenStandingsGroups(data)));
+      }
+
+      async function loadAsOfStandings() {
+        const root = document.getElementById('standings-result');
+        let qs = `sport=${currentSport}&season=${currentSeason}`;
+        let label = '';
+        if (asOfMode === 'week') {
+          qs += `&through_week=${asOfWeek}`;
+          label = `as of Week ${asOfWeek}`;
+        } else {
+          if (!asOfDate) { root.innerHTML = '<div class="status">Pick a date to view standings.</div>'; return; }
+          qs += `&through_date=${asOfDate}`;
+          label = `as of ${new Date(asOfDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}`;
+        }
+        const key = qs;
+        root.innerHTML = `<div class="status">Computing standings ${label}… (this can take a moment)</div>`;
+        let data = asOfCache[key];
+        if (!data) {
+          try {
+            const r = await fetch(`${VERCEL}/api/standings-as-of?${qs}`);
+            data = await r.json();
+            asOfCache[key] = data;
+          } catch {
+            root.innerHTML = `<div class="status">Failed to compute standings.</div>`;
+            return;
+          }
+        }
+        if (data?.error) {
+          root.innerHTML = `<div class="status">${data.error}</div>`;
+          return;
+        }
+        renderAsOfStandings(data, label);
+      }
+
+      function renderAsOfStandings(data, label) {
+        const root = document.getElementById('standings-result');
+        const list = (data?.standings ?? []).filter(t => t.gamesPlayed > 0);
+        if (!list.length) {
+          root.innerHTML = `<div class="status">No games found for this cutoff.</div>`;
+          return;
+        }
+        const rows = list.map((t, i) => {
+          const record = t.ties > 0 ? `${t.wins}-${t.losses}-${t.ties}` : `${t.wins}-${t.losses}`;
+          const pct = t.winPct.toFixed(3).replace(/^0/, '');
+          const teamLink = `team.html?sport=${currentSport}&id=${t.id}`;
+          const favClass = isFavTeam(t.name) ? ' class="fav-team"' : '';
+          return `
+            <tr${favClass}>
+              <td class="rank-cell">${i + 1}</td>
+              <td><div class="team-cell">${t.logo ? `<img src="${t.logo}" alt="" onerror="this.style.display='none'">` : ''}<a href="${teamLink}" style="color:inherit;text-decoration:none;border-bottom:1px dotted rgba(255,255,255,0.25);">${t.name}</a></div></td>
+              <td class="num">${record}</td>
+              <td class="num">${pct}</td>
+              <td class="num">${t.gamesPlayed}</td>
+            </tr>
+          `;
+        }).join('');
+        root.innerHTML = `
+          <div class="group-block">
+            <div class="group-title">All teams · ${label}</div>
+            <div class="standings-table-wrap">
+              <table class="standings-table">
+                <thead>
+                  <tr><th class="rank-cell">#</th><th>Team</th><th class="num">Record</th><th class="num">Pct</th><th class="num">GP</th></tr>
+                </thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }
+
+      function updateAsOfControls() {
+        const weekSel = document.getElementById('asof-week');
+        const dateInp = document.getElementById('asof-date');
+        weekSel.style.display = asOfMode === 'week' ? 'inline-block' : 'none';
+        dateInp.style.display = asOfMode === 'date' ? 'inline-block' : 'none';
+        // Re-populate weekly options when this sport supports weeks; otherwise force date mode.
+        if (asOfMode === 'week' && !WEEKLY_SPORTS.has(currentSport)) {
+          asOfMode = 'date';
+          document.getElementById('asof-mode').value = 'date';
+          dateInp.style.display = 'inline-block';
+          weekSel.style.display = 'none';
+        }
+        if (asOfMode === 'week') {
+          const max = currentSport === 'ncaafb' ? 15 : 18;
+          weekSel.innerHTML = Array.from({ length: max }, (_, i) => i + 1)
+            .map(w => `<option value="${w}"${w === asOfWeek ? ' selected' : ''}>Week ${w}</option>`).join('');
+        }
       }
 
       document.querySelectorAll('#sport-nav button').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('#sport-nav button').forEach(b => b.classList.toggle('active', b === btn));
           currentSport = btn.dataset.sport;
+          updateAsOfControls();
           loadStandings();
         });
       });
@@ -234,14 +355,32 @@
         currentSeason = parseInt(e.target.value, 10);
         loadStandings();
       });
+      document.getElementById('asof-mode').addEventListener('change', e => {
+        asOfMode = e.target.value;
+        updateAsOfControls();
+        loadStandings();
+      });
+      document.getElementById('asof-week').addEventListener('change', e => {
+        asOfWeek = parseInt(e.target.value, 10);
+        loadStandings();
+      });
+      document.getElementById('asof-date').addEventListener('change', e => {
+        asOfDate = e.target.value;
+        loadStandings();
+      });
 
       populateSeasons();
+      updateAsOfControls();
       loadStandings();
+      // When the user's Firestore prefs arrive (favorite conferences), re-render
+      // so prioritized groups float to the top.
+      window.addEventListener('userprefs', () => loadStandings());
     </script>
 
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
       import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+      import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
       const app = initializeApp({
         apiKey: "AIzaSyC2sgfkqCVFU1RfiWsArIWjpvpebKVxT64",
@@ -252,10 +391,21 @@
         appId: "1:995577929895:web:303a93aa15628d6c503b82"
       });
       const auth = getAuth(app);
+      const db = getFirestore(app);
 
-      onAuthStateChanged(auth, user => {
+      onAuthStateChanged(auth, async user => {
         const loginLink = document.getElementById('nav-login');
         if (loginLink) loginLink.style.display = user ? 'none' : 'inline';
+        if (!user) return;
+        try {
+          const snap = await getDoc(doc(db, 'users', user.uid));
+          if (snap.exists()) {
+            const d = snap.data();
+            window.favConferences = d.conferences ?? [];
+            window.favTeams = d.teams ?? [];
+            window.dispatchEvent(new Event('userprefs'));
+          }
+        } catch {}
       });
 
       document.addEventListener('click', (e) => {

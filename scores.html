@@ -371,6 +371,7 @@
             <option value="">All Teams</option>
           </select>
           <button class="clear-filter-btn" id="clear-team-filter">✕ Clear</button>
+          <button class="clear-filter-btn" id="full-season-btn" style="display:none;">📅 Full season</button>
         </div>
 
         <div style="text-align:center;margin:0.5rem 0;">
@@ -434,7 +435,9 @@
       let currentWeek = 1;
       let maxWeek = 18;
       let currentTeamFilter = '';
+      let fullSeasonMode = false;
       const scoresCache = {};
+      const seasonScheduleCache = {}; // sport-season-teamId -> events
       const boxscoreCache = {};
 
       // User preferences (populated when Firestore data arrives via 'userprefs' event)
@@ -774,7 +777,7 @@
           const statusLabel = getStatusLabel(competition);
           const statusClass = getStatusClass(competition.status?.type?.name ?? '');
           const date = new Date(event.date ?? '');
-          const displayDate = isNaN(date) ? '' : date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+          const displayDate = isNaN(date) ? '' : date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
           const gameId = event.id;
           const venue = competition.venue?.fullName ?? '';
 
@@ -845,22 +848,46 @@
 
       async function fetchScores() {
         cancelLiveRefresh();
-        const cacheKey = `${currentSport}-${currentSeason}-${currentSeasonType}-${currentWeek}`;
         document.getElementById('cards-container').innerHTML = '<div class="loading">Loading scores...</div>';
         try {
-          let events = scoresCache[cacheKey];
-          if (!events) {
-            let url = `${VERCEL}/api/espn-scores?sport=${currentSport}&season=${currentSeason}&seasontype=${currentSeasonType}`;
-            if (sportConfig[currentSport]?.hasWeeks && currentSeasonType === 2) {
-              url += `&week=${currentWeek}`;
+          let events;
+          if (fullSeasonMode && currentTeamFilter) {
+            // Full-season view: pull the team's entire schedule from ESPN.
+            const teamId = findTeamIdByName(currentTeamFilter);
+            if (!teamId) {
+              document.getElementById('cards-container').innerHTML = '<div class="loading">Could not find this team. Pick the team from a week first.</div>';
+              return;
             }
-            const res = await fetch(url);
-            const data = await res.json();
-            events = data.events ?? [];
-            scoresCache[cacheKey] = events;
+            const seasonKey = `${currentSport}-${currentSeason}-${teamId}`;
+            events = seasonScheduleCache[seasonKey];
+            if (!events) {
+              const url = `${VERCEL}/api/espn-team?sport=${currentSport}&id=${teamId}&season=${currentSeason}`;
+              const res = await fetch(url);
+              const data = await res.json();
+              events = data?.schedule?.events ?? [];
+              seasonScheduleCache[seasonKey] = events;
+            }
+            // Hide the week nav while in full-season mode — there's no concept of week here.
+            const weekNav = document.getElementById('week-nav');
+            if (weekNav) weekNav.style.display = 'none';
+          } else {
+            const cacheKey = `${currentSport}-${currentSeason}-${currentSeasonType}-${currentWeek}`;
+            events = scoresCache[cacheKey];
+            if (!events) {
+              let url = `${VERCEL}/api/espn-scores?sport=${currentSport}&season=${currentSeason}&seasontype=${currentSeasonType}`;
+              if (sportConfig[currentSport]?.hasWeeks && currentSeasonType === 2) {
+                url += `&week=${currentWeek}`;
+              }
+              const res = await fetch(url);
+              const data = await res.json();
+              events = data.events ?? [];
+              scoresCache[cacheKey] = events;
+            }
+            // Restore the week nav if it was hidden from a previous full-season view.
+            updateWeekNav();
           }
           scheduleLiveRefresh(events);
-          await populateTeamFilter(events);
+          if (!fullSeasonMode) await populateTeamFilter(events);
           updateScoresFavBar(events);
           let filtered = events;
           if (currentTeamFilter) {
@@ -906,7 +933,9 @@
           currentSport = btn.dataset.sport;
           currentWeek = 1;
           currentTeamFilter = '';
+          fullSeasonMode = false;
           document.getElementById('team-filter-select').value = '';
+          updateFullSeasonBtn();
           updateWeekNav();
           fetchScores();
         });
@@ -917,7 +946,9 @@
         currentSeason = parseInt(e.target.value);
         currentWeek = 1;
         currentTeamFilter = '';
+        fullSeasonMode = false;
         document.getElementById('team-filter-select').value = '';
+        updateFullSeasonBtn();
         fetchScores();
       });
 
@@ -943,15 +974,47 @@
         if (currentWeek < maxWeek) { currentWeek++; updateWeekNav(); fetchScores(); }
       });
 
+      // Find ESPN team ID by name from the events we already have cached
+      // (the team filter dropdown is populated from these events, so any team
+      // a user can pick must appear in at least one cached event).
+      function findTeamIdByName(name) {
+        for (const events of Object.values(scoresCache)) {
+          if (!Array.isArray(events)) continue;
+          for (const ev of events) {
+            const competitors = ev.competitions?.[0]?.competitors ?? [];
+            for (const c of competitors) {
+              if ((c.team?.displayName ?? c.team?.name) === name) return c.team?.id;
+            }
+          }
+        }
+        return null;
+      }
+      function updateFullSeasonBtn() {
+        const btn = document.getElementById('full-season-btn');
+        btn.style.display = currentTeamFilter ? 'inline-block' : 'none';
+        btn.textContent = fullSeasonMode ? '◀ Back to weekly' : '📅 Full season';
+      }
+
       // Team filter
       document.getElementById('team-filter-select').addEventListener('change', (e) => {
         currentTeamFilter = e.target.value;
+        fullSeasonMode = false;
+        updateFullSeasonBtn();
         fetchScores();
       });
 
       document.getElementById('clear-team-filter').addEventListener('click', () => {
         currentTeamFilter = '';
+        fullSeasonMode = false;
         document.getElementById('team-filter-select').value = '';
+        updateFullSeasonBtn();
+        fetchScores();
+      });
+
+      document.getElementById('full-season-btn').addEventListener('click', () => {
+        if (!currentTeamFilter) return;
+        fullSeasonMode = !fullSeasonMode;
+        updateFullSeasonBtn();
         fetchScores();
       });
 
