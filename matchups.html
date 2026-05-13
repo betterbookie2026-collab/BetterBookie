@@ -160,13 +160,15 @@
       }
 
       // ----- Team list loading (cached in localStorage for 7 days) -----
+      // Don't cache empty results — earlier API misconfigurations could otherwise
+      // leave a stale empty list for a week per user.
       async function getTeams(sport) {
-        if (teamCache[sport]) return teamCache[sport];
+        if (teamCache[sport] && teamCache[sport].length) return teamCache[sport];
         try {
           const raw = localStorage.getItem(`teams_${sport}`);
           if (raw) {
             const { teams, savedAt } = JSON.parse(raw);
-            if (Date.now() - savedAt < 7 * 24 * 60 * 60 * 1000) {
+            if (Array.isArray(teams) && teams.length && Date.now() - savedAt < 7 * 24 * 60 * 60 * 1000) {
               teamCache[sport] = teams;
               return teams;
             }
@@ -177,7 +179,9 @@
           const data = await r.json();
           const teams = data?.teams ?? [];
           teamCache[sport] = teams;
-          try { localStorage.setItem(`teams_${sport}`, JSON.stringify({ teams, savedAt: Date.now() })); } catch {}
+          if (teams.length) {
+            try { localStorage.setItem(`teams_${sport}`, JSON.stringify({ teams, savedAt: Date.now() })); } catch {}
+          }
           return teams;
         } catch {
           return [];

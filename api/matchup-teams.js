@@ -7,9 +7,12 @@
 // Response: { teams: [{ id, name, code? }, ...] }
 
 // Pro sports use api-sports.io; college sports use ESPN's unauthenticated teams endpoint.
+// api-sports.io NBA v2 `/teams` doesn't take a `season` filter — passing one
+// returns an empty array. The other sports' /teams endpoints require both
+// league + season to return their team rosters for that season.
 const PRO_HOSTS = {
   nfl: { url: 'https://v1.american-football.api-sports.io/teams', leagueParam: 'league=1&season=2024' },
-  nba: { url: 'https://v2.nba.api-sports.io/teams',                leagueParam: 'league=standard&season=2024' },
+  nba: { url: 'https://v2.nba.api-sports.io/teams',                leagueParam: 'league=standard' },
   mlb: { url: 'https://v1.baseball.api-sports.io/teams',           leagueParam: 'league=1&season=2024' },
   nhl: { url: 'https://v1.hockey.api-sports.io/teams',             leagueParam: 'league=57&season=2024' },
 };
